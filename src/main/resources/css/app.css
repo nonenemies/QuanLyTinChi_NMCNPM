@@ -6,26 +6,26 @@
 }
 
 .login-page {
+    -fx-background-color: linear-gradient(to bottom right, #eaf1ff, #f8faff 52%, #e9edff);
+}
+
+.login-orb-blue {
+    -fx-fill: rgba(99, 139, 232, 0.13);
+    -fx-effect: dropshadow(gaussian, rgba(88, 125, 220, 0.16), 48, 0.4, 0, 0);
+}
+
+.login-orb-violet {
+    -fx-fill: rgba(139, 126, 226, 0.12);
+    -fx-effect: dropshadow(gaussian, rgba(117, 103, 210, 0.15), 52, 0.4, 0, 0);
+}
+
+.login-card {
     -fx-background-color: #ffffff;
-}
-
-.login-hero {
-    -fx-background-color: linear-gradient(to bottom right, #172b62, #274a9b 60%, #3f68bd);
-}
-
-.hero-content {
-    -fx-padding: 38 40 30 40;
-}
-
-.brand-mark {
-    -fx-background-color: #ffffff;
-    -fx-background-radius: 13;
-}
-
-.brand-mark-text {
-    -fx-text-fill: #3157b7;
-    -fx-font-size: 24px;
-    -fx-font-weight: bold;
+    -fx-background-radius: 14;
+    -fx-border-color: rgba(255, 255, 255, 0.85);
+    -fx-border-radius: 14;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(35, 54, 91, 0.16), 28, 0, 0, 10);
 }
 
 .brand-name {
@@ -40,109 +40,21 @@
     -fx-font-weight: bold;
 }
 
-.hero-copy {
-    -fx-padding: 92 0 0 0;
-}
-
-.hero-eyebrow,
-.form-eyebrow,
 .banner-eyebrow,
 .topbar-kicker {
     -fx-font-size: 10px;
     -fx-font-weight: bold;
 }
 
-.hero-eyebrow {
-    -fx-text-fill: #adc3ff;
-}
-
-.hero-title {
-    -fx-text-fill: #ffffff;
-    -fx-font-size: 36px;
-    -fx-font-weight: bold;
-    -fx-line-spacing: 5px;
-}
-
-.hero-description {
-    -fx-text-fill: #d2def8;
-    -fx-font-size: 14px;
-    -fx-line-spacing: 5px;
-    -fx-max-width: 330px;
-}
-
-.hero-summary {
-    -fx-padding: 27 20 27 20;
-    -fx-background-color: rgba(255, 255, 255, 0.10);
-    -fx-background-radius: 16;
-    -fx-border-color: rgba(255, 255, 255, 0.13);
-    -fx-border-radius: 16;
-    -fx-border-width: 1;
-}
-
-.summary-icon {
-    -fx-background-color: rgba(255, 255, 255, 0.15);
-    -fx-background-radius: 11;
-}
-
-.summary-icon-text {
-    -fx-text-fill: #d5e1ff;
-    -fx-font-size: 11px;
-    -fx-font-weight: bold;
-}
-
-.summary-title {
-    -fx-text-fill: #ffffff;
-    -fx-font-size: 13px;
-    -fx-font-weight: bold;
-}
-
-.summary-description {
-    -fx-text-fill: #c2d1f1;
-    -fx-font-size: 11px;
-}
-
-.hero-footer {
-    -fx-text-fill: #a7bce8;
-    -fx-font-size: 9px;
-    -fx-padding: 20 0 0 0;
-}
-
-.login-main {
-    -fx-background-color: #ffffff;
-}
-
-.login-topbar {
-    -fx-alignment: center-right;
-    -fx-translate-y: -45px;
-}
-
-.topbar-note,
 .muted-text {
     -fx-text-fill: #8b95a8;
     -fx-font-size: 11px;
-}
-
-.topbar-link {
-    -fx-text-fill: #4266d5;
-    -fx-font-size: 11px;
-    -fx-font-weight: bold;
-}
-
-.form-eyebrow {
-    -fx-text-fill: #5574d3;
-    -fx-padding: 0 0 12 0;
 }
 
 .form-title {
     -fx-text-fill: #17233d;
     -fx-font-size: 30px;
     -fx-font-weight: bold;
-}
-
-.form-description {
-    -fx-text-fill: #778196;
-    -fx-font-size: 13px;
-    -fx-padding: 8 0 29 0;
 }
 
 .field-label {
@@ -195,10 +107,6 @@
 
 .login-button:pressed {
     -fx-translate-y: 1px;
-}
-
-.login-note {
-    -fx-padding: 25 0 0 0;
 }
 
 .app-page {
