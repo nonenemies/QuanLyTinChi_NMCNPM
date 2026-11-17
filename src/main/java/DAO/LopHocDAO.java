@@ -2,7 +2,6 @@ package DAO;
 
 import Model.LopHocPhan;
 import Model.LopHocDangKy;
-import Util.DBConnection;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -91,28 +90,30 @@ public class LopHocDAO extends BaseDAO {
     }
 
     /** Tìm lớp theo mã. */
-    public LopHocPhan layLopTheoMa(Connection conn, String maLop) throws SQLException {
+    public LopHocPhan layLopTheoMa(String maLop) throws SQLException {
         String sql = "SELECT MaLop, MaMon, MaGiangVien, HocKy, SiSoToiDa, SiSoHienTai, TrangThai "
                 + "FROM LopHocPhan WHERE MaLop = ?";
-        List<LopHocPhan> ketQua = truyVanDanhSach(conn, sql, maLop);
-        return ketQua.isEmpty() ? null : ketQua.get(0);
+        try (Connection conn = getConnection()) {
+            List<LopHocPhan> ketQua = truyVanDanhSach(conn, sql, maLop);
+            return ketQua.isEmpty() ? null : ketQua.get(0);
+        }
     }
 
     /** Tăng sĩ số lớp. */
-    public boolean tangSiSo(Connection conn, String maLop) throws SQLException {
+    public boolean tangSiSo(String maLop) throws SQLException {
         String sql = "UPDATE LopHocPhan SET SiSoHienTai = SiSoHienTai + 1 "
                 + "WHERE MaLop = ? AND TrangThai = 'HOAT_DONG' AND SiSoHienTai < SiSoToiDa";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, maLop);
             return ps.executeUpdate() == 1;
         }
     }
 
     /** Giảm sĩ số lớp. */
-    public boolean giamSiSo(Connection conn, String maLop) throws SQLException {
+    public boolean giamSiSo(String maLop) throws SQLException {
         String sql = "UPDATE LopHocPhan SET SiSoHienTai = SiSoHienTai - 1 "
                 + "WHERE MaLop = ? AND SiSoHienTai > 0";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, maLop);
             return ps.executeUpdate() == 1;
         }

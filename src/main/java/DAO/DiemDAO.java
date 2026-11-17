@@ -15,7 +15,7 @@ import java.util.Map;
 public class DiemDAO extends BaseDAO {
 
     /** Lấy các học phần sinh viên đã đăng ký, không gồm các đăng ký đã hủy. */
-    public List<LopHocDangKy> layKetQuaHocTap(Connection conn, String maSinhVien) throws SQLException {
+    public List<LopHocDangKy> layKetQuaHocTap(String maSinhVien) throws SQLException {
         String sql = "SELECT lh.MaLop, mh.MaMon, mh.TenMon, lh.HocKy, mh.SoTinChi, "
                 + "dk.DiemTongKet, dk.TrangThai, "
                 + "COALESCE((SELECT GROUP_CONCAT(CONCAT(tp.TenThanhPhan, ': ', d.DiemDatDuoc) "
@@ -37,7 +37,7 @@ public class DiemDAO extends BaseDAO {
                 + "WHERE dk.MaSinhVien = ? AND dk.TrangThai <> 'HUY' "
                 + "ORDER BY lh.HocKy, lh.MaLop, mh.MaMon";
         List<LopHocDangKy> results = new ArrayList<>();
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, maSinhVien);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -64,7 +64,7 @@ public class DiemDAO extends BaseDAO {
     }
 
     /** Chỉ cập nhật khi mỗi thành phần đang hoạt động có đúng một điểm. */
-    public int capNhatDiemTongKet(Connection conn, String maSinhVien, String maLop) throws SQLException {
+    public int capNhatDiemTongKet(String maSinhVien, String maLop) throws SQLException {
         String sql = "UPDATE DangKyHoc dk JOIN ("
                 + "SELECT dk2.MaDangKy, ROUND(SUM(tp.TrongSo * d.DiemDatDuoc), 2) AS TongDiem "
                 + "FROM DangKyHoc dk2 "
@@ -79,7 +79,7 @@ public class DiemDAO extends BaseDAO {
                 + ") ketQua ON ketQua.MaDangKy = dk.MaDangKy "
                 + "SET dk.DiemTongKet = ketQua.TongDiem, "
                 + "dk.TrangThai = IF(ketQua.TongDiem >= 4.0, 'DA_HOAN_THANH', 'KHONG_DAT')";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, maSinhVien);
             ps.setString(2, maLop);
             return ps.executeUpdate();
@@ -87,7 +87,7 @@ public class DiemDAO extends BaseDAO {
     }
 
     /** Tải danh sách sinh viên và điểm của các thành phần đang hoạt động trong lớp. */
-    public List<BangDiemSinhVien> layBangDiemTheoLop(Connection conn, String maLop) throws SQLException {
+    public List<BangDiemSinhVien> layBangDiemTheoLop(String maLop) throws SQLException {
         String sql = "SELECT dk.MaDangKy, dk.MaSinhVien, u.HoTen, dk.DiemTongKet, dk.TrangThai, "
                 + "tp.MaThanhPhan, d.DiemDatDuoc "
                 + "FROM DangKyHoc dk "
@@ -100,7 +100,7 @@ public class DiemDAO extends BaseDAO {
                 + "WHERE dk.MaLop = ? AND dk.TrangThai <> 'HUY' "
                 + "ORDER BY u.HoTen, dk.MaSinhVien, tp.ThuTu, tp.MaThanhPhan";
         Map<Integer, BangDiemSinhVien> rows = new LinkedHashMap<>();
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, maLop);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -125,8 +125,9 @@ public class DiemDAO extends BaseDAO {
     }
 
     /** Thêm hoặc cập nhật điểm theo mã thành phần. */
-    public boolean nhapDiem(Connection conn, String maSinhVien, String maLop,
+    public boolean nhapDiem(String maSinhVien, String maLop,
                             int maTP, float diemDatDuoc) throws SQLException {
+        try (Connection conn = getConnection()) {
         int maDangKy;
         String registrationSql = "SELECT MaDangKy FROM DangKyHoc "
                 + "WHERE MaSinhVien = ? AND MaLop = ? "
@@ -199,14 +200,15 @@ public class DiemDAO extends BaseDAO {
             update.setInt(2, maDiem);
             return update.executeUpdate() == 1;
         }
+        }
     }
 
-    public boolean coDiemTrongMon(Connection conn, String maMon) throws SQLException {
+    public boolean coDiemTrongMon(String maMon) throws SQLException {
         String sql = "SELECT 1 FROM DiemThanhPhan d "
                 + "JOIN DangKyHoc dk ON dk.MaDangKy = d.MaDangKy "
                 + "JOIN LopHocPhan lh ON lh.MaLop = dk.MaLop "
                 + "WHERE lh.MaMon = ? LIMIT 1";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, maMon);
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next();
@@ -214,10 +216,10 @@ public class DiemDAO extends BaseDAO {
         }
     }
 
-    public boolean giangVienConHoatDong(Connection conn, String maGiangVien) throws SQLException {
+    public boolean giangVienConHoatDong(String maGiangVien) throws SQLException {
         String sql = "SELECT 1 FROM GiangVien gv JOIN Users u ON u.UserID = gv.UserID "
                 + "WHERE gv.MaGiangVien = ? AND u.VaiTro = 'GIAOVIEN' AND u.TrangThai = 'HOAT_DONG'";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, maGiangVien);
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next();

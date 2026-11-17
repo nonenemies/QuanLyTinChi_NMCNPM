@@ -1,7 +1,6 @@
 package Services;
 
 import java.util.*;
-import java.sql.Connection;
 import java.sql.SQLException;
 import DAO.DangKyHocDAO;
 import DAO.DotDangKyNganhDAO;
@@ -14,7 +13,6 @@ import Model.DangKyHoc;
 import Model.LopHocDangKy;
 import Model.LopHocThoiKhoaBieu;
 import DAO.ChuongTrinhDaoTaoDAO;
-import Util.DBConnection;
 
 public class DangKyHocService {
     public static final int MIN_TIN_CHI = 11;
@@ -29,15 +27,13 @@ public class DangKyHocService {
         if (maSinhVien == null || maSinhVien.isBlank() || maLop == null || maLop.isBlank()) {
             return "KHONG_HOP_LE";
         }
-        try (Connection conn = DBConnection.getConnection()) {
-
-            try {
-                String ketQuaKiemTra = kiemTraDieuKienDangKy(conn, maSinhVien, maLop);
+        try {
+                String ketQuaKiemTra = kiemTraDieuKienDangKy(maSinhVien, maLop);
                 if (!"THANH_CONG".equals(ketQuaKiemTra)) {
                     return ketQuaKiemTra;
                 }
 
-                if (!lopHocDAO.tangSiSo(conn, maLop)) {
+                if (!lopHocDAO.tangSiSo( maLop)) {
                     return "LOP_KHONG_HOAT_DONG";
                 }
 
@@ -48,28 +44,21 @@ public class DangKyHocService {
 
                 return "THANH_CONG";
 
-            } catch (SQLException e) {
-                if (e.getErrorCode() == 1062) {
-                    return "DA_DANG_KY_MON_TRONG_HOC_KY";
-                }
-                throw e;
-            } catch (RuntimeException e) {
-                throw e;
-            }
         } catch (SQLException e) {
             throw new ServiceException("Không thể xử lý đăng ký học.", e);
         } catch (RuntimeException e) {
             throw ServiceException.wrap("Không thể xử lý đăng ký học.", e);
-        }
     }
 
-    private String kiemTraDieuKienDangKy(Connection conn, String maSinhVien, String maLop)
+    }
+
+    private String kiemTraDieuKienDangKy(String maSinhVien, String maLop)
             throws SQLException {
         if (!dangKyDAO.sinhVienConHoatDong(maSinhVien)) {
             return "SINH_VIEN_KHONG_HOAT_DONG";
         }
 
-        var lopHoc = lopHocDAO.layLopTheoMa(conn, maLop);
+        var lopHoc = lopHocDAO.layLopTheoMa( maLop);
         if (lopHoc == null || !"HOAT_DONG".equals(lopHoc.getTrangThai())) {
             return "LOP_KHONG_HOAT_DONG";
         }
@@ -116,16 +105,15 @@ public class DangKyHocService {
         if (maSinhVien == null || maSinhVien.isBlank() || maLop == null || maLop.isBlank()) {
             return false;
         }
-        try (Connection conn = DBConnection.getConnection()) {
-            try {
+        try {
                 if (!dangKyDAO.sinhVienConHoatDong(maSinhVien)) {
                     return false;
                 }
-                if (lopHocDAO.layLopTheoMa(conn, maLop) == null) {
+                if (lopHocDAO.layLopTheoMa( maLop) == null) {
                     return false;
                 }
 
-                var lopHoc = lopHocDAO.layLopTheoMa(conn, maLop);
+                var lopHoc = lopHocDAO.layLopTheoMa( maLop);
                 if (lopHoc == null || dotDangKyNganhDAO.layDotDangKyHienTai(maSinhVien) == null) {
                     return false;
                 }
@@ -141,14 +129,11 @@ public class DangKyHocService {
                     return false;
                 }
 
-                if (!lopHocDAO.giamSiSo(conn, maLop)) {
+                if (!lopHocDAO.giamSiSo( maLop)) {
                     return false;
                 }
 
                 return true;
-            } catch (SQLException | RuntimeException e) {
-                throw e;
-            }
         } catch (SQLException e) {
             throw new ServiceException("Không thể hủy đăng ký lớp.", e);
         } catch (RuntimeException e) {
@@ -196,7 +181,7 @@ public class DangKyHocService {
         if (maSinhVien == null || maSinhVien.isBlank() || hocKy == null || hocKy.isBlank()) {
             throw new IllegalArgumentException("Mã sinh viên và học kỳ là bắt buộc.");
         }
-        try (Connection conn = DBConnection.getConnection()) {
+        try {
             return dangKyDAO.tongTinChiDangHoc(maSinhVien, hocKy);
         } catch (SQLException e) {
             throw new ServiceException("Không thể tải tổng tín chỉ của học kỳ.", e);
