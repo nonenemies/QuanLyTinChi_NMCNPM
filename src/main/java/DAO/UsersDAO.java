@@ -5,7 +5,6 @@ import Model.GiangVien;
 import Model.Nganh;
 import Model.SinhVien;
 import Model.Users;
-import Util.DBConnection;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -60,11 +59,12 @@ public class UsersDAO extends BaseDAO {
     }
 
     /** Tạo tài khoản. */
-    public int them(Connection conn, Users user) throws SQLException {
+    public int them(Users user) throws SQLException {
         Objects.requireNonNull(user, "user không được null");
         String sql = "INSERT INTO Users (HoTen, Email, Password, VaiTro, MaSo, TrangThai) "
                 + "VALUES (?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, user.getHoTen());
             ps.setString(2, user.getEmail());
             ps.setString(3, user.getPasswordHash());
@@ -80,11 +80,11 @@ public class UsersDAO extends BaseDAO {
     }
 
     /** Cập nhật thông tin chung; VaiTro và MaSo được quản lý đồng bộ với bảng hồ sơ vai trò. */
-    public boolean capNhat(Connection conn, Users user) throws SQLException {
+    public boolean capNhat(Users user) throws SQLException {
         Objects.requireNonNull(user, "user không được null");
         String sql = "UPDATE Users SET HoTen = ?, Email = ?, Password = ?, "
                 + "TrangThai = ? WHERE UserID = ?";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, user.getHoTen());
             ps.setString(2, user.getEmail());
             ps.setString(3, user.getPasswordHash());
@@ -95,8 +95,8 @@ public class UsersDAO extends BaseDAO {
     }
 
     /** Ngừng tài khoản thay vì xóa vật lý vì tài khoản có thể được tham chiếu bởi dữ liệu học vụ. */
-    public boolean ngungHoatDong(Connection conn, int userID) throws SQLException {
-        try (PreparedStatement ps = conn.prepareStatement(
+    public boolean ngungHoatDong(int userID) throws SQLException {
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(
                 "UPDATE Users SET TrangThai = 'NGUNG_HOAT_DONG' WHERE UserID = ? AND TrangThai = 'HOAT_DONG'")) {
             ps.setInt(1, userID);
             return ps.executeUpdate() == 1;

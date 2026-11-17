@@ -8,8 +8,6 @@ import Model.LopHocPhan;
 import Model.LopHocDangKy;
 import Model.SinhVien;
 import Model.ThanhPhanDanhGia;
-import Util.DBConnection;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Comparator;
@@ -30,8 +28,8 @@ public class DiemService {
             throw new ServiceException("Tài khoản sinh viên không hợp lệ hoặc đã ngừng hoạt động.");
         }
 
-        try (Connection conn = DBConnection.getConnection()) {
-            return diemDAO.layKetQuaHocTap(conn, sinhVien.getMaSinhVien());
+        try {
+            return diemDAO.layKetQuaHocTap( sinhVien.getMaSinhVien());
         } catch (SQLException e) {
             throw new ServiceException("Không thể tải bảng điểm tổng kết.", e);
         } catch (RuntimeException e) {
@@ -88,9 +86,9 @@ public class DiemService {
 
     public List<BangDiemSinhVien> layBangDiem(GiangVien giangVien, String maLop) {
         kiemTraGiangVien(giangVien);
-        try (Connection conn = DBConnection.getConnection()) {
-            kiemTraPhuTrach(conn, giangVien, maLop);
-            return diemDAO.layBangDiemTheoLop(conn, maLop);
+        try {
+            kiemTraPhuTrach(giangVien, maLop);
+            return diemDAO.layBangDiemTheoLop( maLop);
         } catch (SQLException e) {
             throw new ServiceException("Không thể tải bảng điểm lớp học phần.", e);
         } catch (RuntimeException e) {
@@ -111,21 +109,14 @@ public class DiemService {
             return false;
         }
 
-        try (Connection conn = DBConnection.getConnection()) {
-            try {
-                kiemTraPhuTrach(conn, giangVien, maLop);
-                if (!thanhPhan.getTrangThai()) {
-                    return false;
-                }
-                if (!diemDAO.nhapDiem(conn, maSinhVien, maLop,
-                        thanhPhan.getMaTP(), diemDatDuoc)) {
-                    return false;
-                }
-                diemDAO.capNhatDiemTongKet(conn, maSinhVien, maLop);
-                return true;
-            } catch (SQLException | RuntimeException e) {
-                throw e;
+        try {
+            kiemTraPhuTrach(giangVien, maLop);
+            if (!thanhPhan.getTrangThai()) return false;
+            if (!diemDAO.nhapDiem(maSinhVien, maLop, thanhPhan.getMaTP(), diemDatDuoc)) {
+                return false;
             }
+            diemDAO.capNhatDiemTongKet(maSinhVien, maLop);
+            return true;
         } catch (SQLException e) {
             throw new ServiceException("Không thể lưu điểm và cập nhật điểm tổng kết.", e);
         } catch (RuntimeException e) {
@@ -133,15 +124,14 @@ public class DiemService {
         }
     }
 
-    private void kiemTraPhuTrach(Connection conn, GiangVien giangVien,
-                                  String maLop) throws SQLException {
+    private void kiemTraPhuTrach(GiangVien giangVien, String maLop) throws SQLException {
         if (maLop == null || maLop.isBlank()) {
             throw new ServiceException("Mã lớp không hợp lệ.");
         }
-        if (!diemDAO.giangVienConHoatDong(conn, giangVien.getMaGiangVien())) {
+        if (!diemDAO.giangVienConHoatDong( giangVien.getMaGiangVien())) {
             throw new ServiceException("Tài khoản giảng viên không còn hoạt động.");
         }
-        LopHocPhan lopHoc = lopHocDAO.layLopTheoMa(conn, maLop);
+        LopHocPhan lopHoc = lopHocDAO.layLopTheoMa( maLop);
         if (lopHoc == null || !giangVien.getMaGiangVien().equals(lopHoc.getMaGiangVien())) {
             throw new ServiceException("Bạn không được phân công phụ trách lớp này.");
         }

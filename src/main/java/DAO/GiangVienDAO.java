@@ -1,7 +1,6 @@
 package DAO;
 
 import Model.GiangVien;
-import Util.DBConnection;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -47,10 +46,10 @@ public class GiangVienDAO extends BaseDAO {
         return lecturers;
     }
 
-    public boolean them(Connection conn, GiangVien giangVien) throws SQLException {
+    public boolean them(GiangVien giangVien) throws SQLException {
         Objects.requireNonNull(giangVien, "giangVien không được null");
         String sql = "INSERT INTO GiangVien (UserID, MaGiangVien, ChuyenNganh, HocVi) VALUES (?, ?, ?, ?)";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, giangVien.getUserID());
             ps.setString(2, giangVien.getMaGiangVien());
             ps.setString(3, giangVien.getChuyenNganh());
@@ -59,10 +58,10 @@ public class GiangVienDAO extends BaseDAO {
         }
     }
 
-    public boolean capNhat(Connection conn, GiangVien giangVien) throws SQLException {
+    public boolean capNhat(GiangVien giangVien) throws SQLException {
         Objects.requireNonNull(giangVien, "giangVien không được null");
         String sql = "UPDATE GiangVien SET MaGiangVien = ?, ChuyenNganh = ?, HocVi = ? WHERE UserID = ?";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, giangVien.getMaGiangVien());
             ps.setString(2, giangVien.getChuyenNganh());
             ps.setString(3, giangVien.getHocVi());
@@ -71,8 +70,9 @@ public class GiangVienDAO extends BaseDAO {
         }
     }
 
-    public boolean xoa(Connection conn, int userID) throws SQLException {
-        try (PreparedStatement ps = conn.prepareStatement("DELETE FROM GiangVien WHERE UserID = ?")) {
+    public boolean xoa(int userID) throws SQLException {
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement("DELETE FROM GiangVien WHERE UserID = ?")) {
             ps.setInt(1, userID);
             return ps.executeUpdate() == 1;
         }
