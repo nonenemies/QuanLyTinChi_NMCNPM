@@ -12,10 +12,10 @@ import java.util.List;
 import java.util.Map;
 
 // Truy cập cơ sở dữ liệu để lưu điểm thành phần của sinh viên.
-public class DiemDAO {
+public class DiemDAO extends BaseDAO {
 
     /** Lấy các học phần sinh viên đã đăng ký, không gồm các đăng ký đã hủy. */
-    public List<LopHocDangKy> layKetQuaHocTap(Connection conn, String maSV) throws SQLException {
+    public List<LopHocDangKy> layKetQuaHocTap(Connection conn, String maSinhVien) throws SQLException {
         String sql = "SELECT lh.MaLop, mh.MaMon, mh.TenMon, lh.HocKy, mh.SoTinChi, "
                 + "dk.DiemTongKet, dk.TrangThai, "
                 + "COALESCE((SELECT GROUP_CONCAT(CONCAT(tp.TenThanhPhan, ': ', d.DiemDatDuoc) "
@@ -38,7 +38,7 @@ public class DiemDAO {
                 + "ORDER BY lh.HocKy, lh.MaLop, mh.MaMon";
         List<LopHocDangKy> results = new ArrayList<>();
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, maSV);
+            ps.setString(1, maSinhVien);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     java.math.BigDecimal finalGrade = rs.getBigDecimal("DiemTongKet");
@@ -64,7 +64,7 @@ public class DiemDAO {
     }
 
     /** Chỉ cập nhật khi mỗi thành phần đang hoạt động có đúng một điểm. */
-    public int capNhatDiemTongKet(Connection conn, String maSV, String maLop) throws SQLException {
+    public int capNhatDiemTongKet(Connection conn, String maSinhVien, String maLop) throws SQLException {
         String sql = "UPDATE DangKyHoc dk JOIN ("
                 + "SELECT dk2.MaDangKy, ROUND(SUM(tp.TrongSo * d.DiemDatDuoc), 2) AS TongDiem "
                 + "FROM DangKyHoc dk2 "
@@ -80,7 +80,7 @@ public class DiemDAO {
                 + "SET dk.DiemTongKet = ketQua.TongDiem, "
                 + "dk.TrangThai = IF(ketQua.TongDiem >= 4.0, 'DA_HOAN_THANH', 'KHONG_DAT')";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, maSV);
+            ps.setString(1, maSinhVien);
             ps.setString(2, maLop);
             return ps.executeUpdate();
         }
@@ -124,15 +124,15 @@ public class DiemDAO {
         return new ArrayList<>(rows.values());
     }
 
-    /** Thêm hoặc cập nhật điểm theo mã thành phần trong transaction của Service. */
-    public boolean nhapDiem(Connection conn, String maSV, String maLop,
+    /** Thêm hoặc cập nhật điểm theo mã thành phần. */
+    public boolean nhapDiem(Connection conn, String maSinhVien, String maLop,
                             int maTP, float diemDatDuoc) throws SQLException {
         int maDangKy;
         String registrationSql = "SELECT MaDangKy FROM DangKyHoc "
                 + "WHERE MaSinhVien = ? AND MaLop = ? "
-                + "AND TrangThai IN ('DANG_HOC', 'DA_HOAN_THANH', 'KHONG_DAT') FOR UPDATE";
+                + "AND TrangThai IN ('DANG_HOC', 'DA_HOAN_THANH', 'KHONG_DAT')";
         try (PreparedStatement ps = conn.prepareStatement(registrationSql)) {
-            ps.setString(1, maSV);
+            ps.setString(1, maSinhVien);
             ps.setString(2, maLop);
             try (ResultSet rs = ps.executeQuery()) {
                 if (!rs.next()) {
@@ -155,7 +155,7 @@ public class DiemDAO {
             }
         }
 
-        if (new CauHinhHocKyDAO().layCauHinhTrongDotNhapDiem(conn, hocKy) == null) return false;
+        if (new CauHinhHocKyDAO().layCauHinhTrongDotNhapDiem(hocKy) == null) return false;
 
         String componentSql = "SELECT 1 FROM ThanhPhanDanhGia tp "
                 + "JOIN LopHocPhan lh ON lh.MaMon = tp.MaMon "
@@ -172,7 +172,7 @@ public class DiemDAO {
 
         int maDiem;
         String existingSql = "SELECT MaDiemThanhPhan FROM DiemThanhPhan "
-                + "WHERE MaDangKy = ? AND MaThanhPhan = ? FOR UPDATE";
+                + "WHERE MaDangKy = ? AND MaThanhPhan = ?";
         try (PreparedStatement ps = conn.prepareStatement(existingSql)) {
             ps.setInt(1, maDangKy);
             ps.setInt(2, maTP);
@@ -214,11 +214,11 @@ public class DiemDAO {
         }
     }
 
-    public boolean giangVienConHoatDong(Connection conn, String maGV) throws SQLException {
+    public boolean giangVienConHoatDong(Connection conn, String maGiangVien) throws SQLException {
         String sql = "SELECT 1 FROM GiangVien gv JOIN Users u ON u.UserID = gv.UserID "
                 + "WHERE gv.MaGiangVien = ? AND u.VaiTro = 'GIAOVIEN' AND u.TrangThai = 'HOAT_DONG'";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, maGV);
+            ps.setString(1, maGiangVien);
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next();
             }

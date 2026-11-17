@@ -6,16 +6,16 @@ import java.util.Map;
 /** Dùng cho giảng viên. Dữ liệu một sinh viên dùng để hiển thị bảng điểm của lớp học phần. */
 public class BangDiemSinhVien {
     private final int maDangKy;
-    private final String maSV;
+    private final String maSinhVien;
     private final String hoTen;
     private final String trangThai;
     private final Map<Integer, Float> diemThanhPhan = new LinkedHashMap<>();
     private Float diemTongKet;
 
-    public BangDiemSinhVien(int maDangKy, String maSV, String hoTen,
+    public BangDiemSinhVien(int maDangKy, String maSinhVien, String hoTen,
                             Float diemTongKet, String trangThai) {
         this.maDangKy = maDangKy;
-        this.maSV = maSV;
+        this.maSinhVien = maSinhVien;
         this.hoTen = hoTen;
         this.diemTongKet = diemTongKet;
         this.trangThai = trangThai;
@@ -25,8 +25,8 @@ public class BangDiemSinhVien {
         return maDangKy;
     }
 
-    public String getMaSV() {
-        return maSV;
+    public String getMaSinhVien() {
+        return maSinhVien;
     }
 
     public String getHoTen() {

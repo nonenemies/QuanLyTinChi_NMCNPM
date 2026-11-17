@@ -89,7 +89,7 @@ public class DiemService {
     public List<BangDiemSinhVien> layBangDiem(GiangVien giangVien, String maLop) {
         kiemTraGiangVien(giangVien);
         try (Connection conn = DBConnection.getConnection()) {
-            kiemTraPhuTrach(conn, giangVien, maLop, false);
+            kiemTraPhuTrach(conn, giangVien, maLop);
             return diemDAO.layBangDiemTheoLop(conn, maLop);
         } catch (SQLException e) {
             throw new ServiceException("Không thể tải bảng điểm lớp học phần.", e);
@@ -102,37 +102,28 @@ public class DiemService {
      * Lưu mới hoặc cập nhật điểm thành phần, sau đó tính lại điểm tổng kết nếu đã đủ điểm.
      * Kết quả nghiệp vụ không hợp lệ được trả về false; lỗi cơ sở dữ liệu được ném lên caller.
      */
-    public boolean nhapDiemVaTinhTongKet(GiangVien giangVien, String maSV, String maLop,
+    public boolean nhapDiemVaTinhTongKet(GiangVien giangVien, String maSinhVien, String maLop,
                                         ThanhPhanDanhGia thanhPhan, float diemDatDuoc) {
         kiemTraGiangVien(giangVien);
-        if (maSV == null || maSV.isBlank() || maLop == null || maLop.isBlank()
+        if (maSinhVien == null || maSinhVien.isBlank() || maLop == null || maLop.isBlank()
                 || thanhPhan == null || thanhPhan.getMaTP() <= 0
                 || !Float.isFinite(diemDatDuoc) || diemDatDuoc < 0 || diemDatDuoc > 10) {
             return false;
         }
 
         try (Connection conn = DBConnection.getConnection()) {
-            conn.setAutoCommit(false);
             try {
-                kiemTraPhuTrach(conn, giangVien, maLop, true);
+                kiemTraPhuTrach(conn, giangVien, maLop);
                 if (!thanhPhan.getTrangThai()) {
-                    conn.rollback();
                     return false;
                 }
-                if (!diemDAO.nhapDiem(conn, maSV, maLop,
+                if (!diemDAO.nhapDiem(conn, maSinhVien, maLop,
                         thanhPhan.getMaTP(), diemDatDuoc)) {
-                    conn.rollback();
                     return false;
                 }
-                diemDAO.capNhatDiemTongKet(conn, maSV, maLop);
-                conn.commit();
+                diemDAO.capNhatDiemTongKet(conn, maSinhVien, maLop);
                 return true;
             } catch (SQLException | RuntimeException e) {
-                try {
-                    conn.rollback();
-                } catch (SQLException rollbackError) {
-                    e.addSuppressed(rollbackError);
-                }
                 throw e;
             }
         } catch (SQLException e) {
@@ -143,16 +134,15 @@ public class DiemService {
     }
 
     private void kiemTraPhuTrach(Connection conn, GiangVien giangVien,
-                                  String maLop, boolean khoa) throws SQLException {
+                                  String maLop) throws SQLException {
         if (maLop == null || maLop.isBlank()) {
             throw new ServiceException("Mã lớp không hợp lệ.");
         }
-        if (khoa && !diemDAO.giangVienConHoatDong(conn, giangVien.getMaGiangVien())) {
+        if (!diemDAO.giangVienConHoatDong(conn, giangVien.getMaGiangVien())) {
             throw new ServiceException("Tài khoản giảng viên không còn hoạt động.");
         }
-        LopHocPhan lopHoc = khoa ? lopHocDAO.layLopTheoMaForUpdate(conn, maLop)
-                : lopHocDAO.layLopTheoMa(conn, maLop);
-        if (lopHoc == null || !giangVien.getMaGiangVien().equals(lopHoc.getMaGV())) {
+        LopHocPhan lopHoc = lopHocDAO.layLopTheoMa(conn, maLop);
+        if (lopHoc == null || !giangVien.getMaGiangVien().equals(lopHoc.getMaGiangVien())) {
             throw new ServiceException("Bạn không được phân công phụ trách lớp này.");
         }
     }

@@ -5,9 +5,9 @@ import Model.GiangVien;
 import Model.LopHocPhan;
 import Model.ThanhPhanDanhGia;
 import Model.Users;
+import DAO.ThanhPhanDanhGiaDAO;
 import Services.DiemService;
 import Services.ServiceException;
-import Services.ThanhPhanDanhGiaService;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
@@ -25,7 +25,7 @@ import java.util.Optional;
 
 public class GiangVienController {
     private final DiemService diemService = new DiemService();
-    private final ThanhPhanDanhGiaService thanhPhanService = new ThanhPhanDanhGiaService();
+    private final ThanhPhanDanhGiaDAO thanhPhanDAO = new ThanhPhanDanhGiaDAO();
     private final DecimalFormat diemFormat = new DecimalFormat("0.##");
 
     @FXML private Label lblStatus;
@@ -54,7 +54,7 @@ public class GiangVienController {
         colEnrollment.setCellValueFactory(data -> new ReadOnlyStringWrapper(
                 data.getValue().getSiSoHienTai() + "/" + data.getValue().getSiSoToiDa()));
         colStudentCode.setCellValueFactory(data ->
-                new ReadOnlyStringWrapper(data.getValue().getMaSV()));
+                new ReadOnlyStringWrapper(data.getValue().getMaSinhVien()));
         colStudentName.setCellValueFactory(data ->
                 new ReadOnlyStringWrapper(data.getValue().getHoTen()));
         colFinalGrade.setCellValueFactory(data ->
@@ -120,13 +120,13 @@ public class GiangVienController {
         }
 
         try {
-            boolean saved = diemService.nhapDiemVaTinhTongKet(giangVien, selectedStudent.getMaSV(),
+            boolean saved = diemService.nhapDiemVaTinhTongKet(giangVien, selectedStudent.getMaSinhVien(),
                     selectedClass.getMaLop(), selectedComponent, score);
             if (!saved) {
                 showStatus("Không thể lưu điểm. Hãy kiểm tra sinh viên và thành phần đánh giá.", true);
                 return;
             }
-            String studentCode = selectedStudent.getMaSV();
+            String studentCode = selectedStudent.getMaSinhVien();
             txtScore.clear();
             loadGradebook(selectedClass, studentCode);
             showStatus("Đã lưu điểm thành phần.", false);
@@ -157,7 +157,7 @@ public class GiangVienController {
         }
     }
 
-    private void loadGradebook(LopHocPhan lopHoc, String maSVCanChon) {
+    private void loadGradebook(LopHocPhan lopHoc, String maSinhVienCanChon) {
         tblStudents.getItems().clear();
         removeComponentColumns();
         ThanhPhanDanhGia componentPreviouslySelected = cboComponent.getValue();
@@ -165,7 +165,7 @@ public class GiangVienController {
         if (lopHoc == null || giangVien == null) return;
 
         try {
-            List<ThanhPhanDanhGia> components = thanhPhanService.layTheoMon(lopHoc.getMaMon())
+            List<ThanhPhanDanhGia> components = thanhPhanDAO.layTheoMon(lopHoc.getMaMon())
                     .stream().filter(ThanhPhanDanhGia::getTrangThai)
                     .sorted((first, second) -> Integer.compare(first.getThuTu(), second.getThuTu()))
                     .toList();
@@ -182,8 +182,8 @@ public class GiangVienController {
 
             List<BangDiemSinhVien> students = diemService.layBangDiem(giangVien, lopHoc.getMaLop());
             tblStudents.setItems(FXCollections.observableArrayList(students));
-            if (maSVCanChon != null) {
-                students.stream().filter(student -> maSVCanChon.equals(student.getMaSV()))
+            if (maSinhVienCanChon != null) {
+                students.stream().filter(student -> maSinhVienCanChon.equals(student.getMaSinhVien()))
                         .findFirst().ifPresent(student -> tblStudents.getSelectionModel().select(student));
             }
             if (components.isEmpty()) {
@@ -193,7 +193,7 @@ public class GiangVienController {
             } else {
                 showStatus("Đang xem bảng điểm " + lopHoc.getMaLop() + ".", false);
             }
-        } catch (ServiceException e) {
+        } catch (ServiceException | java.sql.SQLException e) {
             showStatus("Không thể tải bảng điểm lớp học phần. Vui lòng thử lại.", true);
         }
     }

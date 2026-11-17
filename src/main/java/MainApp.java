@@ -8,7 +8,6 @@ public class MainApp extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
-
         FXMLLoader fxmlLoader = new FXMLLoader(MainApp.class.getResource("/views/LoginView.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 1080, 680);
 

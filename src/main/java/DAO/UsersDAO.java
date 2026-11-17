@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Objects;
 
 /** Truy vấn tài khoản và thông tin vai trò được lưu trực tiếp trong bảng Users. */
-public class UsersDAO {
+public class UsersDAO extends BaseDAO {
     private static final String USER_SELECT = "SELECT u.UserID, u.HoTen, u.Email, u.Password, "
             + "u.VaiTro, u.MaSo, u.NgayTao, u.TrangThai, "
             + "sv.MaSinhVien, n.MaNganh, n.TenNganh, sv.NgaySinh, sv.GioiTinh, sv.Lop, sv.KhoaHoc, sv.HeDaoTao, "
@@ -28,13 +28,8 @@ public class UsersDAO {
             + "LEFT JOIN Admin ad ON ad.UserID = u.UserID ";
 
     public Users layTheoID(int userID) throws SQLException {
-        try (Connection conn = DBConnection.getConnection()) {
-            return layTheoID(conn, userID);
-        }
-    }
-
-    public Users layTheoID(Connection conn, int userID) throws SQLException {
-        try (PreparedStatement ps = conn.prepareStatement(USER_SELECT + "WHERE u.UserID = ?")) {
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(USER_SELECT + "WHERE u.UserID = ?")) {
             ps.setInt(1, userID);
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next() ? docNguoiDung(rs) : null;
@@ -43,7 +38,7 @@ public class UsersDAO {
     }
 
     public Users layTheoEmailDangHoatDong(String email) throws SQLException {
-        try (Connection conn = DBConnection.getConnection()) {
+        try (Connection conn = getConnection()) {
             try (PreparedStatement ps = conn.prepareStatement(
                     USER_SELECT + "WHERE u.Email = ? AND u.TrangThai = 'HOAT_DONG'")) {
                 ps.setString(1, email);
@@ -56,7 +51,7 @@ public class UsersDAO {
 
     public List<Users> layTatCa() throws SQLException {
         List<Users> users = new ArrayList<>();
-        try (Connection conn = DBConnection.getConnection();
+        try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(USER_SELECT + "ORDER BY u.UserID");
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) users.add(docNguoiDung(rs));
@@ -64,7 +59,7 @@ public class UsersDAO {
         return users;
     }
 
-    /** Chỉ tạo hàng tài khoản; tạo hàng trong bảng vai trò cùng transaction của Service. */
+    /** Tạo tài khoản. */
     public int them(Connection conn, Users user) throws SQLException {
         Objects.requireNonNull(user, "user không được null");
         String sql = "INSERT INTO Users (HoTen, Email, Password, VaiTro, MaSo, TrangThai) "

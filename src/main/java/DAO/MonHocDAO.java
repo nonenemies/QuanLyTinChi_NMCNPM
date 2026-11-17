@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Objects;
 
 /** Các truy vấn dữ liệu cho bảng MonHoc. */
-public class MonHocDAO {
+public class MonHocDAO extends BaseDAO {
 
     /** Thêm môn học mới. Mã môn phải chưa tồn tại. */
     public boolean themMonHoc(MonHoc monHoc) throws SQLException {
@@ -20,7 +20,7 @@ public class MonHocDAO {
         String sql = "INSERT INTO MonHoc (MaMon, TenMon, SoTinChi, LoaiMon, MoTa) "
                 + "VALUES (?, ?, ?, ?, ?)";
 
-        try (Connection conn = DBConnection.getConnection();
+        try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, monHoc.getMaMon());
             ps.setString(2, monHoc.getTenMon());
@@ -37,7 +37,7 @@ public class MonHocDAO {
         String sql = "UPDATE MonHoc SET TenMon = ?, SoTinChi = ?, LoaiMon = ?, MoTa = ? "
                 + "WHERE MaMon = ?";
 
-        try (Connection conn = DBConnection.getConnection();
+        try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, monHoc.getTenMon());
             ps.setObject(2, monHoc.getSoTinChi());
@@ -52,7 +52,7 @@ public class MonHocDAO {
     public boolean xoaMonHoc(String maMon) throws SQLException {
         String sql = "UPDATE MonHoc SET TrangThai = ? WHERE MaMon = ? AND TrangThai <> ?";
 
-        try (Connection conn = DBConnection.getConnection();
+        try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, "NGUNG_HOAT_DONG");
             ps.setString(2, maMon);
@@ -69,7 +69,7 @@ public class MonHocDAO {
 
     private List<MonHoc> truyVanDanhSach(String sql) throws SQLException {
         List<MonHoc> danhSach = new ArrayList<>();
-        try (Connection conn = DBConnection.getConnection();
+        try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {

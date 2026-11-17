@@ -25,49 +25,35 @@ public class DangKyHocService {
     private final ChuongTrinhDaoTaoDAO chuongTrinhDaoTaoDAO = new ChuongTrinhDaoTaoDAO();
     private final DotDangKyNganhDAO dotDangKyNganhDAO = new DotDangKyNganhDAO();
 
-    public String dangKyHoc(String maSV, String maLop) {
-        if (maSV == null || maSV.isBlank() || maLop == null || maLop.isBlank()) {
+    public String dangKyHoc(String maSinhVien, String maLop) {
+        if (maSinhVien == null || maSinhVien.isBlank() || maLop == null || maLop.isBlank()) {
             return "KHONG_HOP_LE";
         }
         try (Connection conn = DBConnection.getConnection()) {
-            conn.setAutoCommit(false);
 
             try {
-                String ketQuaKiemTra = kiemTraDieuKienDangKy(conn, maSV, maLop);
+                String ketQuaKiemTra = kiemTraDieuKienDangKy(conn, maSinhVien, maLop);
                 if (!"THANH_CONG".equals(ketQuaKiemTra)) {
-                    return rollbackAndReturn(conn, ketQuaKiemTra);
+                    return ketQuaKiemTra;
                 }
 
                 if (!lopHocDAO.tangSiSo(conn, maLop)) {
-                    return rollbackAndReturn(conn, "LOP_KHONG_HOAT_DONG");
+                    return "LOP_KHONG_HOAT_DONG";
                 }
 
-                DangKyHoc dk = new DangKyHoc(maLop, maSV);
-                if (!dangKyDAO.themDangKyMoi(conn, dk)) {
-                    return rollbackAndReturn(conn, "KHONG_HOP_LE");
+                DangKyHoc dk = new DangKyHoc(maLop, maSinhVien);
+                if (!dangKyDAO.themDangKyMoi(dk)) {
+                    return "KHONG_HOP_LE";
                 }
 
-                conn.commit();
                 return "THANH_CONG";
 
             } catch (SQLException e) {
-                boolean rollbackFailed = false;
-                try {
-                    conn.rollback();
-                } catch (SQLException rollbackError) {
-                    e.addSuppressed(rollbackError);
-                    rollbackFailed = true;
-                }
-                if (!rollbackFailed && e.getErrorCode() == 1062) {
+                if (e.getErrorCode() == 1062) {
                     return "DA_DANG_KY_MON_TRONG_HOC_KY";
                 }
                 throw e;
             } catch (RuntimeException e) {
-                try {
-                    conn.rollback();
-                } catch (SQLException rollbackError) {
-                    e.addSuppressed(rollbackError);
-                }
                 throw e;
             }
         } catch (SQLException e) {
@@ -77,97 +63,90 @@ public class DangKyHocService {
         }
     }
 
-    private String kiemTraDieuKienDangKy(Connection conn, String maSV, String maLop)
+    private String kiemTraDieuKienDangKy(Connection conn, String maSinhVien, String maLop)
             throws SQLException {
-        if (!dangKyDAO.khoaSinhVienChoDangKy(conn, maSV)) {
+        if (!dangKyDAO.sinhVienConHoatDong(maSinhVien)) {
             return "SINH_VIEN_KHONG_HOAT_DONG";
         }
 
-        var lopHoc = lopHocDAO.layLopTheoMaForUpdate(conn, maLop);
+        var lopHoc = lopHocDAO.layLopTheoMa(conn, maLop);
         if (lopHoc == null || !"HOAT_DONG".equals(lopHoc.getTrangThai())) {
             return "LOP_KHONG_HOAT_DONG";
         }
-        DotDangKyNganh dotDangKy = dotDangKyNganhDAO.layDotDangKyHienTai(conn, maSV);
+        DotDangKyNganh dotDangKy = dotDangKyNganhDAO.layDotDangKyHienTai(maSinhVien);
         if (dotDangKy == null) {
             return "DOT_DANG_KY_DA_DONG";
         }
         ChuongTrinhDaoTao chuongTrinh = chuongTrinhDaoTaoDAO.layChuongTrinhMonHoc(
-                conn, maSV, lopHoc.getMaMon());
+                maSinhVien, lopHoc.getMaMon());
         if (chuongTrinh == null) {
             return "KHONG_HOP_LE";
         }
-        if (dangKyDAO.kiemTraDaDangKy(conn, maSV, maLop)
-                || dangKyDAO.daDangKyMonTrongHocKy(conn, maSV, lopHoc.getMaMon(), lopHoc.getHocKy())) {
+        if (dangKyDAO.kiemTraDaDangKy(maSinhVien, maLop)
+                || dangKyDAO.daDangKyMonTrongHocKy(maSinhVien, lopHoc.getMaMon(), lopHoc.getHocKy())) {
             return "DA_DANG_KY_MON_TRONG_HOC_KY";
         }
-        if (dangKyDAO.daDatMon(conn, maSV, lopHoc.getMaMon())) {
+        if (dangKyDAO.daDatMon(maSinhVien, lopHoc.getMaMon())) {
             return "DA_QUA_MON";
         }
-        if (!dangKyDAO.coLichHoc(conn, maLop)) {
+        if (!dangKyDAO.coLichHoc(maLop)) {
             return "LOP_CHUA_XEP_LICH";
         }
-        if (dangKyDAO.coLopBiTrungLich(conn, maSV, maLop)) {
+        if (dangKyDAO.coLopBiTrungLich(maSinhVien, maLop)) {
             return "TRUNG_LICH";
         }
         for (MonTienQuyet prerequisite
-                : MonTienQuyetDAO.layDanhSachMonTienQuyet(conn, lopHoc.getMaMon())) {
+                : MonTienQuyetDAO.layDanhSachMonTienQuyet(lopHoc.getMaMon())) {
             if (!"HOAT_DONG".equals(prerequisite.getMonTienQuyet().getTrangThai())
-                    || !dangKyDAO.kiemTraDaQuaMon(conn, maSV,
+                    || !dangKyDAO.kiemTraDaQuaMon(maSinhVien,
                             prerequisite.getMaMonTienQuyet())) {
                 return "THIEU_MON_TIEN_QUYET";
             }
         }
 
-        int credits = dangKyDAO.laySoTinChi(conn, lopHoc.getMaMon());
-        if (credits <= 0 || dangKyDAO.tongTinChiDangHoc(conn, maSV, lopHoc.getHocKy()) + credits
+        int credits = dangKyDAO.laySoTinChi(lopHoc.getMaMon());
+        if (credits <= 0 || dangKyDAO.tongTinChiDangHoc(maSinhVien, lopHoc.getHocKy()) + credits
                 > MAX_TIN_CHI) {
             return "VUOT_QUA_TIN_CHI";
         }
         return "THANH_CONG";
     }
 
-    public boolean huyDangKyHoc(String maSV, String maLop) {
-        if (maSV == null || maSV.isBlank() || maLop == null || maLop.isBlank()) {
+    public boolean huyDangKyHoc(String maSinhVien, String maLop) {
+        if (maSinhVien == null || maSinhVien.isBlank() || maLop == null || maLop.isBlank()) {
             return false;
         }
         try (Connection conn = DBConnection.getConnection()) {
-            conn.setAutoCommit(false);
             try {
-                if (!dangKyDAO.khoaSinhVienChoDangKy(conn, maSV)) {
-                    return rollbackAndReturn(conn, false);
+                if (!dangKyDAO.sinhVienConHoatDong(maSinhVien)) {
+                    return false;
                 }
-                if (lopHocDAO.layLopTheoMaForUpdate(conn, maLop) == null) {
-                    return rollbackAndReturn(conn, false);
+                if (lopHocDAO.layLopTheoMa(conn, maLop) == null) {
+                    return false;
                 }
 
                 var lopHoc = lopHocDAO.layLopTheoMa(conn, maLop);
-                if (lopHoc == null || dotDangKyNganhDAO.layDotDangKyHienTai(conn, maSV) == null) {
-                    return rollbackAndReturn(conn, false);
+                if (lopHoc == null || dotDangKyNganhDAO.layDotDangKyHienTai(maSinhVien) == null) {
+                    return false;
                 }
-                String trangThai = dangKyDAO.layTrangThaiDangKyForUpdate(conn, maSV, maLop);
+                String trangThai = dangKyDAO.layTrangThaiDangKy(maSinhVien, maLop);
                 if (trangThai == null || "HUY".equals(trangThai)) {
-                    return rollbackAndReturn(conn, false);
+                    return false;
                 }
                 if (!"DANG_HOC".equals(trangThai)
-                        || dangKyDAO.coDiem(conn, maSV, maLop)) {
-                    return rollbackAndReturn(conn, false);
+                        || dangKyDAO.coDiem(maSinhVien, maLop)) {
+                    return false;
                 }
-                if (!dangKyDAO.huyDangKy(conn, maSV, maLop)) {
-                    return rollbackAndReturn(conn, false);
+                if (!dangKyDAO.huyDangKy(maSinhVien, maLop)) {
+                    return false;
                 }
 
                 if (!lopHocDAO.giamSiSo(conn, maLop)) {
-                    return rollbackAndReturn(conn, false);
+                    return false;
                 }
 
-                conn.commit();
                 return true;
             } catch (SQLException | RuntimeException e) {
-                try {
-                    conn.rollback();
-                } catch (SQLException rollbackError) {
-                    e.addSuppressed(rollbackError);
-                }
                 throw e;
             }
         } catch (SQLException e) {
@@ -177,12 +156,12 @@ public class DangKyHocService {
         }
     }
 
-    public List<LopHocThoiKhoaBieu> xemLichHocTheoTuan(String maSV) {
-        if (maSV == null || maSV.isBlank()) {
+    public List<LopHocThoiKhoaBieu> xemLichHocTheoTuan(String maSinhVien) {
+        if (maSinhVien == null || maSinhVien.isBlank()) {
             throw new IllegalArgumentException("Mã sinh viên không hợp lệ.");
         }
         try {
-            return dangKyDAO.layLichHocTheoTuan(maSV);
+            return dangKyDAO.layLichHocTheoTuan(maSinhVien);
         } catch (SQLException e) {
             throw new ServiceException("Không thể tải thời khóa biểu.", e);
         } catch (RuntimeException e) {
@@ -190,9 +169,9 @@ public class DangKyHocService {
         }
     }
 
-    public List<LopHocDangKy> xemDanhSachLopDangKy(String maSV) {
+    public List<LopHocDangKy> xemDanhSachLopDangKy(String maSinhVien) {
         try {
-            return lopHocDAO.layDanhSachLopDangKy(maSV);
+            return lopHocDAO.layDanhSachLopDangKy(maSinhVien);
         } catch (SQLException e) {
             throw new ServiceException("Không thể tải danh sách lớp đăng ký.", e);
         } catch (RuntimeException e) {
@@ -200,12 +179,12 @@ public class DangKyHocService {
         }
     }
 
-    public List<LopHocDangKy> xemDanhSachLopDaDangKy(String maSV) {
-        if (maSV == null || maSV.isBlank()) {
+    public List<LopHocDangKy> xemDanhSachLopDaDangKy(String maSinhVien) {
+        if (maSinhVien == null || maSinhVien.isBlank()) {
             throw new IllegalArgumentException("Mã sinh viên không hợp lệ.");
         }
         try {
-            return lopHocDAO.layDanhSachLopDaDangKy(maSV);
+            return lopHocDAO.layDanhSachLopDaDangKy(maSinhVien);
         } catch (SQLException e) {
             throw new ServiceException("Không thể tải danh sách lớp đã đăng ký.", e);
         } catch (RuntimeException e) {
@@ -213,12 +192,12 @@ public class DangKyHocService {
         }
     }
 
-    public int layTongTinChiDangKy(String maSV, String hocKy) {
-        if (maSV == null || maSV.isBlank() || hocKy == null || hocKy.isBlank()) {
+    public int layTongTinChiDangKy(String maSinhVien, String hocKy) {
+        if (maSinhVien == null || maSinhVien.isBlank() || hocKy == null || hocKy.isBlank()) {
             throw new IllegalArgumentException("Mã sinh viên và học kỳ là bắt buộc.");
         }
         try (Connection conn = DBConnection.getConnection()) {
-            return dangKyDAO.tongTinChiDangHoc(conn, maSV, hocKy);
+            return dangKyDAO.tongTinChiDangHoc(maSinhVien, hocKy);
         } catch (SQLException e) {
             throw new ServiceException("Không thể tải tổng tín chỉ của học kỳ.", e);
         } catch (RuntimeException e) {
@@ -226,8 +205,4 @@ public class DangKyHocService {
         }
     }
 
-    private <T> T rollbackAndReturn(Connection conn, T result) throws SQLException {
-        conn.rollback();
-        return result;
-    }
 }
