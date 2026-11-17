@@ -13,22 +13,17 @@ import java.util.List;
 import java.util.Objects;
 
 /** Truy vấn hồ sơ học tập bổ sung của tài khoản sinh viên. */
-public class SinhVienDAO {
+public class SinhVienDAO extends BaseDAO {
     private static final String SELECT = "SELECT u.UserID, u.HoTen, u.Email, u.Password, u.VaiTro, "
             + "u.MaSo, n.MaNganh, n.TenNganh, u.NgayTao, u.TrangThai, sv.MaSinhVien, sv.NgaySinh, sv.GioiTinh, "
             + "sv.Lop, sv.KhoaHoc, sv.HeDaoTao FROM SinhVien sv "
             + "JOIN Users u ON u.UserID = sv.UserID "
             + "LEFT JOIN Nganh n ON n.MaNganh = sv.MaNganh ";
 
-    public SinhVien layTheoMaSV(String maSV) throws SQLException {
-        try (Connection conn = DBConnection.getConnection()) {
-            return layTheoMaSV(conn, maSV);
-        }
-    }
-
-    public SinhVien layTheoMaSV(Connection conn, String maSV) throws SQLException {
-        try (PreparedStatement ps = conn.prepareStatement(SELECT + "WHERE sv.MaSinhVien = ?")) {
-            ps.setString(1, maSV);
+    public SinhVien layTheoMaSinhVien(String maSinhVien) throws SQLException {
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(SELECT + "WHERE sv.MaSinhVien = ?")) {
+            ps.setString(1, maSinhVien);
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next() ? docSinhVien(rs) : null;
             }
@@ -36,7 +31,7 @@ public class SinhVienDAO {
     }
 
     public SinhVien layTheoUserID(int userID) throws SQLException {
-        try (Connection conn = DBConnection.getConnection();
+        try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(SELECT + "WHERE sv.UserID = ?")) {
             ps.setInt(1, userID);
             try (ResultSet rs = ps.executeQuery()) {
@@ -47,7 +42,7 @@ public class SinhVienDAO {
 
     public List<SinhVien> layTatCa() throws SQLException {
         List<SinhVien> students = new ArrayList<>();
-        try (Connection conn = DBConnection.getConnection();
+        try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(SELECT + "ORDER BY sv.MaSinhVien");
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) students.add(docSinhVien(rs));
@@ -55,11 +50,11 @@ public class SinhVienDAO {
         return students;
     }
 
-    public boolean them(Connection conn, SinhVien sinhVien) throws SQLException {
+    public boolean them(SinhVien sinhVien) throws SQLException {
         Objects.requireNonNull(sinhVien, "sinhVien không được null");
         String sql = "INSERT INTO SinhVien (UserID, MaSinhVien, MaNganh, NgaySinh, GioiTinh, Lop, KhoaHoc, HeDaoTao) "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, sinhVien.getUserID());
             ps.setString(2, sinhVien.getMaSinhVien());
             ps.setString(3, sinhVien.getNganh() == null ? null : sinhVien.getNganh().getMaNganh());
@@ -74,11 +69,11 @@ public class SinhVienDAO {
         }
     }
 
-    public boolean capNhat(Connection conn, SinhVien sinhVien) throws SQLException {
+    public boolean capNhat(SinhVien sinhVien) throws SQLException {
         Objects.requireNonNull(sinhVien, "sinhVien không được null");
         String sql = "UPDATE SinhVien SET MaSinhVien = ?, MaNganh = ?, NgaySinh = ?, GioiTinh = ?, Lop = ?, "
                 + "KhoaHoc = ?, HeDaoTao = ? WHERE UserID = ?";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, sinhVien.getMaSinhVien());
             ps.setString(2, sinhVien.getNganh() == null ? null : sinhVien.getNganh().getMaNganh());
             if (sinhVien.getNgaySinh() == null) ps.setDate(3, null);
@@ -93,8 +88,9 @@ public class SinhVienDAO {
         }
     }
 
-    public boolean xoa(Connection conn, int userID) throws SQLException {
-        try (PreparedStatement ps = conn.prepareStatement("DELETE FROM SinhVien WHERE UserID = ?")) {
+    public boolean xoa(int userID) throws SQLException {
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement("DELETE FROM SinhVien WHERE UserID = ?")) {
             ps.setInt(1, userID);
             return ps.executeUpdate() == 1;
         }

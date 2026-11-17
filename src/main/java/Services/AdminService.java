@@ -75,23 +75,19 @@ public class AdminService {
         kiemTraAdmin(admin);
         kiemTraHoSo(taiKhoan);
         try (Connection conn = DBConnection.getConnection()) {
-            conn.setAutoCommit(false);
             try {
                 kiemTraAdminTrongDatabase(conn, admin);
                 kiemTraNganhTonTai(conn, taiKhoan);
                 int userID = usersDAO.them(conn, taiKhoan);
                 taiKhoan.setUserID(userID);
                 boolean profileCreated = taiKhoan instanceof SinhVien sinhVien
-                        ? sinhVienDAO.them(conn, sinhVien)
+                        ? sinhVienDAO.them(sinhVien)
                         : giangVienDAO.them(conn, (GiangVien) taiKhoan);
                 if (!profileCreated) {
-                    conn.rollback();
                     return false;
                 }
-                conn.commit();
                 return true;
             } catch (SQLException | RuntimeException e) {
-                rollback(conn, e);
                 throw e;
             }
         } catch (SQLException e) {
@@ -108,28 +104,23 @@ public class AdminService {
             throw new ServiceException("Tài khoản cần cập nhật không hợp lệ.");
         }
         try (Connection conn = DBConnection.getConnection()) {
-            conn.setAutoCommit(false);
             try {
                 kiemTraAdminTrongDatabase(conn, admin);
                 kiemTraNganhTonTai(conn, taiKhoan);
-                Users hienTai = usersDAO.layTheoID(conn, taiKhoan.getUserID());
+                Users hienTai = usersDAO.layTheoID(taiKhoan.getUserID());
                 if (hienTai == null || hienTai instanceof Admin
                         || hienTai.getClass() != taiKhoan.getClass()
                         || !usersDAO.capNhat(conn, taiKhoan)) {
-                    conn.rollback();
                     return false;
                 }
                 boolean profileUpdated = taiKhoan instanceof SinhVien sinhVien
-                        ? sinhVienDAO.capNhat(conn, sinhVien)
+                        ? sinhVienDAO.capNhat(sinhVien)
                         : giangVienDAO.capNhat(conn, (GiangVien) taiKhoan);
                 if (!profileUpdated) {
-                    conn.rollback();
                     return false;
                 }
-                conn.commit();
                 return true;
             } catch (SQLException | RuntimeException e) {
-                rollback(conn, e);
                 throw e;
             }
         } catch (SQLException e) {
@@ -145,20 +136,16 @@ public class AdminService {
             throw new ServiceException("Không thể ngừng tài khoản admin đang đăng nhập.");
         }
         try (Connection conn = DBConnection.getConnection()) {
-            conn.setAutoCommit(false);
             try {
                 kiemTraAdminTrongDatabase(conn, admin);
-                Users target = usersDAO.layTheoID(conn, userID);
+                Users target = usersDAO.layTheoID(userID);
                 if (target == null || target instanceof Admin
                         || !"HOAT_DONG".equals(target.getTrangThai())
                         || !usersDAO.ngungHoatDong(conn, userID)) {
-                    conn.rollback();
                     return false;
                 }
-                conn.commit();
                 return true;
             } catch (SQLException | RuntimeException e) {
-                rollback(conn, e);
                 throw e;
             }
         } catch (SQLException e) {
@@ -169,7 +156,7 @@ public class AdminService {
     }
 
     private void kiemTraAdminTrongDatabase(Connection conn, Admin admin) throws SQLException {
-        Users current = usersDAO.layTheoID(conn, admin.getUserID());
+        Users current = usersDAO.layTheoID(admin.getUserID());
         if (!(current instanceof Admin)
                 || !"HOAT_DONG".equals(current.getTrangThai())) {
             throw new ServiceException("Tài khoản admin không còn hoạt động.");
@@ -234,16 +221,9 @@ public class AdminService {
 
     private void kiemTraNganhTonTai(Connection conn, Users taiKhoan) throws SQLException {
         if (taiKhoan instanceof SinhVien sinhVien && sinhVien.getNganh() != null
-                && !nganhDAO.tonTai(conn, sinhVien.getNganh().getMaNganh())) {
+                && !nganhDAO.tonTai(sinhVien.getNganh().getMaNganh())) {
             throw new ServiceException("Mã ngành không tồn tại.");
         }
     }
 
-    private void rollback(Connection conn, Exception error) {
-        try {
-            conn.rollback();
-        } catch (SQLException rollbackError) {
-            error.addSuppressed(rollbackError);
-        }
-    }
 }

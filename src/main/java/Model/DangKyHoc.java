@@ -5,7 +5,7 @@ public class DangKyHoc {
 
     private int maDangKy;
     private String maLop;
-    private String maSV;
+    private String maSinhVien;
     private Date ngayDangKy;
     private float diemTongKet;
     private String trangThai;
@@ -13,15 +13,15 @@ public class DangKyHoc {
     public DangKyHoc() {
     }
 
-    public DangKyHoc(String maLop, String maSV) {
+    public DangKyHoc(String maLop, String maSinhVien) {
         this.maLop = maLop;
-        this.maSV = maSV;
+        this.maSinhVien = maSinhVien;
     }
 
-    public DangKyHoc(int maDangKy, String maLop, String maSV, Date ngayDangKy, float diemTongKet, String trangThai) {
+    public DangKyHoc(int maDangKy, String maLop, String maSinhVien, Date ngayDangKy, float diemTongKet, String trangThai) {
         this.maDangKy = maDangKy;
         this.maLop = maLop;
-        this.maSV = maSV;
+        this.maSinhVien = maSinhVien;
         this.ngayDangKy = ngayDangKy;
         this.diemTongKet = diemTongKet;
         this.trangThai = trangThai;
@@ -43,12 +43,12 @@ public class DangKyHoc {
         this.maLop = maLop;
     }
 
-    public String getMaSV() {
-        return maSV;
+    public String getMaSinhVien() {
+        return maSinhVien;
     }
 
-    public void setMaSV(String maSV) {
-        this.maSV = maSV;
+    public void setMaSinhVien(String maSinhVien) {
+        this.maSinhVien = maSinhVien;
     }
 
     public Date getNgayDangKy() {

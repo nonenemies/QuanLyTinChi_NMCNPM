@@ -12,26 +12,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Các truy vấn dữ liệu và thao tác sĩ số cho bảng LopHocPhan. */
-public class LopHocDAO {
+public class LopHocDAO extends BaseDAO {
 
     /** Lấy các lớp được phân công cho một giảng viên, gồm cả lớp đã kết thúc. */
-    public List<LopHocPhan> layDanhSachLopCuaGiangVien(String maGV) throws SQLException {
+    public List<LopHocPhan> layDanhSachLopCuaGiangVien(String maGiangVien) throws SQLException {
         String sql = "SELECT MaLop, MaMon, MaGiangVien, HocKy, SiSoToiDa, SiSoHienTai, TrangThai "
                 + "FROM LopHocPhan WHERE MaGiangVien = ? ORDER BY HocKy DESC, MaLop";
-        return truyVanDanhSach(sql, maGV);
+        return truyVanDanhSach(sql, maGiangVien);
     }
 
     /** Danh sách lớp mở cho sinh viên cùng các lớp sinh viên đã đăng ký. */
-    public List<LopHocDangKy> layDanhSachLopDangKy(String maSV) throws SQLException {
-        return layDanhSachLopDangKy(maSV, false);
+    public List<LopHocDangKy> layDanhSachLopDangKy(String maSinhVien) throws SQLException {
+        return layDanhSachLopDangKy(maSinhVien, false);
     }
 
     /** Danh sách đăng ký hiện tại của sinh viên, không phụ thuộc đợt đăng ký còn mở. */
-    public List<LopHocDangKy> layDanhSachLopDaDangKy(String maSV) throws SQLException {
-        return layDanhSachLopDangKy(maSV, true);
+    public List<LopHocDangKy> layDanhSachLopDaDangKy(String maSinhVien) throws SQLException {
+        return layDanhSachLopDangKy(maSinhVien, true);
     }
 
-    private List<LopHocDangKy> layDanhSachLopDangKy(String maSV, boolean chiLopDaDangKy)
+    private List<LopHocDangKy> layDanhSachLopDangKy(String maSinhVien, boolean chiLopDaDangKy)
             throws SQLException {
         String sql = "SELECT lh.MaLop, mh.MaMon, mh.TenMon, "
                 + "COALESCE(u.HoTen, lh.MaGiangVien, 'Chưa phân công') AS GiangVien, "
@@ -65,11 +65,11 @@ public class LopHocDAO {
                 + "ORDER BY lh.HocKy DESC, mh.MaMon, lh.MaLop";
 
         List<LopHocDangKy> danhSach = new ArrayList<>();
-        try (Connection conn = DBConnection.getConnection();
+        try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, maSV);
+            ps.setString(1, maSinhVien);
             if (!chiLopDaDangKy) {
-                ps.setString(2, maSV);
+                ps.setString(2, maSinhVien);
             }
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -90,7 +90,7 @@ public class LopHocDAO {
         return danhSach;
     }
 
-    /** Tìm lớp theo mã trên connection do bên gọi quản lý, để đọc trong cùng transaction. */
+    /** Tìm lớp theo mã. */
     public LopHocPhan layLopTheoMa(Connection conn, String maLop) throws SQLException {
         String sql = "SELECT MaLop, MaMon, MaGiangVien, HocKy, SiSoToiDa, SiSoHienTai, TrangThai "
                 + "FROM LopHocPhan WHERE MaLop = ?";
@@ -98,15 +98,7 @@ public class LopHocDAO {
         return ketQua.isEmpty() ? null : ketQua.get(0);
     }
 
-    /** Khóa lớp khi đăng ký để các lượt đăng ký cùng lớp được xử lý tuần tự. */
-    public LopHocPhan layLopTheoMaForUpdate(Connection conn, String maLop) throws SQLException {
-        String sql = "SELECT MaLop, MaMon, MaGiangVien, HocKy, SiSoToiDa, SiSoHienTai, TrangThai "
-                + "FROM LopHocPhan WHERE MaLop = ? FOR UPDATE";
-        List<LopHocPhan> ketQua = truyVanDanhSach(conn, sql, maLop);
-        return ketQua.isEmpty() ? null : ketQua.get(0);
-    }
-
-    /** Tăng sĩ số trên kết nối do bên gọi quản lý, để ghép vào transaction hiện có. */
+    /** Tăng sĩ số lớp. */
     public boolean tangSiSo(Connection conn, String maLop) throws SQLException {
         String sql = "UPDATE LopHocPhan SET SiSoHienTai = SiSoHienTai + 1 "
                 + "WHERE MaLop = ? AND TrangThai = 'HOAT_DONG' AND SiSoHienTai < SiSoToiDa";
@@ -116,7 +108,7 @@ public class LopHocDAO {
         }
     }
 
-    /** Giảm sĩ số trên kết nối do bên gọi quản lý, để ghép vào transaction hiện có. */
+    /** Giảm sĩ số lớp. */
     public boolean giamSiSo(Connection conn, String maLop) throws SQLException {
         String sql = "UPDATE LopHocPhan SET SiSoHienTai = SiSoHienTai - 1 "
                 + "WHERE MaLop = ? AND SiSoHienTai > 0";
@@ -127,7 +119,7 @@ public class LopHocDAO {
     }
 
     private List<LopHocPhan> truyVanDanhSach(String sql, String thamSoMaMonHoacLop) throws SQLException {
-        try (Connection conn = DBConnection.getConnection()) {
+        try (Connection conn = getConnection()) {
             return truyVanDanhSach(conn, sql, thamSoMaMonHoacLop);
         }
     }

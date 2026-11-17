@@ -6,7 +6,7 @@ package Model;
 public class LopHocPhan {
     private String maLop;
     private String maMon;
-    private String maGV;
+    private String maGiangVien;
     private String hocKy;
     private Integer siSoToiDa;
     private Integer siSoHienTai;
@@ -15,11 +15,11 @@ public class LopHocPhan {
     public LopHocPhan() {
     }
 
-    public LopHocPhan(String maLop, String maMon, String maGV, String hocKy,
+    public LopHocPhan(String maLop, String maMon, String maGiangVien, String hocKy,
                   Integer siSoToiDa, Integer siSoHienTai, String trangThai) {
         this.maLop = maLop;
         this.maMon = maMon;
-        this.maGV = maGV;
+        this.maGiangVien = maGiangVien;
         this.hocKy = hocKy;
         this.siSoToiDa = siSoToiDa;
         this.siSoHienTai = siSoHienTai;
@@ -42,12 +42,12 @@ public class LopHocPhan {
         this.maMon = maMon;
     }
 
-    public String getMaGV() {
-        return maGV;
+    public String getMaGiangVien() {
+        return maGiangVien;
     }
 
-    public void setMaGV(String maGV) {
-        this.maGV = maGV;
+    public void setMaGiangVien(String maGiangVien) {
+        this.maGiangVien = maGiangVien;
     }
 
     public String getHocKy() {

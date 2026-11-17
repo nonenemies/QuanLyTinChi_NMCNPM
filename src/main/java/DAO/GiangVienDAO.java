@@ -12,20 +12,15 @@ import java.util.List;
 import java.util.Objects;
 
 /** Truy vấn hồ sơ chuyên môn bổ sung của tài khoản giảng viên. */
-public class GiangVienDAO {
+public class GiangVienDAO extends BaseDAO {
     private static final String SELECT = "SELECT u.UserID, u.HoTen, u.Email, u.Password, u.VaiTro, "
             + "u.MaSo, u.NgayTao, u.TrangThai, gv.MaGiangVien, gv.ChuyenNganh, gv.HocVi "
             + "FROM GiangVien gv JOIN Users u ON u.UserID = gv.UserID ";
 
-    public GiangVien layTheoMaGV(String maGV) throws SQLException {
-        try (Connection conn = DBConnection.getConnection()) {
-            return layTheoMaGV(conn, maGV);
-        }
-    }
-
-    public GiangVien layTheoMaGV(Connection conn, String maGV) throws SQLException {
-        try (PreparedStatement ps = conn.prepareStatement(SELECT + "WHERE gv.MaGiangVien = ?")) {
-            ps.setString(1, maGV);
+    public GiangVien layTheoMaGiangVien(String maGiangVien) throws SQLException {
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(SELECT + "WHERE gv.MaGiangVien = ?")) {
+            ps.setString(1, maGiangVien);
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next() ? docGiangVien(rs) : null;
             }
@@ -33,7 +28,7 @@ public class GiangVienDAO {
     }
 
     public GiangVien layTheoUserID(int userID) throws SQLException {
-        try (Connection conn = DBConnection.getConnection();
+        try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(SELECT + "WHERE gv.UserID = ?")) {
             ps.setInt(1, userID);
             try (ResultSet rs = ps.executeQuery()) {
@@ -44,7 +39,7 @@ public class GiangVienDAO {
 
     public List<GiangVien> layTatCa() throws SQLException {
         List<GiangVien> lecturers = new ArrayList<>();
-        try (Connection conn = DBConnection.getConnection();
+        try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(SELECT + "ORDER BY gv.MaGiangVien");
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) lecturers.add(docGiangVien(rs));
