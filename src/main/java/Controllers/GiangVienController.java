@@ -4,7 +4,6 @@ import Model.BangDiemSinhVien;
 import Model.GiangVien;
 import Model.LopHocPhan;
 import Model.ThanhPhanDanhGia;
-import Model.TrangThaiHoatDong;
 import Model.Users;
 import Services.DiemService;
 import Services.ServiceException;
@@ -83,7 +82,7 @@ public class GiangVienController {
 
     public void setLecturer(Users user) {
         if (!(user instanceof GiangVien lecturer)
-                || lecturer.getTrangThai() != TrangThaiHoatDong.HOAT_DONG
+                || !"HOAT_DONG".equals(lecturer.getTrangThai())
                 || !"GIAOVIEN".equalsIgnoreCase(lecturer.getRole())
                 || lecturer.getMaGiangVien() == null || lecturer.getMaGiangVien().isBlank()) {
             showStatus("Không xác định được tài khoản giảng viên. Vui lòng đăng nhập lại.", true);

@@ -6,8 +6,6 @@ import Model.LopHocDangKy;
 import Model.LopHocPhan;
 import Model.MonHoc;
 import Model.SinhVien;
-import Model.TrangThaiDangKy;
-import Model.TrangThaiHoatDong;
 import Model.Users;
 import Services.AdminService;
 import Services.DiemService;
@@ -64,7 +62,7 @@ public class DashBoardController {
         }
         lblWelcome.setText("Xin chào, " + valueOrDash(user.getHoTen()));
         lblRoleBadge.setText(roleLabel(user));
-        lblAccountStatus.setText(user.getTrangThai() == TrangThaiHoatDong.HOAT_DONG
+        lblAccountStatus.setText("HOAT_DONG".equals(user.getTrangThai())
                 ? "Tài khoản đang hoạt động" : "Tài khoản đã ngừng hoạt động");
         loadOverview();
     }
@@ -119,12 +117,12 @@ public class DashBoardController {
 
         List<LopHocDangKy> registrations = diemService.layKetQuaHocTap(student);
         long activeCourses = registrations.stream()
-                .filter(item -> item.getTrangThaiDangKy() == TrangThaiDangKy.DANG_HOC).count();
+                .filter(item -> "DANG_HOC".equals(item.getTrangThaiDangKy())).count();
         long earnedCredits = 0;
         Set<String> passedCourses = new LinkedHashSet<>();
         for (LopHocDangKy registration : registrations) {
             int credits = registration.getSoTinChi() == null ? 0 : registration.getSoTinChi();
-            if (registration.getTrangThaiDangKy() == TrangThaiDangKy.DA_HOAN_THANH
+            if ("DA_HOAN_THANH".equals(registration.getTrangThaiDangKy())
                     && registration.getDiemTongKet() != null && registration.getDiemTongKet() >= 4
                     && passedCourses.add(registration.getMaMon())) {
                 earnedCredits += credits;
@@ -145,7 +143,7 @@ public class DashBoardController {
         addProfileDetail("Hệ đào tạo", valueOrDash(student.getHeDaoTao()));
 
         List<LopHocDangKy> activeRegistrations = registrations.stream()
-                .filter(item -> item.getTrangThaiDangKy() == TrangThaiDangKy.DANG_HOC)
+                .filter(item -> "DANG_HOC".equals(item.getTrangThaiDangKy()))
                 .toList();
         if (activeRegistrations.isEmpty()) {
             addEmptyActivity("Hiện bạn chưa có học phần đang theo học.");
@@ -166,7 +164,7 @@ public class DashBoardController {
         lblActivitySubtitle.setText("Các lớp đang hoạt động và sĩ số hiện tại.");
 
         List<LopHocPhan> classes = diemService.layLopPhuTrach(lecturer).stream()
-                .filter(item -> item.getTrangThai() == TrangThaiHoatDong.HOAT_DONG)
+                .filter(item -> "HOAT_DONG".equals(item.getTrangThai()))
                 .toList();
         int enrolledStudents = classes.stream().map(LopHocPhan::getSiSoHienTai)
                 .filter(value -> value != null).mapToInt(Integer::intValue).sum();
@@ -204,12 +202,12 @@ public class DashBoardController {
         List<Users> accounts = adminService.layDanhSachTaiKhoan(admin);
         long activeStudents = accounts.stream()
                 .filter(SinhVien.class::isInstance)
-                .filter(user -> user.getTrangThai() == TrangThaiHoatDong.HOAT_DONG).count();
+                .filter(user -> "HOAT_DONG".equals(user.getTrangThai())).count();
         long activeLecturers = accounts.stream()
                 .filter(GiangVien.class::isInstance)
-                .filter(user -> user.getTrangThai() == TrangThaiHoatDong.HOAT_DONG).count();
+                .filter(user -> "HOAT_DONG".equals(user.getTrangThai())).count();
         List<MonHoc> activeCourses = adminService.layDanhSachMonHoc(admin).stream()
-                .filter(course -> course.getTrangThai() == TrangThaiHoatDong.HOAT_DONG)
+                .filter(course -> "HOAT_DONG".equals(course.getTrangThai()))
                 .toList();
 
         addMetric("SINH VIÊN HOẠT ĐỘNG", Long.toString(activeStudents), "SV", "overview-icon-blue");

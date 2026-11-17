@@ -3,17 +3,17 @@ package Model;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/** Dữ liệu một sinh viên dùng để hiển thị bảng điểm của lớp học phần. */
+/** Dùng cho giảng viên. Dữ liệu một sinh viên dùng để hiển thị bảng điểm của lớp học phần. */
 public class BangDiemSinhVien {
     private final int maDangKy;
     private final String maSV;
     private final String hoTen;
-    private final TrangThaiDangKy trangThai;
+    private final String trangThai;
     private final Map<Integer, Float> diemThanhPhan = new LinkedHashMap<>();
     private Float diemTongKet;
 
     public BangDiemSinhVien(int maDangKy, String maSV, String hoTen,
-                            Float diemTongKet, TrangThaiDangKy trangThai) {
+                            Float diemTongKet, String trangThai) {
         this.maDangKy = maDangKy;
         this.maSV = maSV;
         this.hoTen = hoTen;
@@ -37,7 +37,7 @@ public class BangDiemSinhVien {
         return diemTongKet;
     }
 
-    public TrangThaiDangKy getTrangThai() {
+    public String getTrangThai() {
         return trangThai;
     }
 

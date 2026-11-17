@@ -10,10 +10,10 @@ public abstract class Users {
     protected String role;
     protected String maSo;
     protected Date ngayTao;
-    protected TrangThaiHoatDong trangThai;
+    protected String trangThai;
 
     public Users(Integer userID, String hoTen, String email, String passwordHash,
-                 String role, String maSo, Date ngayTao, TrangThaiHoatDong trangThai) {
+                 String role, String maSo, Date ngayTao, String trangThai) {
         this.userID = userID;
         this.hoTen = hoTen;
         this.email = email;
@@ -80,11 +80,11 @@ public abstract class Users {
         this.ngayTao = ngayTao;
     }
 
-    public TrangThaiHoatDong getTrangThai() {
+    public String getTrangThai() {
         return trangThai;
     }
 
-    public void setTrangThai(TrangThaiHoatDong trangThai) {
+    public void setTrangThai(String trangThai) {
         this.trangThai = trangThai;
     }
 }

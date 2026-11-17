@@ -4,7 +4,6 @@ import Model.Admin;
 import Model.GiangVien;
 import Model.Nganh;
 import Model.SinhVien;
-import Model.TrangThaiHoatDong;
 import Model.Users;
 import Util.DBConnection;
 
@@ -76,7 +75,7 @@ public class UsersDAO {
             ps.setString(3, user.getPasswordHash());
             ps.setString(4, user.getRole());
             ps.setString(5, user.getMaSo());
-            ps.setString(6, user.getTrangThai().name());
+            ps.setString(6, user.getTrangThai());
             if (ps.executeUpdate() != 1) throw new SQLException("Không tạo được tài khoản.");
             try (ResultSet keys = ps.getGeneratedKeys()) {
                 if (!keys.next()) throw new SQLException("Không lấy được UserID vừa tạo.");
@@ -94,7 +93,7 @@ public class UsersDAO {
             ps.setString(1, user.getHoTen());
             ps.setString(2, user.getEmail());
             ps.setString(3, user.getPasswordHash());
-            ps.setString(4, user.getTrangThai().name());
+            ps.setString(4, user.getTrangThai());
             ps.setInt(5, user.getUserID());
             return ps.executeUpdate() == 1;
         }
@@ -117,7 +116,7 @@ public class UsersDAO {
         String role = rs.getString("VaiTro");
         String maSo = rs.getString("MaSo");
         java.util.Date ngayTao = rs.getTimestamp("NgayTao");
-        TrangThaiHoatDong trangThai = TrangThaiHoatDong.valueOf(rs.getString("TrangThai"));
+        String trangThai = rs.getString("TrangThai");
         boolean gioiTinhValue = rs.getBoolean("GioiTinh");
         Boolean gioiTinh = rs.wasNull() ? null : gioiTinhValue;
         return switch (role.toUpperCase(java.util.Locale.ROOT)) {

@@ -13,14 +13,14 @@ public class LopHocDangKy {
     private final Integer siSoHienTai;
     private final Integer siSoToiDa;
     private final boolean daDangKy;
-    private final TrangThaiDangKy trangThaiDangKy;
+    private final String trangThaiDangKy;
     private final Float diemTongKet;
     private final String diemThanhPhan;
 
     public LopHocDangKy(String maLop, String maMon, String tenMon, String giangVien,
                         String hocKy, String lichHoc, boolean coLichHoc,
                         Integer soTinChi, Integer siSoHienTai, Integer siSoToiDa,
-                        boolean daDangKy, TrangThaiDangKy trangThaiDangKy) {
+                        boolean daDangKy, String trangThaiDangKy) {
         this(maLop, maMon, tenMon, giangVien, hocKy, lichHoc, coLichHoc,
                 soTinChi, siSoHienTai, siSoToiDa, daDangKy, trangThaiDangKy, null);
     }
@@ -28,7 +28,7 @@ public class LopHocDangKy {
     public LopHocDangKy(String maLop, String maMon, String tenMon, String giangVien,
                         String hocKy, String lichHoc, boolean coLichHoc,
                         Integer soTinChi, Integer siSoHienTai, Integer siSoToiDa,
-                        boolean daDangKy, TrangThaiDangKy trangThaiDangKy, Float diemTongKet) {
+                        boolean daDangKy, String trangThaiDangKy, Float diemTongKet) {
         this(maLop, maMon, tenMon, giangVien, hocKy, lichHoc, coLichHoc, soTinChi,
                 siSoHienTai, siSoToiDa, daDangKy, trangThaiDangKy, diemTongKet, null);
     }
@@ -36,7 +36,7 @@ public class LopHocDangKy {
     public LopHocDangKy(String maLop, String maMon, String tenMon, String giangVien,
                         String hocKy, String lichHoc, boolean coLichHoc,
                         Integer soTinChi, Integer siSoHienTai, Integer siSoToiDa,
-                        boolean daDangKy, TrangThaiDangKy trangThaiDangKy, Float diemTongKet,
+                        boolean daDangKy, String trangThaiDangKy, Float diemTongKet,
                         String diemThanhPhan) {
         this.maLop = maLop;
         this.maMon = maMon;
@@ -67,17 +67,17 @@ public class LopHocDangKy {
     public boolean isDaDangKy() { return daDangKy; }
     public Float getDiemTongKet() { return diemTongKet; }
     public String getDiemThanhPhan() { return diemThanhPhan; }
-    public TrangThaiDangKy getTrangThaiDangKy() { return trangThaiDangKy; }
+    public String getTrangThaiDangKy() { return trangThaiDangKy; }
     public boolean isCoTheHuy() {
-        return daDangKy && trangThaiDangKy == TrangThaiDangKy.DANG_HOC;
+        return daDangKy && "DANG_HOC".equals(trangThaiDangKy);
     }
     public String getSiSo() { return siSoHienTai + " / " + siSoToiDa; }
     public String getTrangThai() {
         if (daDangKy) {
             return switch (trangThaiDangKy) {
-                case DA_HOAN_THANH -> "Đã hoàn thành";
-                case KHONG_DAT -> "Không đạt";
-                case HUY -> "Đã hủy";
+                case "DA_HOAN_THANH" -> "Đã hoàn thành";
+                case "KHONG_DAT" -> "Không đạt";
+                case "HUY" -> "Đã hủy";
                 default -> "Đang học";
             };
         }

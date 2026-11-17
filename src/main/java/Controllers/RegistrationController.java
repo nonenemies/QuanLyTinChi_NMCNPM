@@ -1,9 +1,6 @@
 package Controllers;
 
 import Model.LopHocDangKy;
-import Model.KetQuaDangKy;
-import Model.QuyDinhTinChi;
-import Model.TinhTrangTinChi;
 import Model.Users;
 import Services.DangKyHocService;
 import Services.ServiceException;
@@ -66,9 +63,9 @@ public class RegistrationController {
 
     @FXML
     private void initialize() {
-        lblCreditPolicy.setText("Mức tối thiểu " + QuyDinhTinChi.MIN_TIN_CHI
+        lblCreditPolicy.setText("Mức tối thiểu " + DangKyHocService.MIN_TIN_CHI
                 + " tín chỉ chỉ dùng để cảnh báo; vượt mức tối đa "
-                + QuyDinhTinChi.MAX_TIN_CHI + " tín chỉ sẽ bị từ chối.");
+                + DangKyHocService.MAX_TIN_CHI + " tín chỉ sẽ bị từ chối.");
         colCourseName.setCellValueFactory(new PropertyValueFactory<>("tenMon"));
         colCourseCode.setCellValueFactory(cell -> new ReadOnlyStringWrapper(
                 cell.getValue().getMaMon() + " · " + cell.getValue().getMaLop()));
@@ -124,8 +121,8 @@ public class RegistrationController {
         if (!confirmRegistration(selected)) return;
 
         try {
-            KetQuaDangKy result = registrationService.dangKyHoc(student.getMaSo(), selected.getMaLop());
-            boolean success = result == KetQuaDangKy.THANH_CONG;
+            String result = registrationService.dangKyHoc(student.getMaSo(), selected.getMaLop());
+            boolean success = "THANH_CONG".equals(result);
             setStatus(success ? "Đăng ký lớp thành công." : "Không thể đăng ký lớp này.", !success);
             if (!success) {
                 showRegistrationFailure(selected, registrationFailureMessage(result));
@@ -139,20 +136,20 @@ public class RegistrationController {
 
     }
 
-    private String registrationFailureMessage(KetQuaDangKy result) {
+    private String registrationFailureMessage(String result) {
         return switch (result) {
-            case SINH_VIEN_KHONG_HOAT_DONG -> "Tài khoản sinh viên không còn hoạt động.";
-            case DOT_DANG_KY_DA_DONG -> "Đợt đăng ký của ngành chưa mở hoặc đã kết thúc.";
-            case LOP_KHONG_HOAT_DONG -> "Lớp đã ngừng hoạt động hoặc hết chỗ.";
-            case LOP_CHUA_XEP_LICH -> "Lớp chưa được xếp lịch học.";
-            case DA_DANG_KY_MON_TRONG_HOC_KY -> "Bạn đã đăng ký môn này trong học kỳ.";
-            case DA_QUA_MON -> "Bạn đã đạt môn này nên không thể đăng ký học lại.";
-            case THIEU_MON_TIEN_QUYET -> "Bạn chưa đạt đủ các môn tiên quyết.";
-            case TRUNG_LICH -> "Lịch học bị trùng với một lớp bạn đã đăng ký.";
-            case VUOT_QUA_TIN_CHI -> "Tổng tín chỉ học kỳ không được vượt quá "
-                    + QuyDinhTinChi.MAX_TIN_CHI + ".";
-            case DA_CO_DIEM -> "Không thể hủy lớp đã có điểm thành phần.";
-            case THANH_CONG -> "Thao tác thành công.";
+            case "SINH_VIEN_KHONG_HOAT_DONG" -> "Tài khoản sinh viên không còn hoạt động.";
+            case "DOT_DANG_KY_DA_DONG" -> "Đợt đăng ký của ngành chưa mở hoặc đã kết thúc.";
+            case "LOP_KHONG_HOAT_DONG" -> "Lớp đã ngừng hoạt động hoặc hết chỗ.";
+            case "LOP_CHUA_XEP_LICH" -> "Lớp chưa được xếp lịch học.";
+            case "DA_DANG_KY_MON_TRONG_HOC_KY" -> "Bạn đã đăng ký môn này trong học kỳ.";
+            case "DA_QUA_MON" -> "Bạn đã đạt môn này nên không thể đăng ký học lại.";
+            case "THIEU_MON_TIEN_QUYET" -> "Bạn chưa đạt đủ các môn tiên quyết.";
+            case "TRUNG_LICH" -> "Lịch học bị trùng với một lớp bạn đã đăng ký.";
+            case "VUOT_QUA_TIN_CHI" -> "Tổng tín chỉ học kỳ không được vượt quá "
+                    + DangKyHocService.MAX_TIN_CHI + ".";
+            case "DA_CO_DIEM" -> "Không thể hủy lớp đã có điểm thành phần.";
+            case "THANH_CONG" -> "Thao tác thành công.";
             default -> "Thông tin đăng ký không còn hợp lệ. Hãy tải lại danh sách lớp.";
         };
     }
@@ -351,20 +348,21 @@ public class RegistrationController {
             return;
         }
 
-        List<TinhTrangTinChi> statuses = semesters.stream()
-                .map(semester -> registrationService.tinhTrangTinChi(student.getMaSo(), semester))
+        List<Integer> statuses = semesters.stream()
+                .map(semester -> registrationService.layTongTinChiDangKy(student.getMaSo(), semester))
                 .toList();
         List<String> summaries = java.util.stream.IntStream.range(0, semesters.size()).mapToObj(index -> {
             String semester = semesters.get(index);
-            TinhTrangTinChi status = statuses.get(index);
-            if (!status.datMucToiThieu()) {
-                return semester + ": Bạn mới đăng ký " + status.tongTinChi() + "/"
-                        + QuyDinhTinChi.MIN_TIN_CHI + " tín chỉ tối thiểu.";
+            int totalCredits = statuses.get(index);
+            if (totalCredits < DangKyHocService.MIN_TIN_CHI) {
+                return semester + ": Bạn mới đăng ký " + totalCredits + "/"
+                        + DangKyHocService.MIN_TIN_CHI + " tín chỉ tối thiểu.";
             }
-            return semester + ": đã đăng ký " + status.tongTinChi()
-                    + " tín chỉ, đạt mức tối thiểu " + QuyDinhTinChi.MIN_TIN_CHI + ".";
+            return semester + ": đã đăng ký " + totalCredits
+                    + " tín chỉ, đạt mức tối thiểu " + DangKyHocService.MIN_TIN_CHI + ".";
         }).toList();
-        boolean belowMinimum = statuses.stream().anyMatch(status -> !status.datMucToiThieu());
+        boolean belowMinimum = statuses.stream().anyMatch(
+                totalCredits -> totalCredits < DangKyHocService.MIN_TIN_CHI);
         lblCreditStatus.getStyleClass().removeAll(
                 "registration-message-success", "registration-message-error");
         lblCreditStatus.getStyleClass().add(

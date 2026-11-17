@@ -105,7 +105,7 @@ public class SinhVienDAO {
         return new SinhVien(rs.getInt("UserID"), rs.getString("HoTen"), rs.getString("Email"),
                 rs.getString("Password"), rs.getString("VaiTro"), rs.getString("MaSo"),
                 docNganh(rs), rs.getTimestamp("NgayTao"),
-                Model.TrangThaiHoatDong.valueOf(rs.getString("TrangThai")), rs.getString("MaSinhVien"),
+                rs.getString("TrangThai"), rs.getString("MaSinhVien"),
                 rs.getDate("NgaySinh"), gioiTinh, rs.getString("Lop"),
                 rs.getObject("KhoaHoc", Integer.class), rs.getString("HeDaoTao"));
     }

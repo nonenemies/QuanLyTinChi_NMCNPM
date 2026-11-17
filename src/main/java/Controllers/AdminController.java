@@ -5,7 +5,6 @@ import Model.GiangVien;
 import Model.MonHoc;
 import Model.Nganh;
 import Model.SinhVien;
-import Model.TrangThaiHoatDong;
 import Model.Users;
 import Services.AdminService;
 import Services.ServiceException;
@@ -52,7 +51,7 @@ public class AdminController {
     @FXML private TableColumn<Users, String> colUserEmail;
     @FXML private TableColumn<Users, String> colUserRole;
     @FXML private TableColumn<Users, String> colUserMajor;
-    @FXML private TableColumn<Users, TrangThaiHoatDong> colUserStatus;
+    @FXML private TableColumn<Users, String> colUserStatus;
     @FXML private TextField txtAccountSearch;
     @FXML private ComboBox<String> cmbAccountRole;
     @FXML private TextField txtUserCode;
@@ -69,14 +68,14 @@ public class AdminController {
     @FXML private TextField txtLecturerSpecialty;
     @FXML private TextField txtLecturerDegree;
     @FXML private GridPane lecturerFields;
-    @FXML private ComboBox<TrangThaiHoatDong> cmbUserStatus;
+    @FXML private ComboBox<String> cmbUserStatus;
 
     @FXML private TableView<MonHoc> tblCourses;
     @FXML private TableColumn<MonHoc, String> colCourseCode;
     @FXML private TableColumn<MonHoc, String> colCourseName;
     @FXML private TableColumn<MonHoc, Integer> colCourseCredits;
     @FXML private TableColumn<MonHoc, String> colCourseType;
-    @FXML private TableColumn<MonHoc, TrangThaiHoatDong> colCourseStatus;
+    @FXML private TableColumn<MonHoc, String> colCourseStatus;
     @FXML private TextField txtCourseSearch;
     @FXML private TextField txtCourseCode;
     @FXML private TextField txtCourseName;
@@ -94,8 +93,8 @@ public class AdminController {
         configureCourseTable();
         cmbAccountRole.setItems(FXCollections.observableArrayList(STUDENT_ROLE, LECTURER_ROLE));
         cmbAccountRole.getSelectionModel().selectFirst();
-        cmbUserStatus.setItems(FXCollections.observableArrayList(TrangThaiHoatDong.values()));
-        cmbUserStatus.getSelectionModel().select(TrangThaiHoatDong.HOAT_DONG);
+        cmbUserStatus.setItems(FXCollections.observableArrayList("HOAT_DONG", "NGUNG_HOAT_DONG"));
+        cmbUserStatus.getSelectionModel().select("HOAT_DONG");
         cmbStudentGender.setItems(FXCollections.observableArrayList("Không chỉ định", "Nam", "Nữ"));
         cmbStudentGender.getSelectionModel().selectFirst();
         tblAccounts.setItems(filteredAccounts);
@@ -115,7 +114,7 @@ public class AdminController {
 
     public void setAdmin(Users user, String section) {
         if (!(user instanceof Admin authenticatedAdmin)
-                || authenticatedAdmin.getTrangThai() != TrangThaiHoatDong.HOAT_DONG) {
+                || !"HOAT_DONG".equals(authenticatedAdmin.getTrangThai())) {
             setStatus("Không xác định được tài khoản admin đang hoạt động.", true);
             return;
         }
@@ -157,7 +156,7 @@ public class AdminController {
         txtLecturerSpecialty.clear();
         txtLecturerDegree.clear();
         cmbAccountRole.setDisable(false);
-        cmbUserStatus.getSelectionModel().select(TrangThaiHoatDong.HOAT_DONG);
+        cmbUserStatus.getSelectionModel().select("HOAT_DONG");
     }
 
     @FXML
@@ -231,7 +230,7 @@ public class AdminController {
                 throw new IllegalArgumentException("Mã môn, tên môn hoặc loại môn vượt quá giới hạn.");
             }
             MonHoc course = new MonHoc(code, name, credits, type, optional(txtCourseDescription.getText()),
-                    selectedCourse == null ? TrangThaiHoatDong.HOAT_DONG : selectedCourse.getTrangThai());
+                    selectedCourse == null ? "HOAT_DONG" : selectedCourse.getTrangThai());
             boolean saved = selectedCourse == null
                     ? adminService.taoMonHoc(admin, course) : adminService.capNhatMonHoc(admin, course);
             if (!saved) {
@@ -372,7 +371,7 @@ public class AdminController {
         }
         if (selectedAccount != null && password.isBlank()) password = selectedAccount.getPasswordHash();
         String major = optional(txtUserMajor.getText());
-        TrangThaiHoatDong status = cmbUserStatus.getValue();
+        String status = cmbUserStatus.getValue();
         if (role == null || status == null) throw new IllegalArgumentException("Chọn vai trò và trạng thái tài khoản.");
         if (STUDENT_ROLE.equals(role)) {
             Integer cohort = txtStudentCohort.getText().isBlank() ? null

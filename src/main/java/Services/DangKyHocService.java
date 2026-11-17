@@ -13,43 +13,42 @@ import Model.MonTienQuyet;
 import Model.DangKyHoc;
 import Model.LopHocDangKy;
 import Model.LopHocThoiKhoaBieu;
-import Model.KetQuaDangKy;
-import Model.TrangThaiDangKy;
-import Model.QuyDinhTinChi;
-import Model.TinhTrangTinChi;
 import DAO.ChuongTrinhDaoTaoDAO;
 import Util.DBConnection;
 
 public class DangKyHocService {
+    public static final int MIN_TIN_CHI = 11;
+    public static final int MAX_TIN_CHI = 26;
+
     private final DangKyHocDAO dangKyDAO = new DangKyHocDAO();
     private final LopHocDAO lopHocDAO = new LopHocDAO();
     private final ChuongTrinhDaoTaoDAO chuongTrinhDaoTaoDAO = new ChuongTrinhDaoTaoDAO();
     private final DotDangKyNganhDAO dotDangKyNganhDAO = new DotDangKyNganhDAO();
 
-    public KetQuaDangKy dangKyHoc(String maSV, String maLop) {
+    public String dangKyHoc(String maSV, String maLop) {
         if (maSV == null || maSV.isBlank() || maLop == null || maLop.isBlank()) {
-            return KetQuaDangKy.KHONG_HOP_LE;
+            return "KHONG_HOP_LE";
         }
         try (Connection conn = DBConnection.getConnection()) {
             conn.setAutoCommit(false);
 
             try {
-                KetQuaDangKy ketQuaKiemTra = kiemTraDieuKienDangKy(conn, maSV, maLop);
-                if (ketQuaKiemTra != KetQuaDangKy.THANH_CONG) {
+                String ketQuaKiemTra = kiemTraDieuKienDangKy(conn, maSV, maLop);
+                if (!"THANH_CONG".equals(ketQuaKiemTra)) {
                     return rollbackAndReturn(conn, ketQuaKiemTra);
                 }
 
                 if (!lopHocDAO.tangSiSo(conn, maLop)) {
-                    return rollbackAndReturn(conn, KetQuaDangKy.LOP_KHONG_HOAT_DONG);
+                    return rollbackAndReturn(conn, "LOP_KHONG_HOAT_DONG");
                 }
 
                 DangKyHoc dk = new DangKyHoc(maLop, maSV);
                 if (!dangKyDAO.themDangKyMoi(conn, dk)) {
-                    return rollbackAndReturn(conn, KetQuaDangKy.KHONG_HOP_LE);
+                    return rollbackAndReturn(conn, "KHONG_HOP_LE");
                 }
 
                 conn.commit();
-                return KetQuaDangKy.THANH_CONG;
+                return "THANH_CONG";
 
             } catch (SQLException e) {
                 boolean rollbackFailed = false;
@@ -60,7 +59,7 @@ public class DangKyHocService {
                     rollbackFailed = true;
                 }
                 if (!rollbackFailed && e.getErrorCode() == 1062) {
-                    return KetQuaDangKy.DA_DANG_KY_MON_TRONG_HOC_KY;
+                    return "DA_DANG_KY_MON_TRONG_HOC_KY";
                 }
                 throw e;
             } catch (RuntimeException e) {
@@ -78,54 +77,53 @@ public class DangKyHocService {
         }
     }
 
-    private KetQuaDangKy kiemTraDieuKienDangKy(Connection conn, String maSV, String maLop)
+    private String kiemTraDieuKienDangKy(Connection conn, String maSV, String maLop)
             throws SQLException {
         if (!dangKyDAO.khoaSinhVienChoDangKy(conn, maSV)) {
-            return KetQuaDangKy.SINH_VIEN_KHONG_HOAT_DONG;
+            return "SINH_VIEN_KHONG_HOAT_DONG";
         }
 
         var lopHoc = lopHocDAO.layLopTheoMaForUpdate(conn, maLop);
-        if (lopHoc == null || lopHoc.getTrangThai() != Model.TrangThaiHoatDong.HOAT_DONG) {
-            return KetQuaDangKy.LOP_KHONG_HOAT_DONG;
+        if (lopHoc == null || !"HOAT_DONG".equals(lopHoc.getTrangThai())) {
+            return "LOP_KHONG_HOAT_DONG";
         }
         DotDangKyNganh dotDangKy = dotDangKyNganhDAO.layDotDangKyHienTai(conn, maSV);
         if (dotDangKy == null) {
-            return KetQuaDangKy.DOT_DANG_KY_DA_DONG;
+            return "DOT_DANG_KY_DA_DONG";
         }
         ChuongTrinhDaoTao chuongTrinh = chuongTrinhDaoTaoDAO.layChuongTrinhMonHoc(
                 conn, maSV, lopHoc.getMaMon());
         if (chuongTrinh == null) {
-            return KetQuaDangKy.KHONG_HOP_LE;
+            return "KHONG_HOP_LE";
         }
         if (dangKyDAO.kiemTraDaDangKy(conn, maSV, maLop)
                 || dangKyDAO.daDangKyMonTrongHocKy(conn, maSV, lopHoc.getMaMon(), lopHoc.getHocKy())) {
-            return KetQuaDangKy.DA_DANG_KY_MON_TRONG_HOC_KY;
+            return "DA_DANG_KY_MON_TRONG_HOC_KY";
         }
         if (dangKyDAO.daDatMon(conn, maSV, lopHoc.getMaMon())) {
-            return KetQuaDangKy.DA_QUA_MON;
+            return "DA_QUA_MON";
         }
         if (!dangKyDAO.coLichHoc(conn, maLop)) {
-            return KetQuaDangKy.LOP_CHUA_XEP_LICH;
+            return "LOP_CHUA_XEP_LICH";
         }
         if (dangKyDAO.coLopBiTrungLich(conn, maSV, maLop)) {
-            return KetQuaDangKy.TRUNG_LICH;
+            return "TRUNG_LICH";
         }
         for (MonTienQuyet prerequisite
                 : MonTienQuyetDAO.layDanhSachMonTienQuyet(conn, lopHoc.getMaMon())) {
-            if (prerequisite.getMonTienQuyet().getTrangThai()
-                    != Model.TrangThaiHoatDong.HOAT_DONG
+            if (!"HOAT_DONG".equals(prerequisite.getMonTienQuyet().getTrangThai())
                     || !dangKyDAO.kiemTraDaQuaMon(conn, maSV,
                             prerequisite.getMaMonTienQuyet())) {
-                return KetQuaDangKy.THIEU_MON_TIEN_QUYET;
+                return "THIEU_MON_TIEN_QUYET";
             }
         }
 
         int credits = dangKyDAO.laySoTinChi(conn, lopHoc.getMaMon());
         if (credits <= 0 || dangKyDAO.tongTinChiDangHoc(conn, maSV, lopHoc.getHocKy()) + credits
-                > QuyDinhTinChi.MAX_TIN_CHI) {
-            return KetQuaDangKy.VUOT_QUA_TIN_CHI;
+                > MAX_TIN_CHI) {
+            return "VUOT_QUA_TIN_CHI";
         }
-        return KetQuaDangKy.THANH_CONG;
+        return "THANH_CONG";
     }
 
     public boolean huyDangKyHoc(String maSV, String maLop) {
@@ -146,11 +144,11 @@ public class DangKyHocService {
                 if (lopHoc == null || dotDangKyNganhDAO.layDotDangKyHienTai(conn, maSV) == null) {
                     return rollbackAndReturn(conn, false);
                 }
-                TrangThaiDangKy trangThai = dangKyDAO.layTrangThaiDangKyForUpdate(conn, maSV, maLop);
-                if (trangThai == null || trangThai == TrangThaiDangKy.HUY) {
+                String trangThai = dangKyDAO.layTrangThaiDangKyForUpdate(conn, maSV, maLop);
+                if (trangThai == null || "HUY".equals(trangThai)) {
                     return rollbackAndReturn(conn, false);
                 }
-                if (trangThai != TrangThaiDangKy.DANG_HOC
+                if (!"DANG_HOC".equals(trangThai)
                         || dangKyDAO.coDiem(conn, maSV, maLop)) {
                     return rollbackAndReturn(conn, false);
                 }
@@ -215,13 +213,12 @@ public class DangKyHocService {
         }
     }
 
-    public TinhTrangTinChi tinhTrangTinChi(String maSV, String hocKy) {
+    public int layTongTinChiDangKy(String maSV, String hocKy) {
         if (maSV == null || maSV.isBlank() || hocKy == null || hocKy.isBlank()) {
             throw new IllegalArgumentException("Mã sinh viên và học kỳ là bắt buộc.");
         }
         try (Connection conn = DBConnection.getConnection()) {
-            int totalCredits = dangKyDAO.tongTinChiDangHoc(conn, maSV, hocKy);
-            return new TinhTrangTinChi(totalCredits, totalCredits >= QuyDinhTinChi.MIN_TIN_CHI);
+            return dangKyDAO.tongTinChiDangHoc(conn, maSV, hocKy);
         } catch (SQLException e) {
             throw new ServiceException("Không thể tải tổng tín chỉ của học kỳ.", e);
         } catch (RuntimeException e) {

@@ -1,7 +1,6 @@
 package DAO;
 
 import Model.MonHoc;
-import Model.TrangThaiHoatDong;
 import Util.DBConnection;
 
 import java.sql.Connection;
@@ -55,9 +54,9 @@ public class MonHocDAO {
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, TrangThaiHoatDong.NGUNG_HOAT_DONG.name());
+            ps.setString(1, "NGUNG_HOAT_DONG");
             ps.setString(2, maMon);
-            ps.setString(3, TrangThaiHoatDong.NGUNG_HOAT_DONG.name());
+            ps.setString(3, "NGUNG_HOAT_DONG");
             return ps.executeUpdate() == 1;
         }
     }
@@ -87,7 +86,7 @@ public class MonHocDAO {
                 rs.getObject("SoTinChi", Integer.class),
                 rs.getString("LoaiMon"),
                 rs.getString("MoTa"),
-                TrangThaiHoatDong.valueOf(rs.getString("TrangThai"))
+                rs.getString("TrangThai")
         );
     }
 

@@ -2,7 +2,6 @@ package DAO;
 
 import Model.BangDiemSinhVien;
 import Model.LopHocDangKy;
-import Model.TrangThaiDangKy;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -55,7 +54,7 @@ public class DiemDAO {
                             null,
                             null,
                             true,
-                            TrangThaiDangKy.valueOf(rs.getString("TrangThai")),
+                            rs.getString("TrangThai"),
                             finalGrade == null ? null : finalGrade.floatValue(),
                             rs.getString("DiemThanhPhan")));
                 }
@@ -111,7 +110,7 @@ public class DiemDAO {
                         java.math.BigDecimal total = rs.getBigDecimal("DiemTongKet");
                         row = new BangDiemSinhVien(maDangKy, rs.getString("MaSinhVien"),
                                 rs.getString("HoTen"), total == null ? null : total.floatValue(),
-                                TrangThaiDangKy.valueOf(rs.getString("TrangThai")));
+                                rs.getString("TrangThai"));
                         rows.put(maDangKy, row);
                     }
                     int maTP = rs.getInt("MaThanhPhan");

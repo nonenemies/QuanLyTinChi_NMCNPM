@@ -9,7 +9,6 @@ import Model.Admin;
 import Model.GiangVien;
 import Model.MonHoc;
 import Model.SinhVien;
-import Model.TrangThaiHoatDong;
 import Model.Users;
 import Util.DBConnection;
 
@@ -151,7 +150,7 @@ public class AdminService {
                 kiemTraAdminTrongDatabase(conn, admin);
                 Users target = usersDAO.layTheoID(conn, userID);
                 if (target == null || target instanceof Admin
-                        || target.getTrangThai() != TrangThaiHoatDong.HOAT_DONG
+                        || !"HOAT_DONG".equals(target.getTrangThai())
                         || !usersDAO.ngungHoatDong(conn, userID)) {
                     conn.rollback();
                     return false;
@@ -172,7 +171,7 @@ public class AdminService {
     private void kiemTraAdminTrongDatabase(Connection conn, Admin admin) throws SQLException {
         Users current = usersDAO.layTheoID(conn, admin.getUserID());
         if (!(current instanceof Admin)
-                || current.getTrangThai() != TrangThaiHoatDong.HOAT_DONG) {
+                || !"HOAT_DONG".equals(current.getTrangThai())) {
             throw new ServiceException("Tài khoản admin không còn hoạt động.");
         }
     }
@@ -180,7 +179,7 @@ public class AdminService {
     private void kiemTraAdmin(Admin admin) {
         if (admin == null || admin.getUserID() == null || admin.getUserID() <= 0
                 || !"ADMIN".equalsIgnoreCase(admin.getRole())
-                || admin.getTrangThai() != TrangThaiHoatDong.HOAT_DONG) {
+                || !"HOAT_DONG".equals(admin.getTrangThai())) {
             throw new ServiceException("Cần đăng nhập bằng tài khoản admin đang hoạt động.");
         }
     }
@@ -190,7 +189,7 @@ public class AdminService {
         try {
             Users current = usersDAO.layTheoID(admin.getUserID());
             if (!(current instanceof Admin)
-                    || current.getTrangThai() != TrangThaiHoatDong.HOAT_DONG) {
+                    || !"HOAT_DONG".equals(current.getTrangThai())) {
                 throw new ServiceException("Tài khoản admin không còn hoạt động.");
             }
         } catch (SQLException e) {

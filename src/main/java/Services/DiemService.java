@@ -7,7 +7,6 @@ import Model.GiangVien;
 import Model.LopHocPhan;
 import Model.LopHocDangKy;
 import Model.SinhVien;
-import Model.TrangThaiHoatDong;
 import Model.ThanhPhanDanhGia;
 import Util.DBConnection;
 import java.sql.Connection;
@@ -27,7 +26,7 @@ public class DiemService {
     public List<LopHocDangKy> layKetQuaHocTap(SinhVien sinhVien) {
         if (sinhVien == null || !"SINHVIEN".equalsIgnoreCase(sinhVien.getRole())
                 || sinhVien.getMaSinhVien() == null || sinhVien.getMaSinhVien().isBlank()
-                || sinhVien.getTrangThai() != TrangThaiHoatDong.HOAT_DONG) {
+                || !"HOAT_DONG".equals(sinhVien.getTrangThai())) {
             throw new ServiceException("Tài khoản sinh viên không hợp lệ hoặc đã ngừng hoạt động.");
         }
 
@@ -161,7 +160,7 @@ public class DiemService {
     private void kiemTraGiangVien(GiangVien giangVien) {
         if (giangVien == null || !"GIAOVIEN".equalsIgnoreCase(giangVien.getRole())
                 || giangVien.getMaGiangVien() == null || giangVien.getMaGiangVien().isBlank()
-                || giangVien.getTrangThai() != TrangThaiHoatDong.HOAT_DONG) {
+                || !"HOAT_DONG".equals(giangVien.getTrangThai())) {
             throw new ServiceException("Tài khoản giảng viên không hợp lệ hoặc đã ngừng hoạt động.");
         }
     }

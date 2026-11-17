@@ -2,7 +2,6 @@ package Controllers;
 
 import Model.LopHocDangKy;
 import Model.SinhVien;
-import Model.TrangThaiDangKy;
 import Model.Users;
 import Services.DiemService;
 import Services.ServiceException;
@@ -136,7 +135,7 @@ public class StudentGradesController {
     }
 
     private boolean isPassed(LopHocDangKy result) {
-        return result.getTrangThaiDangKy() == TrangThaiDangKy.DA_HOAN_THANH
+        return "DA_HOAN_THANH".equals(result.getTrangThaiDangKy())
                 && result.getDiemTongKet() != null && result.getDiemTongKet() >= 4.0f;
     }
 
