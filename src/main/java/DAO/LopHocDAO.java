@@ -2,7 +2,6 @@ package DAO;
 
 import Model.LopHocPhan;
 import Model.LopHocDangKy;
-import Model.TrangThaiHoatDong;
 import Util.DBConnection;
 
 import java.sql.Connection;
@@ -83,8 +82,7 @@ public class LopHocDAO {
                             rs.getObject("SiSoHienTai", Integer.class),
                             rs.getObject("SiSoToiDa", Integer.class),
                             rs.getBoolean("DaDangKy"),
-                            rs.getString("TrangThaiDangKy") == null ? null
-                                    : Model.TrangThaiDangKy.valueOf(rs.getString("TrangThaiDangKy")),
+                            rs.getString("TrangThaiDangKy"),
                             null, null));
                 }
             }
@@ -111,8 +109,7 @@ public class LopHocDAO {
     /** Tăng sĩ số trên kết nối do bên gọi quản lý, để ghép vào transaction hiện có. */
     public boolean tangSiSo(Connection conn, String maLop) throws SQLException {
         String sql = "UPDATE LopHocPhan SET SiSoHienTai = SiSoHienTai + 1 "
-                + "WHERE MaLop = ? AND TrangThai = '" + TrangThaiHoatDong.HOAT_DONG.name()
-                + "' AND SiSoHienTai < SiSoToiDa";
+                + "WHERE MaLop = ? AND TrangThai = 'HOAT_DONG' AND SiSoHienTai < SiSoToiDa";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, maLop);
             return ps.executeUpdate() == 1;
@@ -151,7 +148,7 @@ public class LopHocDAO {
                             rs.getString("HocKy"),
                             rs.getObject("SiSoToiDa", Integer.class),
                             rs.getObject("SiSoHienTai", Integer.class),
-                            TrangThaiHoatDong.valueOf(rs.getString("TrangThai"))
+                            rs.getString("TrangThai")
                     ));
                 }
             }

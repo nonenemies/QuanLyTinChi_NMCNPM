@@ -87,7 +87,7 @@ public class GiangVienDAO {
         return new GiangVien(rs.getInt("UserID"), rs.getString("HoTen"), rs.getString("Email"),
                 rs.getString("Password"), rs.getString("VaiTro"), rs.getString("MaSo"),
                 rs.getTimestamp("NgayTao"),
-                Model.TrangThaiHoatDong.valueOf(rs.getString("TrangThai")),
+                rs.getString("TrangThai"),
                 rs.getString("MaGiangVien"), rs.getString("ChuyenNganh"), rs.getString("HocVi"));
     }
 }

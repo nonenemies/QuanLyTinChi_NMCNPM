@@ -7,7 +7,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import Model.DangKyHoc;
 import Model.LopHocThoiKhoaBieu;
-import Model.TrangThaiDangKy;
 
 public class DangKyHocDAO {
 
@@ -128,14 +127,14 @@ public class DangKyHocDAO {
         }
     }
 
-    public TrangThaiDangKy layTrangThaiDangKyForUpdate(Connection conn, String maSV, String maLop)
+    public String layTrangThaiDangKyForUpdate(Connection conn, String maSV, String maLop)
             throws SQLException {
         String sql = "SELECT TrangThai FROM DangKyHoc WHERE MaSinhVien = ? AND MaLop = ? FOR UPDATE";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, maSV);
             ps.setString(2, maLop);
             try (ResultSet rs = ps.executeQuery()) {
-                return rs.next() ? TrangThaiDangKy.valueOf(rs.getString("TrangThai")) : null;
+                return rs.next() ? rs.getString("TrangThai") : null;
             }
         }
     }
