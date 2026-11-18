@@ -4,7 +4,7 @@ import java.util.*;
 import java.sql.SQLException;
 import DAO.DangKyHocDAO;
 import DAO.DotDangKyNganhDAO;
-import DAO.LopHocDAO;
+import DAO.LopHocPhanDAO;
 import DAO.MonTienQuyetDAO;
 import Model.ChuongTrinhDaoTao;
 import Model.DotDangKyNganh;
@@ -19,7 +19,7 @@ public class DangKyHocService {
     public static final int MAX_TIN_CHI = 26;
 
     private final DangKyHocDAO dangKyDAO = new DangKyHocDAO();
-    private final LopHocDAO lopHocDAO = new LopHocDAO();
+    private final LopHocPhanDAO lopHocPhanDAO = new LopHocPhanDAO();
     private final ChuongTrinhDaoTaoDAO chuongTrinhDaoTaoDAO = new ChuongTrinhDaoTaoDAO();
     private final DotDangKyNganhDAO dotDangKyNganhDAO = new DotDangKyNganhDAO();
 
@@ -33,7 +33,7 @@ public class DangKyHocService {
                     return ketQuaKiemTra;
                 }
 
-                if (!lopHocDAO.tangSiSo( maLop)) {
+                if (!lopHocPhanDAO.tangSiSo( maLop)) {
                     return "LOP_KHONG_HOAT_DONG";
                 }
 
@@ -58,7 +58,7 @@ public class DangKyHocService {
             return "SINH_VIEN_KHONG_HOAT_DONG";
         }
 
-        var lopHoc = lopHocDAO.layLopTheoMa( maLop);
+        var lopHoc = lopHocPhanDAO.layLopTheoMa( maLop);
         if (lopHoc == null || !"HOAT_DONG".equals(lopHoc.getTrangThai())) {
             return "LOP_KHONG_HOAT_DONG";
         }
@@ -109,11 +109,11 @@ public class DangKyHocService {
                 if (!dangKyDAO.sinhVienConHoatDong(maSinhVien)) {
                     return false;
                 }
-                if (lopHocDAO.layLopTheoMa( maLop) == null) {
+                if (lopHocPhanDAO.layLopTheoMa( maLop) == null) {
                     return false;
                 }
 
-                var lopHoc = lopHocDAO.layLopTheoMa( maLop);
+                var lopHoc = lopHocPhanDAO.layLopTheoMa( maLop);
                 if (lopHoc == null || dotDangKyNganhDAO.layDotDangKyHienTai(maSinhVien) == null) {
                     return false;
                 }
@@ -129,7 +129,7 @@ public class DangKyHocService {
                     return false;
                 }
 
-                if (!lopHocDAO.giamSiSo( maLop)) {
+                if (!lopHocPhanDAO.giamSiSo( maLop)) {
                     return false;
                 }
 
@@ -156,7 +156,7 @@ public class DangKyHocService {
 
     public List<LopHocDangKy> xemDanhSachLopDangKy(String maSinhVien) {
         try {
-            return lopHocDAO.layDanhSachLopDangKy(maSinhVien);
+            return lopHocPhanDAO.layDanhSachLopDangKy(maSinhVien);
         } catch (SQLException e) {
             throw new ServiceException("Không thể tải danh sách lớp đăng ký.", e);
         } catch (RuntimeException e) {
@@ -169,7 +169,7 @@ public class DangKyHocService {
             throw new IllegalArgumentException("Mã sinh viên không hợp lệ.");
         }
         try {
-            return lopHocDAO.layDanhSachLopDaDangKy(maSinhVien);
+            return lopHocPhanDAO.layDanhSachLopDaDangKy(maSinhVien);
         } catch (SQLException e) {
             throw new ServiceException("Không thể tải danh sách lớp đã đăng ký.", e);
         } catch (RuntimeException e) {

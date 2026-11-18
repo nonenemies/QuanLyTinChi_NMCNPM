@@ -67,8 +67,8 @@ public class UsersDAO extends BaseDAO {
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, user.getHoTen());
             ps.setString(2, user.getEmail());
-            ps.setString(3, user.getPasswordHash());
-            ps.setString(4, user.getRole());
+            ps.setString(3, user.getPassword());
+            ps.setString(4, user.getVaiTro());
             ps.setString(5, user.getMaSo());
             ps.setString(6, user.getTrangThai());
             if (ps.executeUpdate() != 1) throw new SQLException("Không tạo được tài khoản.");
@@ -87,7 +87,7 @@ public class UsersDAO extends BaseDAO {
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, user.getHoTen());
             ps.setString(2, user.getEmail());
-            ps.setString(3, user.getPasswordHash());
+            ps.setString(3, user.getPassword());
             ps.setString(4, user.getTrangThai());
             ps.setInt(5, user.getUserID());
             return ps.executeUpdate() == 1;
@@ -108,22 +108,22 @@ public class UsersDAO extends BaseDAO {
         String hoTen = rs.getString("HoTen");
         String email = rs.getString("Email");
         String password = rs.getString("Password");
-        String role = rs.getString("VaiTro");
+        String vaiTro = rs.getString("VaiTro");
         String maSo = rs.getString("MaSo");
         java.util.Date ngayTao = rs.getTimestamp("NgayTao");
         String trangThai = rs.getString("TrangThai");
         boolean gioiTinhValue = rs.getBoolean("GioiTinh");
         Boolean gioiTinh = rs.wasNull() ? null : gioiTinhValue;
-        return switch (role.toUpperCase(java.util.Locale.ROOT)) {
-            case "SINHVIEN" -> new SinhVien(userID, hoTen, email, password, role, maSo,
+        return switch (vaiTro.toUpperCase(java.util.Locale.ROOT)) {
+            case "SINHVIEN" -> new SinhVien(userID, hoTen, email, password, vaiTro, maSo,
                     docNganh(rs), ngayTao,
                     trangThai, rs.getString("MaSinhVien"), rs.getDate("NgaySinh"), gioiTinh, rs.getString("Lop"),
                     rs.getObject("KhoaHoc", Integer.class), rs.getString("HeDaoTao"));
-            case "GIAOVIEN" -> new GiangVien(userID, hoTen, email, password, role, maSo, ngayTao,
+            case "GIAOVIEN" -> new GiangVien(userID, hoTen, email, password, vaiTro, maSo, ngayTao,
                     trangThai, rs.getString("MaGiangVien"), rs.getString("ChuyenNganh"), rs.getString("HocVi"));
-            case "ADMIN" -> new Admin(userID, hoTen, email, password, role, maSo, ngayTao,
+            case "ADMIN" -> new Admin(userID, hoTen, email, password, vaiTro, maSo, ngayTao,
                     trangThai, rs.getString("ChucVu"));
-            default -> throw new SQLException("Vai trò tài khoản không được hỗ trợ: " + role);
+            default -> throw new SQLException("Vai trò tài khoản không được hỗ trợ: " + vaiTro);
         };
     }
 

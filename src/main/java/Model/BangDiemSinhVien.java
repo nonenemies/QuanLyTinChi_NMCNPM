@@ -41,13 +41,13 @@ public class BangDiemSinhVien {
         return trangThai;
     }
 
-    public Float getDiemThanhPhan(int maTP) {
-        return diemThanhPhan.get(maTP);
+    public Float getDiemThanhPhan(int maThanhPhan) {
+        return diemThanhPhan.get(maThanhPhan);
     }
 
-    public void setDiemThanhPhan(int maTP, Float diem) {
+    public void setDiemThanhPhan(int maThanhPhan, Float diem) {
         if (diem != null) {
-            diemThanhPhan.put(maTP, diem);
+            diemThanhPhan.put(maThanhPhan, diem);
         }
     }
 }

@@ -103,8 +103,8 @@ public class DashBoardController {
                 hienThiLoi("Vai trò tài khoản không được hỗ trợ.");
             }
         } catch (ServiceException loiPhatSinh) {
-            NHAT_KY.log(Level.SEVERE, "Unable to load overview for role "
-                    + nguoiDungDangNhap.getRole(), loiPhatSinh);
+            NHAT_KY.log(Level.SEVERE, "Không thể tải tổng quan cho vai trò "
+                    + nguoiDungDangNhap.getVaiTro(), loiPhatSinh);
             hienThiLoi("Không thể tải dữ liệu tổng quan. Vui lòng thử tải lại.");
         }
     }
@@ -171,7 +171,7 @@ public class DashBoardController {
         long soHocKyPhuTrach = danhSachLopHocPhan.stream().map(LopHocPhan::getHocKy)
                 .filter(giaTri -> giaTri != null).distinct().count();
         themChiSo("LỚP ĐANG PHỤ TRÁCH", Integer.toString(danhSachLopHocPhan.size()), "LỚP", "overview-icon-blue");
-        themChiSo("SINH VIÊN ĐANG HỌC", Integer.toString(soSinhVienDangHoc), "SV", "overview-icon-violet");
+        themChiSo("SINH VIÊN ĐANG HỌC", Integer.toString(soSinhVienDangHoc), "SINH VIÊN", "overview-icon-violet");
         themChiSo("HỌC KỲ ĐƯỢC PHÂN CÔNG", Long.toString(soHocKyPhuTrach), "HK", "overview-icon-green");
 
         themChiTietHoSo("Email", giaTriHoacGach(giangVien.getEmail()));
@@ -210,8 +210,8 @@ public class DashBoardController {
                 .filter(monHoc -> "HOAT_DONG".equals(monHoc.getTrangThai()))
                 .toList();
 
-        themChiSo("SINH VIÊN HOẠT ĐỘNG", Long.toString(soSinhVienHoatDong), "SV", "overview-icon-blue");
-        themChiSo("GIẢNG VIÊN HOẠT ĐỘNG", Long.toString(soGiangVienHoatDong), "GV", "overview-icon-violet");
+        themChiSo("SINH VIÊN HOẠT ĐỘNG", Long.toString(soSinhVienHoatDong), "SINH VIÊN", "overview-icon-blue");
+        themChiSo("GIẢNG VIÊN HOẠT ĐỘNG", Long.toString(soGiangVienHoatDong), "GIẢNG VIÊN", "overview-icon-violet");
         themChiSo("MÔN HỌC HOẠT ĐỘNG", Integer.toString(danhSachMonHocHoatDong.size()), "MH", "overview-icon-green");
 
         themChiTietHoSo("Email", giaTriHoacGach(quanTriVien.getEmail()));
@@ -290,7 +290,7 @@ public class DashBoardController {
         if (nguoiDung instanceof SinhVien) return "SINH VIÊN";
         if (nguoiDung instanceof GiangVien) return "GIẢNG VIÊN";
         if (nguoiDung instanceof Admin) return "QUẢN TRỊ VIÊN";
-        return giaTriHoacGach(nguoiDung.getRole());
+        return giaTriHoacGach(nguoiDung.getVaiTro());
     }
 
     private String giaTriHoacGach(String giaTri) {

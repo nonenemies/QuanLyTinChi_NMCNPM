@@ -10,7 +10,7 @@ public class AuthService {
     public Users xacThucDangNhap(String email, String password) {
         try {
             Users user = usersDAO.layTheoEmailDangHoatDong(email);
-            return user != null && user.getPasswordHash().equals(password) ? user : null;
+            return user != null && user.getPassword().equals(password) ? user : null;
         } catch (java.sql.SQLException e) {
             throw new ServiceException("Không thể xác thực tài khoản.", e);
         }

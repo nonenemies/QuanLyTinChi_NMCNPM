@@ -64,7 +64,7 @@ public class GiangVienController {
             @Override
             public String toString(ThanhPhanDanhGia thanhPhan) {
                 if (thanhPhan == null) return "";
-                return thanhPhan.getTenTP() + " (" + dinhDangDiem.format(thanhPhan.getTrongSo() * 100) + "%)";
+                return thanhPhan.getTenThanhPhan() + " (" + dinhDangDiem.format(thanhPhan.getTrongSo() * 100) + "%)";
             }
 
             @Override
@@ -83,7 +83,7 @@ public class GiangVienController {
     public void ganGiangVien(Users nguoiDung) {
         if (!(nguoiDung instanceof GiangVien giangVienXacThuc)
                 || !"HOAT_DONG".equals(giangVienXacThuc.getTrangThai())
-                || !"GIAOVIEN".equalsIgnoreCase(giangVienXacThuc.getRole())
+                || !"GIAOVIEN".equalsIgnoreCase(giangVienXacThuc.getVaiTro())
                 || giangVienXacThuc.getMaGiangVien() == null || giangVienXacThuc.getMaGiangVien().isBlank()) {
             hienThiTrangThai("Không xác định được tài khoản giảng viên. Vui lòng đăng nhập lại.", true);
             return;
@@ -172,7 +172,7 @@ public class GiangVienController {
             cmbThanhPhanDanhGia.setItems(FXCollections.observableArrayList(cacThanhPhan));
             if (thanhPhanDaChonTruoc != null) {
                 cacThanhPhan.stream()
-                        .filter(thanhPhan -> thanhPhan.getMaTP() == thanhPhanDaChonTruoc.getMaTP())
+                        .filter(thanhPhan -> thanhPhan.getMaThanhPhan() == thanhPhanDaChonTruoc.getMaThanhPhan())
                         .findFirst().ifPresent(cmbThanhPhanDanhGia.getSelectionModel()::select);
             }
             if (cmbThanhPhanDanhGia.getValue() == null && !cacThanhPhan.isEmpty()) {
@@ -201,10 +201,10 @@ public class GiangVienController {
     private void themCotThanhPhan(List<ThanhPhanDanhGia> cacThanhPhan) {
         int viTriChen = bangSinhVien.getColumns().indexOf(cotDiemTongKet);
         for (ThanhPhanDanhGia thanhPhan : cacThanhPhan) {
-            TableColumn<BangDiemSinhVien, String> cot = new TableColumn<>(thanhPhan.getTenTP());
+            TableColumn<BangDiemSinhVien, String> cot = new TableColumn<>(thanhPhan.getTenThanhPhan());
             cot.setPrefWidth(110);
             cot.setCellValueFactory(duLieu -> new ReadOnlyStringWrapper(
-                    dinhDangDiemSo(duLieu.getValue().getDiemThanhPhan(thanhPhan.getMaTP()))));
+                    dinhDangDiemSo(duLieu.getValue().getDiemThanhPhan(thanhPhan.getMaThanhPhan()))));
             bangSinhVien.getColumns().add(viTriChen++, cot);
         }
     }
@@ -223,7 +223,7 @@ public class GiangVienController {
         BangDiemSinhVien sinhVien = bangSinhVien.getSelectionModel().getSelectedItem();
         ThanhPhanDanhGia thanhPhan = cmbThanhPhanDanhGia.getValue();
         Float diem = sinhVien == null || thanhPhan == null
-                ? null : sinhVien.getDiemThanhPhan(thanhPhan.getMaTP());
+                ? null : sinhVien.getDiemThanhPhan(thanhPhan.getMaThanhPhan());
         txtDiem.setText(diem == null ? "" : dinhDangDiemSo(diem));
     }
 
