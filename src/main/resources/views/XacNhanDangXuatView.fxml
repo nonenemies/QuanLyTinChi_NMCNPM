@@ -15,8 +15,8 @@
            wrapText="true" />
     <HBox alignment="CENTER_RIGHT" spacing="10.0">
         <Region HBox.hgrow="ALWAYS" />
-        <Button onAction="#huyBo" styleClass="registration-cancel-button" text="Ở lại" />
-        <Button fx:id="nutXacNhan" onAction="#xacNhan"
+        <Button onAction="#onAnNutHuyBo" styleClass="registration-cancel-button" text="Ở lại" />
+        <Button fx:id="nutXacNhan" onAction="#onAnNutXacNhan"
                 styleClass="login-button registration-confirm" text="Đăng xuất" />
     </HBox>
 </VBox>

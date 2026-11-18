@@ -3,6 +3,7 @@ package Controllers;
 import Model.Users;
 import Services.AuthService;
 import Services.ServiceException;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -22,7 +23,7 @@ public class DangNhapController {
     private final AuthService dichVuXacThuc = new AuthService();
 
     @FXML
-    protected void dangNhap(javafx.event.ActionEvent suKien) {
+    protected void onAnNutDangNhap(ActionEvent suKien) {
         String diaChiEmail = txtDiaChiEmail.getText();
         String matKhau = txtMatKhau.getText();
 
