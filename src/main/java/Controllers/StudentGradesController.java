@@ -1,6 +1,6 @@
 package Controllers;
 
-import Model.LopHocDangKy;
+import Model.KetQuaHocTap;
 import Model.SinhVien;
 import Model.Users;
 import Services.DiemService;
@@ -59,7 +59,7 @@ public class StudentGradesController {
         gpaStats.getChildren().clear();
         semesterResults.getChildren().clear();
         try {
-            List<LopHocDangKy> results = diemService.layKetQuaHocTap(student);
+            List<KetQuaHocTap> results = diemService.layKetQuaHocTap(student);
             displayGpaStats(results);
             if (results.isEmpty()) {
                 showInfo("Chưa có học phần nào được ghi nhận trong bảng điểm.");
@@ -73,25 +73,25 @@ public class StudentGradesController {
         }
     }
 
-    private void displayBySemester(List<LopHocDangKy> results) {
-        Map<String, List<LopHocDangKy>> grouped = new LinkedHashMap<>();
+    private void displayBySemester(List<KetQuaHocTap> results) {
+        Map<String, List<KetQuaHocTap>> grouped = new LinkedHashMap<>();
         results.stream()
-                .sorted(Comparator.comparing(LopHocDangKy::getHocKy, this::compareSemesters)
-                        .thenComparing(LopHocDangKy::getMaMon)
-                        .thenComparing(LopHocDangKy::getMaLop))
+                .sorted(Comparator.comparing(KetQuaHocTap::getHocKy, this::compareSemesters)
+                        .thenComparing(KetQuaHocTap::getMaMon)
+                        .thenComparing(KetQuaHocTap::getMaLop))
                 .forEach(result -> grouped.computeIfAbsent(result.getHocKy(), key -> new ArrayList<>()).add(result));
 
         List<String> semesterOrder = new ArrayList<>(grouped.keySet());
         List<VBox> cards = new ArrayList<>();
 
         for (String semester : semesterOrder) {
-            List<LopHocDangKy> semesterResults = grouped.get(semester);
+            List<KetQuaHocTap> semesterResults = grouped.get(semester);
             double semesterWeightedScore = 0;
             long semesterGradedCredits = 0;
             long semesterEarnedCredits = 0;
             Set<String> semesterPassedCourses = new LinkedHashSet<>();
 
-            for (LopHocDangKy result : semesterResults) {
+            for (KetQuaHocTap result : semesterResults) {
                 int credits = result.getSoTinChi() == null ? 0 : result.getSoTinChi();
                 if (result.getDiemTongKet() != null && credits > 0) {
                     semesterWeightedScore += result.getDiemTongKet() * credits;
@@ -117,10 +117,10 @@ public class StudentGradesController {
                 + "Tín chỉ tích lũy chỉ tính các học phần đã hoàn thành và đạt từ 4,0.");
     }
 
-    private void displayGpaStats(List<LopHocDangKy> results) {
+    private void displayGpaStats(List<KetQuaHocTap> results) {
         Set<String> passedCourses = new LinkedHashSet<>();
         long earnedCredits = 0;
-        for (LopHocDangKy result : results) {
+        for (KetQuaHocTap result : results) {
             if (isPassed(result) && passedCourses.add(result.getMaMon()) && result.getSoTinChi() != null) {
                 earnedCredits += result.getSoTinChi();
             }
@@ -134,26 +134,26 @@ public class StudentGradesController {
         gpaStats.getChildren().setAll(summary);
     }
 
-    private boolean isPassed(LopHocDangKy result) {
+    private boolean isPassed(KetQuaHocTap result) {
         return "DA_HOAN_THANH".equals(result.getTrangThaiDangKy())
                 && result.getDiemTongKet() != null && result.getDiemTongKet() >= 4.0f;
     }
 
-    private VBox createSemesterCard(String semester, List<LopHocDangKy> results,
+    private VBox createSemesterCard(String semester, List<KetQuaHocTap> results,
                                     double semesterAverage, long semesterCredits) {
         Label title = new Label("Học kỳ " + semester);
         title.getStyleClass().add("section-title");
 
-        TableView<LopHocDangKy> table = new TableView<>(
+        TableView<KetQuaHocTap> table = new TableView<>(
                 FXCollections.observableArrayList(results));
         table.getStyleClass().add("registration-table");
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
         table.setPrefHeight(Math.min(320, 44 + results.size() * 32));
         table.setMinHeight(Math.min(120, 44 + results.size() * 32));
         table.setPlaceholder(new Label("Chưa có kết quả học tập."));
-        table.getColumns().add(column("Mã lớp", 90, LopHocDangKy::getMaLop));
-        table.getColumns().add(column("Mã môn", 90, LopHocDangKy::getMaMon));
-        table.getColumns().add(column("Học phần", 220, LopHocDangKy::getTenMon));
+        table.getColumns().add(column("Mã lớp", 90, KetQuaHocTap::getMaLop));
+        table.getColumns().add(column("Mã môn", 90, KetQuaHocTap::getMaMon));
+        table.getColumns().add(column("Học phần", 220, KetQuaHocTap::getTenMon));
         table.getColumns().add(column("Tín chỉ", 70, result ->
                 result.getSoTinChi() == null ? "—" : result.getSoTinChi().toString()));
         table.getColumns().add(column("Điểm tổng kết", 100, result -> result.getDiemTongKet() == null
@@ -161,7 +161,7 @@ public class StudentGradesController {
         table.getColumns().add(column("Điểm thành phần", 250, result ->
                 result.getDiemThanhPhan() == null || result.getDiemThanhPhan().isBlank()
                         ? "Chưa có điểm thành phần" : result.getDiemThanhPhan()));
-        table.getColumns().add(column("Trạng thái", 115, LopHocDangKy::getTrangThai));
+        table.getColumns().add(column("Trạng thái", 115, KetQuaHocTap::getTrangThai));
 
         HBox summary = new HBox(12,
                 metric("ĐIỂM TB HỌC KỲ", formatAverage(semesterAverage)),
@@ -174,9 +174,9 @@ public class StudentGradesController {
         return card;
     }
 
-    private TableColumn<LopHocDangKy, String> column(
-            String title, double width, java.util.function.Function<LopHocDangKy, String> value) {
-        TableColumn<LopHocDangKy, String> column = new TableColumn<>(title);
+    private TableColumn<KetQuaHocTap, String> column(
+            String title, double width, java.util.function.Function<KetQuaHocTap, String> value) {
+        TableColumn<KetQuaHocTap, String> column = new TableColumn<>(title);
         column.setPrefWidth(width);
         column.setCellValueFactory(data -> new ReadOnlyStringWrapper(value.apply(data.getValue())));
         return column;

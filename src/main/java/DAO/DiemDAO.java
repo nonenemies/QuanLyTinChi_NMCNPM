@@ -1,7 +1,7 @@
-package DAO;
+﻿package DAO;
 
 import Model.BangDiemSinhVien;
-import Model.LopHocDangKy;
+import Model.KetQuaHocTap;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -15,47 +15,32 @@ import java.util.Map;
 public class DiemDAO extends BaseDAO {
 
     /** Lấy các học phần sinh viên đã đăng ký, không gồm các đăng ký đã hủy. */
-    public List<LopHocDangKy> layKetQuaHocTap(String maSinhVien) throws SQLException {
+    public List<KetQuaHocTap> layKetQuaHocTap(String maSinhVien) throws SQLException {
         String sql = "SELECT lh.MaLop, mh.MaMon, mh.TenMon, lh.HocKy, mh.SoTinChi, "
                 + "dk.DiemTongKet, dk.TrangThai, "
                 + "COALESCE((SELECT GROUP_CONCAT(CONCAT(tp.TenThanhPhan, ': ', d.DiemDatDuoc) "
                 + "ORDER BY tp.ThuTu, tp.MaThanhPhan SEPARATOR ' | ') "
                 + "FROM DiemThanhPhan d JOIN ThanhPhanDanhGia tp ON tp.MaThanhPhan = d.MaThanhPhan "
-                + "WHERE d.MaDangKy = dk.MaDangKy), '') AS DiemThanhPhan, "
-                + "COALESCE(lich.LichHoc, 'Chưa xếp lịch') AS LichHoc, "
-                + "CASE WHEN lich.MaLop IS NULL THEN 0 ELSE 1 END AS CoLichHoc "
+                + "WHERE d.MaDangKy = dk.MaDangKy), '') AS DiemThanhPhan "
                 + "FROM DangKyHoc dk "
                 + "JOIN LopHocPhan lh ON lh.MaLop = dk.MaLop "
                 + "JOIN MonHoc mh ON mh.MaMon = lh.MaMon "
-                + "LEFT JOIN ("
-                + "SELECT MaLop, GROUP_CONCAT(CONCAT('Thứ ', Thu, ' ', "
-                + "TIME_FORMAT(GioBatDau, '%H:%i'), '-', TIME_FORMAT(GioKetThuc, '%H:%i'), "
-                + "' · ', COALESCE(NULLIF(TRIM(PhongHoc), ''), 'Chưa cập nhật phòng')) "
-                + "ORDER BY Thu, GioBatDau SEPARATOR ' | ') AS LichHoc "
-                + "FROM LichHoc GROUP BY MaLop"
-                + ") lich ON lich.MaLop = lh.MaLop "
                 + "WHERE dk.MaSinhVien = ? AND dk.TrangThai <> 'HUY' "
                 + "ORDER BY lh.HocKy, lh.MaLop, mh.MaMon";
-        List<LopHocDangKy> results = new ArrayList<>();
+        List<KetQuaHocTap> results = new ArrayList<>();
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, maSinhVien);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     java.math.BigDecimal finalGrade = rs.getBigDecimal("DiemTongKet");
-                    results.add(new LopHocDangKy(
+                    results.add(new KetQuaHocTap(
                             rs.getString("MaLop"),
                             rs.getString("MaMon"),
                             rs.getString("TenMon"),
-                            null,
                             rs.getString("HocKy"),
-                            rs.getString("LichHoc"),
-                            rs.getBoolean("CoLichHoc"),
                             rs.getObject("SoTinChi", Integer.class),
-                            null,
-                            null,
-                            true,
-                            rs.getString("TrangThai"),
                             finalGrade == null ? null : finalGrade.floatValue(),
+                            rs.getString("TrangThai"),
                             rs.getString("DiemThanhPhan")));
                 }
             }

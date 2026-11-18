@@ -3,9 +3,9 @@ package Services;
 import DAO.DiemDAO;
 import DAO.LopHocDAO;
 import Model.BangDiemSinhVien;
+import Model.KetQuaHocTap;
 import Model.GiangVien;
 import Model.LopHocPhan;
-import Model.LopHocDangKy;
 import Model.SinhVien;
 import Model.ThanhPhanDanhGia;
 import java.sql.SQLException;
@@ -21,7 +21,7 @@ public class DiemService {
     private final DiemDAO diemDAO = new DiemDAO();
     private final LopHocDAO lopHocDAO = new LopHocDAO();
 
-    public List<LopHocDangKy> layKetQuaHocTap(SinhVien sinhVien) {
+    public List<KetQuaHocTap> layKetQuaHocTap(SinhVien sinhVien) {
         if (sinhVien == null || !"SINHVIEN".equalsIgnoreCase(sinhVien.getRole())
                 || sinhVien.getMaSinhVien() == null || sinhVien.getMaSinhVien().isBlank()
                 || !"HOAT_DONG".equals(sinhVien.getTrangThai())) {
@@ -38,9 +38,9 @@ public class DiemService {
     }
 
     /** GPA tích lũy dùng điểm cao nhất của mỗi môn, tính đến học kỳ được yêu cầu. */
-    public double tinhGpaTichLuy(List<LopHocDangKy> results, String denHocKy) {
-        Map<String, LopHocDangKy> bestAttemptByCourse = new HashMap<>();
-        for (LopHocDangKy attempt : results) {
+    public double tinhGpaTichLuy(List<KetQuaHocTap> results, String denHocKy) {
+        Map<String, KetQuaHocTap> bestAttemptByCourse = new HashMap<>();
+        for (KetQuaHocTap attempt : results) {
             if ((denHocKy != null && compareSemesters(attempt.getHocKy(), denHocKy) > 0)
                     || attempt.getDiemTongKet() == null
                     || attempt.getSoTinChi() == null
@@ -54,7 +54,7 @@ public class DiemService {
 
         double weightedScore = 0;
         int credits = 0;
-        for (LopHocDangKy attempt : bestAttemptByCourse.values()) {
+        for (KetQuaHocTap attempt : bestAttemptByCourse.values()) {
             weightedScore += attempt.getDiemTongKet() * attempt.getSoTinChi();
             credits += attempt.getSoTinChi();
         }
