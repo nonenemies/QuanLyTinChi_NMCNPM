@@ -13,13 +13,13 @@ public class XacNhanDangXuatController {
     }
 
     @FXML
-    private void xacNhan() {
+    private void onAnNutXacNhan() {
         daXacNhan = true;
         dongHopThoai();
     }
 
     @FXML
-    private void huyBo() {
+    private void onAnNutHuyBo() {
         dongHopThoai();
     }
 

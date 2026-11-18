@@ -43,13 +43,13 @@
                         <Insets top="19.0" />
                     </VBox.margin>
                 </Label>
-                <PasswordField fx:id="txtMatKhau" maxWidth="Infinity" onAction="#dangNhap"
+                <PasswordField fx:id="txtMatKhau" maxWidth="Infinity" onAction="#onAnNutDangNhap"
                                prefHeight="50.0" promptText="Mật khẩu" styleClass="form-field" />
 
                 <Label fx:id="lblLoi" managed="false" styleClass="form-error"
                        text="Email hoặc mật khẩu không chính xác" visible="false" wrapText="true" />
 
-                <Button maxWidth="Infinity" onAction="#dangNhap"
+                <Button maxWidth="Infinity" onAction="#onAnNutDangNhap"
                         prefHeight="52.0" styleClass="login-button" text="Đăng nhập">
                     <VBox.margin>
                         <Insets top="26.0" />

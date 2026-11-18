@@ -65,7 +65,7 @@ public class ThanhDieuHuongController {
     }
 
     @FXML
-    private void dangXuat() {
+    private void onAnNutDangXuat() {
         if (!xacNhanDangXuat()) return;
 
         try {

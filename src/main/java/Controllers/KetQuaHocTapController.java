@@ -49,7 +49,7 @@ public class KetQuaHocTapController {
     }
 
     @FXML
-    private void taiLaiKetQua() {
+    private void onAnNutTaiLaiKetQua() {
         taiKetQua();
     }
 

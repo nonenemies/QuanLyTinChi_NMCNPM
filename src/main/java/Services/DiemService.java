@@ -17,7 +17,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class DiemService {
-    private static final Pattern YEAR_TERM = Pattern.compile("^(\\d{4})-(\\d+)$");
+    private static final Pattern MAU_HOC_KY = Pattern.compile("^(\\d{4})-(\\d+)$");
     private final DiemDAO diemDAO = new DiemDAO();
     private final LopHocDAO lopHocDAO = new LopHocDAO();
 
@@ -38,9 +38,9 @@ public class DiemService {
     }
 
     /** GPA tích lũy dùng điểm cao nhất của mỗi môn, tính đến học kỳ được yêu cầu. */
-    public double tinhGpaTichLuy(List<KetQuaHocTap> results, String denHocKy) {
+    public double tinhGpaTichLuy(List<KetQuaHocTap> ketQua, String denHocKy) {
         Map<String, KetQuaHocTap> bestAttemptByCourse = new HashMap<>();
-        for (KetQuaHocTap attempt : results) {
+        for (KetQuaHocTap attempt : ketQua) {
             if ((denHocKy != null && soSanhHocKy(attempt.getHocKy(), denHocKy) > 0)
                     || attempt.getDiemTongKet() == null
                     || attempt.getSoTinChi() == null
@@ -61,16 +61,16 @@ public class DiemService {
         return credits == 0 ? Double.NaN : weightedScore / credits;
     }
 
-    private int soSanhHocKy(String first, String second) {
-        Matcher firstMatch = YEAR_TERM.matcher(first == null ? "" : first);
-        Matcher secondMatch = YEAR_TERM.matcher(second == null ? "" : second);
-        if (firstMatch.matches() && secondMatch.matches()) {
-            int yearComparison = Integer.compare(
-                    Integer.parseInt(firstMatch.group(1)), Integer.parseInt(secondMatch.group(1)));
-            if (yearComparison != 0) return yearComparison;
-            return Integer.compare(Integer.parseInt(firstMatch.group(2)), Integer.parseInt(secondMatch.group(2)));
+    private int soSanhHocKy(String hocKyDau, String hocKySau) {
+        Matcher ketQuaKhopHocKyDau = MAU_HOC_KY.matcher(hocKyDau == null ? "" : hocKyDau);
+        Matcher ketQuaKhopHocKySau = MAU_HOC_KY.matcher(hocKySau == null ? "" : hocKySau);
+        if (ketQuaKhopHocKyDau.matches() && ketQuaKhopHocKySau.matches()) {
+            int ketQuaSoSanhNamHoc = Integer.compare(
+                    Integer.parseInt(ketQuaKhopHocKyDau.group(1)), Integer.parseInt(ketQuaKhopHocKySau.group(1)));
+            if (ketQuaSoSanhNamHoc != 0) return ketQuaSoSanhNamHoc;
+            return Integer.compare(Integer.parseInt(ketQuaKhopHocKyDau.group(2)), Integer.parseInt(ketQuaKhopHocKySau.group(2)));
         }
-        return Comparator.nullsFirst(String.CASE_INSENSITIVE_ORDER).compare(first, second);
+        return Comparator.nullsFirst(String.CASE_INSENSITIVE_ORDER).compare(hocKyDau, hocKySau);
     }
 
     public List<LopHocPhan> layLopPhuTrach(GiangVien giangVien) {
