@@ -142,7 +142,7 @@ public class AdminService {
 
     private void kiemTraAdmin(Admin admin) {
         if (admin == null || admin.getUserID() == null || admin.getUserID() <= 0
-                || !"ADMIN".equalsIgnoreCase(admin.getRole())
+                || !"ADMIN".equalsIgnoreCase(admin.getVaiTro())
                 || !"HOAT_DONG".equals(admin.getTrangThai())) {
             throw new ServiceException("Cần đăng nhập bằng tài khoản admin đang hoạt động.");
         }
@@ -166,15 +166,15 @@ public class AdminService {
                 || taiKhoan.getHoTen().strip().length() > 100
                 || taiKhoan.getEmail() == null || taiKhoan.getEmail().isBlank()
                 || taiKhoan.getEmail().strip().length() > 100
-                || taiKhoan.getPasswordHash() == null || taiKhoan.getPasswordHash().isBlank()
-                || taiKhoan.getPasswordHash().length() > 255
+                || taiKhoan.getPassword() == null || taiKhoan.getPassword().isBlank()
+                || taiKhoan.getPassword().length() > 255
                 || taiKhoan.getMaSo() == null || taiKhoan.getMaSo().isBlank()
                 || taiKhoan.getMaSo().length() > 20
                 || taiKhoan.getTrangThai() == null) {
             throw new ServiceException("Thông tin tài khoản không hợp lệ.");
         }
         if (taiKhoan instanceof SinhVien sinhVien) {
-            if (!"SINHVIEN".equalsIgnoreCase(taiKhoan.getRole())
+            if (!"SINHVIEN".equalsIgnoreCase(taiKhoan.getVaiTro())
                     || !taiKhoan.getMaSo().equals(sinhVien.getMaSinhVien())
                     || (sinhVien.getNganh() != null
                     && (sinhVien.getNganh().getMaNganh() == null
@@ -185,7 +185,7 @@ public class AdminService {
                 throw new ServiceException("Mã sinh viên hoặc vai trò không hợp lệ.");
             }
         } else if (taiKhoan instanceof GiangVien giangVien) {
-            if (!"GIAOVIEN".equalsIgnoreCase(taiKhoan.getRole())
+            if (!"GIAOVIEN".equalsIgnoreCase(taiKhoan.getVaiTro())
                     || !taiKhoan.getMaSo().equals(giangVien.getMaGiangVien())
                     || (giangVien.getChuyenNganh() != null && giangVien.getChuyenNganh().length() > 100)
                     || (giangVien.getHocVi() != null && giangVien.getHocVi().length() > 50)) {

@@ -51,7 +51,7 @@ public class ThoiKhoaBieuController {
 
     public void ganSinhVien(Users sinhVien) {
         this.sinhVien = sinhVien;
-        if (sinhVien == null || !"SINHVIEN".equalsIgnoreCase(sinhVien.getRole())
+        if (sinhVien == null || !"SINHVIEN".equalsIgnoreCase(sinhVien.getVaiTro())
                 || sinhVien.getMaSo() == null || sinhVien.getMaSo().isBlank()) {
             hienThiTrangThai("Không xác định được mã sinh viên. Vui lòng đăng nhập lại.", true);
             return;

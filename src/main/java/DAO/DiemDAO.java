@@ -104,10 +104,10 @@ public class DiemDAO extends BaseDAO {
                                 rs.getString("TrangThai"));
                         rows.put(maDangKy, row);
                     }
-                    int maTP = rs.getInt("MaThanhPhan");
+                    int maThanhPhan = rs.getInt("MaThanhPhan");
                     if (!rs.wasNull()) {
                         java.math.BigDecimal score = rs.getBigDecimal("DiemDatDuoc");
-                        row.setDiemThanhPhan(maTP, score == null ? null : score.floatValue());
+                        row.setDiemThanhPhan(maThanhPhan, score == null ? null : score.floatValue());
                     }
                 }
             }
@@ -117,7 +117,7 @@ public class DiemDAO extends BaseDAO {
 
     /** Thêm hoặc cập nhật điểm theo mã thành phần. */
     public boolean nhapDiem(String maSinhVien, String maLop,
-                            int maTP, float diemDatDuoc) throws SQLException {
+                            int maThanhPhan, float diemDatDuoc) throws SQLException {
         try (Connection conn = getConnection()) {
         int maDangKy;
         String registrationSql = "SELECT MaDangKy FROM DangKyHoc "
@@ -153,7 +153,7 @@ public class DiemDAO extends BaseDAO {
                 + "JOIN LopHocPhan lh ON lh.MaMon = tp.MaMon "
                 + "WHERE tp.MaThanhPhan = ? AND lh.MaLop = ? AND tp.TrangThai = 1";
         try (PreparedStatement ps = conn.prepareStatement(componentSql)) {
-            ps.setInt(1, maTP);
+            ps.setInt(1, maThanhPhan);
             ps.setString(2, maLop);
             try (ResultSet rs = ps.executeQuery()) {
                 if (!rs.next()) {
@@ -162,23 +162,23 @@ public class DiemDAO extends BaseDAO {
             }
         }
 
-        int maDiem;
+        int maDiemThanhPhan;
         String existingSql = "SELECT MaDiemThanhPhan FROM DiemThanhPhan "
                 + "WHERE MaDangKy = ? AND MaThanhPhan = ?";
         try (PreparedStatement ps = conn.prepareStatement(existingSql)) {
             ps.setInt(1, maDangKy);
-            ps.setInt(2, maTP);
+            ps.setInt(2, maThanhPhan);
             try (ResultSet rs = ps.executeQuery()) {
                 if (!rs.next()) {
                     try (PreparedStatement insert = conn.prepareStatement(
                             "INSERT INTO DiemThanhPhan (MaDangKy, MaThanhPhan, DiemDatDuoc) VALUES (?, ?, ?)")) {
                         insert.setInt(1, maDangKy);
-                        insert.setInt(2, maTP);
+                        insert.setInt(2, maThanhPhan);
                         insert.setFloat(3, diemDatDuoc);
                         return insert.executeUpdate() == 1;
                     }
                 }
-                maDiem = rs.getInt("MaDiemThanhPhan");
+                maDiemThanhPhan = rs.getInt("MaDiemThanhPhan");
                 if (rs.next()) {
                     throw new SQLException("Duplicate scores exist for the same registration and component.");
                 }
@@ -188,7 +188,7 @@ public class DiemDAO extends BaseDAO {
                 "UPDATE DiemThanhPhan SET DiemDatDuoc = ?, NgayNhap = CURRENT_TIMESTAMP "
                         + "WHERE MaDiemThanhPhan = ?")) {
             update.setFloat(1, diemDatDuoc);
-            update.setInt(2, maDiem);
+            update.setInt(2, maDiemThanhPhan);
             return update.executeUpdate() == 1;
         }
         }

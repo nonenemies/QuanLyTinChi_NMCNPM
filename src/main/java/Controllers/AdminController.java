@@ -169,8 +169,8 @@ public class AdminController {
                 daLuu = dichVuQuanTri.taoTaiKhoan(quanTriVien, taiKhoan);
             } else {
                 taiKhoan.setUserID(taiKhoanDangChon.getUserID());
-                if (taiKhoan.getPasswordHash().isBlank()) {
-                    taiKhoan.setPasswordHash(taiKhoanDangChon.getPasswordHash());
+                if (taiKhoan.getPassword().isBlank()) {
+                    taiKhoan.setPassword(taiKhoanDangChon.getPassword());
                 }
                 daLuu = dichVuQuanTri.capNhatTaiKhoan(quanTriVien, taiKhoan);
             }
@@ -272,7 +272,7 @@ public class AdminController {
         cotMaTaiKhoan.setCellValueFactory(new PropertyValueFactory<>("maSo"));
         cotTenNguoiDung.setCellValueFactory(new PropertyValueFactory<>("hoTen"));
         cotEmailNguoiDung.setCellValueFactory(new PropertyValueFactory<>("email"));
-        cotVaiTroNguoiDung.setCellValueFactory(new PropertyValueFactory<>("role"));
+        cotVaiTroNguoiDung.setCellValueFactory(new PropertyValueFactory<>("vaiTro"));
         cotNganhNguoiDung.setCellValueFactory(oDuLieu -> new ReadOnlyStringWrapper(
                 oDuLieu.getValue() instanceof SinhVien sinhVien && sinhVien.getNganh() != null
                         ? sinhVien.getNganh().getMaNganh() : ""));
@@ -314,9 +314,9 @@ public class AdminController {
     private void locTaiKhoan() {
         String tuKhoa = chuanHoa(txtTimTaiKhoan.getText());
         String vaiTro = cmbVaiTroTaiKhoan.getValue();
-        taiKhoanDaLoc.setPredicate(taiKhoan -> (vaiTro == null || vaiTro.equalsIgnoreCase(taiKhoan.getRole()))
+        taiKhoanDaLoc.setPredicate(taiKhoan -> (vaiTro == null || vaiTro.equalsIgnoreCase(taiKhoan.getVaiTro()))
                 && (taiKhoan.getMaSo() + " " + taiKhoan.getHoTen() + " "
-                + taiKhoan.getEmail() + " " + taiKhoan.getRole() + " " + nganhTaiKhoan(taiKhoan))
+                + taiKhoan.getEmail() + " " + taiKhoan.getVaiTro() + " " + nganhTaiKhoan(taiKhoan))
                 .toLowerCase(Locale.ROOT).contains(tuKhoa));
     }
 
@@ -369,7 +369,7 @@ public class AdminController {
         if (taiKhoanDangChon == null && matKhau.isBlank()) {
             throw new IllegalArgumentException("Cần nhập mật khẩu cho tài khoản mới.");
         }
-        if (taiKhoanDangChon != null && matKhau.isBlank()) matKhau = taiKhoanDangChon.getPasswordHash();
+        if (taiKhoanDangChon != null && matKhau.isBlank()) matKhau = taiKhoanDangChon.getPassword();
         String nganh = tuyChon(txtNganhNguoiDung.getText());
         String trangThai = cmbTrangThaiNguoiDung.getValue();
         if (vaiTro == null || trangThai == null) throw new IllegalArgumentException("Chọn vai trò và trạng thái tài khoản.");

@@ -1,7 +1,7 @@
 package Services;
 
 import DAO.DiemDAO;
-import DAO.LopHocDAO;
+import DAO.LopHocPhanDAO;
 import Model.BangDiemSinhVien;
 import Model.KetQuaHocTap;
 import Model.GiangVien;
@@ -19,10 +19,10 @@ import java.util.regex.Pattern;
 public class DiemService {
     private static final Pattern MAU_HOC_KY = Pattern.compile("^(\\d{4})-(\\d+)$");
     private final DiemDAO diemDAO = new DiemDAO();
-    private final LopHocDAO lopHocDAO = new LopHocDAO();
+    private final LopHocPhanDAO lopHocPhanDAO = new LopHocPhanDAO();
 
     public List<KetQuaHocTap> layKetQuaHocTap(SinhVien sinhVien) {
-        if (sinhVien == null || !"SINHVIEN".equalsIgnoreCase(sinhVien.getRole())
+        if (sinhVien == null || !"SINHVIEN".equalsIgnoreCase(sinhVien.getVaiTro())
                 || sinhVien.getMaSinhVien() == null || sinhVien.getMaSinhVien().isBlank()
                 || !"HOAT_DONG".equals(sinhVien.getTrangThai())) {
             throw new ServiceException("Tài khoản sinh viên không hợp lệ hoặc đã ngừng hoạt động.");
@@ -76,7 +76,7 @@ public class DiemService {
     public List<LopHocPhan> layLopPhuTrach(GiangVien giangVien) {
         kiemTraGiangVien(giangVien);
         try {
-            return lopHocDAO.layDanhSachLopCuaGiangVien(giangVien.getMaGiangVien());
+            return lopHocPhanDAO.layDanhSachLopCuaGiangVien(giangVien.getMaGiangVien());
         } catch (SQLException e) {
             throw new ServiceException("Không thể tải danh sách lớp phụ trách.", e);
         } catch (RuntimeException e) {
@@ -104,7 +104,7 @@ public class DiemService {
                                         ThanhPhanDanhGia thanhPhan, float diemDatDuoc) {
         kiemTraGiangVien(giangVien);
         if (maSinhVien == null || maSinhVien.isBlank() || maLop == null || maLop.isBlank()
-                || thanhPhan == null || thanhPhan.getMaTP() <= 0
+                || thanhPhan == null || thanhPhan.getMaThanhPhan() <= 0
                 || !Float.isFinite(diemDatDuoc) || diemDatDuoc < 0 || diemDatDuoc > 10) {
             return false;
         }
@@ -112,7 +112,7 @@ public class DiemService {
         try {
             kiemTraPhuTrach(giangVien, maLop);
             if (!thanhPhan.getTrangThai()) return false;
-            if (!diemDAO.nhapDiem(maSinhVien, maLop, thanhPhan.getMaTP(), diemDatDuoc)) {
+            if (!diemDAO.nhapDiem(maSinhVien, maLop, thanhPhan.getMaThanhPhan(), diemDatDuoc)) {
                 return false;
             }
             diemDAO.capNhatDiemTongKet(maSinhVien, maLop);
@@ -131,14 +131,14 @@ public class DiemService {
         if (!diemDAO.giangVienConHoatDong( giangVien.getMaGiangVien())) {
             throw new ServiceException("Tài khoản giảng viên không còn hoạt động.");
         }
-        LopHocPhan lopHoc = lopHocDAO.layLopTheoMa( maLop);
+        LopHocPhan lopHoc = lopHocPhanDAO.layLopTheoMa( maLop);
         if (lopHoc == null || !giangVien.getMaGiangVien().equals(lopHoc.getMaGiangVien())) {
             throw new ServiceException("Bạn không được phân công phụ trách lớp này.");
         }
     }
 
     private void kiemTraGiangVien(GiangVien giangVien) {
-        if (giangVien == null || !"GIAOVIEN".equalsIgnoreCase(giangVien.getRole())
+        if (giangVien == null || !"GIAOVIEN".equalsIgnoreCase(giangVien.getVaiTro())
                 || giangVien.getMaGiangVien() == null || giangVien.getMaGiangVien().isBlank()
                 || !"HOAT_DONG".equals(giangVien.getTrangThai())) {
             throw new ServiceException("Tài khoản giảng viên không hợp lệ hoặc đã ngừng hoạt động.");

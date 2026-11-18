@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Các truy vấn dữ liệu và thao tác sĩ số cho bảng LopHocPhan. */
-public class LopHocDAO extends BaseDAO {
+public class LopHocPhanDAO extends BaseDAO {
 
     /** Lấy các lớp được phân công cho một giảng viên, gồm cả lớp đã kết thúc. */
     public List<LopHocPhan> layDanhSachLopCuaGiangVien(String maGiangVien) throws SQLException {
@@ -49,7 +49,7 @@ public class LopHocDAO extends BaseDAO {
                 + "' · ', COALESCE(NULLIF(TRIM(PhongHoc), ''), 'Chưa cập nhật phòng')) "
                 + "ORDER BY Thu, GioBatDau SEPARATOR ' | ') AS LichHoc "
                 + "FROM LichHoc GROUP BY MaLop"
-                + ") lich ON lich.MaLop = lh.MaLop "
+                + ") lichHoc ON lich.MaLop = lh.MaLop "
                 + "LEFT JOIN DangKyHoc dk ON dk.MaLop = lh.MaLop AND dk.MaSinhVien = ? "
                 + "AND dk.TrangThai <> 'HUY' "
                 + (chiLopDaDangKy

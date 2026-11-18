@@ -51,9 +51,9 @@ public class ThanhDieuHuongController {
         lblVaiTroNguoiDung.setText(nhanVaiTro(nguoiDung));
         cauHinhDieuHuong();
 
-        if ("SINHVIEN".equalsIgnoreCase(nguoiDung.getRole())
+        if ("SINHVIEN".equalsIgnoreCase(nguoiDung.getVaiTro())
                 || nguoiDung instanceof GiangVien
-                || "ADMIN".equalsIgnoreCase(nguoiDung.getRole())) {
+                || "ADMIN".equalsIgnoreCase(nguoiDung.getVaiTro())) {
             moManHinh(MAN_HINH_TONG_QUAN);
         } else {
             hienThiLoi("Vai trò tài khoản không được hỗ trợ.");
@@ -106,7 +106,7 @@ public class ThanhDieuHuongController {
     private void cauHinhDieuHuong() {
         cacMucDieuHuong.getChildren().clear();
         cacNutDieuHuong.clear();
-        if ("SINHVIEN".equalsIgnoreCase(nguoiDung.getRole())) {
+        if ("SINHVIEN".equalsIgnoreCase(nguoiDung.getVaiTro())) {
             themNutDieuHuong("Tổng quan", MAN_HINH_TONG_QUAN);
             themNutDieuHuong("Thời khóa biểu", MAN_HINH_THOI_KHOA_BIEU);
             themNutDieuHuong("Đăng ký tín chỉ", MAN_HINH_DANG_KY_TIN_CHI);
@@ -114,7 +114,7 @@ public class ThanhDieuHuongController {
         } else if (nguoiDung instanceof GiangVien) {
             themNutDieuHuong("Tổng quan", MAN_HINH_TONG_QUAN);
             themNutDieuHuong("Lớp phụ trách và bảng điểm", MAN_HINH_BANG_DIEM);
-        } else if ("ADMIN".equalsIgnoreCase(nguoiDung.getRole())) {
+        } else if ("ADMIN".equalsIgnoreCase(nguoiDung.getVaiTro())) {
             themNutDieuHuong("Tổng quan", MAN_HINH_TONG_QUAN);
             themNutDieuHuong("Quản lý sinh viên", MAN_HINH_QUAN_LY_SINH_VIEN);
             themNutDieuHuong("Quản lý giảng viên", MAN_HINH_QUAN_LY_GIANG_VIEN);
@@ -222,9 +222,9 @@ public class ThanhDieuHuongController {
 
     private String nhanVaiTro(Users nguoiDungXacThuc) {
         if (nguoiDungXacThuc instanceof GiangVien) return "GIẢNG VIÊN";
-        if ("SINHVIEN".equalsIgnoreCase(nguoiDungXacThuc.getRole())) return "SINH VIÊN";
-        if ("ADMIN".equalsIgnoreCase(nguoiDungXacThuc.getRole())) return "QUẢN TRỊ VIÊN";
-        return nguoiDungXacThuc.getRole();
+        if ("SINHVIEN".equalsIgnoreCase(nguoiDungXacThuc.getVaiTro())) return "SINH VIÊN";
+        if ("ADMIN".equalsIgnoreCase(nguoiDungXacThuc.getVaiTro())) return "QUẢN TRỊ VIÊN";
+        return nguoiDungXacThuc.getVaiTro();
     }
 
     private void hienThiLoi(String thongBao) {

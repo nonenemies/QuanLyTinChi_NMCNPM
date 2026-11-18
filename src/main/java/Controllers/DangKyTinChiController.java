@@ -101,7 +101,7 @@ public class DangKyTinChiController {
 
     public void ganSinhVien(Users sinhVien) {
         this.sinhVien = sinhVien;
-        if (sinhVien == null || !"SINHVIEN".equalsIgnoreCase(sinhVien.getRole())
+        if (sinhVien == null || !"SINHVIEN".equalsIgnoreCase(sinhVien.getVaiTro())
                 || sinhVien.getMaSo() == null || sinhVien.getMaSo().isBlank()) {
             datTrangThai("Không xác định được mã sinh viên. Vui lòng quay lại và đăng nhập lại.", true);
             return;
