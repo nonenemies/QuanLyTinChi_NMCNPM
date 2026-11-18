@@ -72,7 +72,7 @@ public class AdminService {
         kiemTraAdmin(admin);
         kiemTraHoSo(taiKhoan);
         try {
-            kiemTraAdminTrongDatabase(admin);
+            kiemTraAdminTrongCoSoDuLieu(admin);
             kiemTraNganhTonTai(taiKhoan);
             int userID = usersDAO.them(taiKhoan);
             taiKhoan.setUserID(userID);
@@ -82,7 +82,7 @@ public class AdminService {
         } catch (SQLException e) {
             throw new ServiceException("Không thể tạo tài khoản.", e);
         } catch (RuntimeException e) {
-            throw ServiceException.wrap("Không thể tạo tài khoản.", e);
+            throw ServiceException.chuyenThanhLoiDichVu("Không thể tạo tài khoản.", e);
         }
     }
 
@@ -93,7 +93,7 @@ public class AdminService {
             throw new ServiceException("Tài khoản cần cập nhật không hợp lệ.");
         }
         try {
-            kiemTraAdminTrongDatabase(admin);
+            kiemTraAdminTrongCoSoDuLieu(admin);
             kiemTraNganhTonTai(taiKhoan);
             Users hienTai = usersDAO.layTheoID(taiKhoan.getUserID());
             if (hienTai == null || hienTai instanceof Admin
@@ -107,7 +107,7 @@ public class AdminService {
         } catch (SQLException e) {
             throw new ServiceException("Không thể cập nhật tài khoản.", e);
         } catch (RuntimeException e) {
-            throw ServiceException.wrap("Không thể cập nhật tài khoản.", e);
+            throw ServiceException.chuyenThanhLoiDichVu("Không thể cập nhật tài khoản.", e);
         }
     }
 
@@ -117,7 +117,7 @@ public class AdminService {
             throw new ServiceException("Không thể ngừng tài khoản admin đang đăng nhập.");
         }
         try {
-            kiemTraAdminTrongDatabase(admin);
+            kiemTraAdminTrongCoSoDuLieu(admin);
             Users target = usersDAO.layTheoID(userID);
             if (target == null || target instanceof Admin
                     || !"HOAT_DONG".equals(target.getTrangThai())
@@ -128,11 +128,11 @@ public class AdminService {
         } catch (SQLException e) {
             throw new ServiceException("Không thể ngừng tài khoản.", e);
         } catch (RuntimeException e) {
-            throw ServiceException.wrap("Không thể ngừng tài khoản.", e);
+            throw ServiceException.chuyenThanhLoiDichVu("Không thể ngừng tài khoản.", e);
         }
     }
 
-    private void kiemTraAdminTrongDatabase(Admin admin) throws SQLException {
+    private void kiemTraAdminTrongCoSoDuLieu(Admin admin) throws SQLException {
         Users current = usersDAO.layTheoID(admin.getUserID());
         if (!(current instanceof Admin)
                 || !"HOAT_DONG".equals(current.getTrangThai())) {

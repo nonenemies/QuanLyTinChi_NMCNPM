@@ -33,7 +33,7 @@ public class DiemService {
         } catch (SQLException e) {
             throw new ServiceException("Không thể tải bảng điểm tổng kết.", e);
         } catch (RuntimeException e) {
-            throw ServiceException.wrap("Không thể tải bảng điểm tổng kết.", e);
+            throw ServiceException.chuyenThanhLoiDichVu("Không thể tải bảng điểm tổng kết.", e);
         }
     }
 
@@ -41,7 +41,7 @@ public class DiemService {
     public double tinhGpaTichLuy(List<KetQuaHocTap> results, String denHocKy) {
         Map<String, KetQuaHocTap> bestAttemptByCourse = new HashMap<>();
         for (KetQuaHocTap attempt : results) {
-            if ((denHocKy != null && compareSemesters(attempt.getHocKy(), denHocKy) > 0)
+            if ((denHocKy != null && soSanhHocKy(attempt.getHocKy(), denHocKy) > 0)
                     || attempt.getDiemTongKet() == null
                     || attempt.getSoTinChi() == null
                     || attempt.getSoTinChi() <= 0) {
@@ -61,7 +61,7 @@ public class DiemService {
         return credits == 0 ? Double.NaN : weightedScore / credits;
     }
 
-    private int compareSemesters(String first, String second) {
+    private int soSanhHocKy(String first, String second) {
         Matcher firstMatch = YEAR_TERM.matcher(first == null ? "" : first);
         Matcher secondMatch = YEAR_TERM.matcher(second == null ? "" : second);
         if (firstMatch.matches() && secondMatch.matches()) {
@@ -80,7 +80,7 @@ public class DiemService {
         } catch (SQLException e) {
             throw new ServiceException("Không thể tải danh sách lớp phụ trách.", e);
         } catch (RuntimeException e) {
-            throw ServiceException.wrap("Không thể tải danh sách lớp phụ trách.", e);
+            throw ServiceException.chuyenThanhLoiDichVu("Không thể tải danh sách lớp phụ trách.", e);
         }
     }
 
@@ -92,7 +92,7 @@ public class DiemService {
         } catch (SQLException e) {
             throw new ServiceException("Không thể tải bảng điểm lớp học phần.", e);
         } catch (RuntimeException e) {
-            throw ServiceException.wrap("Không thể tải bảng điểm lớp học phần.", e);
+            throw ServiceException.chuyenThanhLoiDichVu("Không thể tải bảng điểm lớp học phần.", e);
         }
     }
 
@@ -120,7 +120,7 @@ public class DiemService {
         } catch (SQLException e) {
             throw new ServiceException("Không thể lưu điểm và cập nhật điểm tổng kết.", e);
         } catch (RuntimeException e) {
-            throw ServiceException.wrap("Không thể lưu điểm và cập nhật điểm tổng kết.", e);
+            throw ServiceException.chuyenThanhLoiDichVu("Không thể lưu điểm và cập nhật điểm tổng kết.", e);
         }
     }
 

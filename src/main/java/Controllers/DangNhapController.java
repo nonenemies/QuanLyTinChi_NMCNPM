@@ -35,7 +35,7 @@ public class DangNhapController {
 
         Users nguoiDung;
         try {
-            nguoiDung = dichVuXacThuc.checkLogin(diaChiEmail, matKhau);
+            nguoiDung = dichVuXacThuc.xacThucDangNhap(diaChiEmail, matKhau);
         } catch (ServiceException loiPhatSinh) {
             lblLoi.setText("Không thể đăng nhập do lỗi hệ thống. Vui lòng thử lại sau.");
             lblLoi.setVisible(true);
