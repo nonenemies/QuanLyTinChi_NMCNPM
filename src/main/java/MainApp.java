@@ -8,7 +8,7 @@ public class MainApp extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
-        FXMLLoader fxmlLoader = new FXMLLoader(MainApp.class.getResource("/views/LoginView.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(MainApp.class.getResource("/views/DangNhapView.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 1080, 680);
 
         stage.setTitle("Phần mềm Quản lý Tín chỉ - Nhóm 5");
