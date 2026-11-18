@@ -10,7 +10,7 @@ public final class ServiceException extends RuntimeException {
         super(userMessage, cause);
     }
 
-    public static ServiceException wrap(String userMessage, RuntimeException cause) {
+    public static ServiceException chuyenThanhLoiDichVu(String userMessage, RuntimeException cause) {
         return cause instanceof ServiceException serviceException
                 ? serviceException
                 : new ServiceException(userMessage, cause);

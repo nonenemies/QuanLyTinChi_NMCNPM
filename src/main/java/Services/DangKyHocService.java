@@ -47,7 +47,7 @@ public class DangKyHocService {
         } catch (SQLException e) {
             throw new ServiceException("Không thể xử lý đăng ký học.", e);
         } catch (RuntimeException e) {
-            throw ServiceException.wrap("Không thể xử lý đăng ký học.", e);
+            throw ServiceException.chuyenThanhLoiDichVu("Không thể xử lý đăng ký học.", e);
     }
 
     }
@@ -137,7 +137,7 @@ public class DangKyHocService {
         } catch (SQLException e) {
             throw new ServiceException("Không thể hủy đăng ký lớp.", e);
         } catch (RuntimeException e) {
-            throw ServiceException.wrap("Không thể hủy đăng ký lớp.", e);
+            throw ServiceException.chuyenThanhLoiDichVu("Không thể hủy đăng ký lớp.", e);
         }
     }
 
@@ -150,7 +150,7 @@ public class DangKyHocService {
         } catch (SQLException e) {
             throw new ServiceException("Không thể tải thời khóa biểu.", e);
         } catch (RuntimeException e) {
-            throw ServiceException.wrap("Không thể tải thời khóa biểu.", e);
+            throw ServiceException.chuyenThanhLoiDichVu("Không thể tải thời khóa biểu.", e);
         }
     }
 
@@ -160,7 +160,7 @@ public class DangKyHocService {
         } catch (SQLException e) {
             throw new ServiceException("Không thể tải danh sách lớp đăng ký.", e);
         } catch (RuntimeException e) {
-            throw ServiceException.wrap("Không thể tải danh sách lớp đăng ký.", e);
+            throw ServiceException.chuyenThanhLoiDichVu("Không thể tải danh sách lớp đăng ký.", e);
         }
     }
 
@@ -173,7 +173,7 @@ public class DangKyHocService {
         } catch (SQLException e) {
             throw new ServiceException("Không thể tải danh sách lớp đã đăng ký.", e);
         } catch (RuntimeException e) {
-            throw ServiceException.wrap("Không thể tải danh sách lớp đã đăng ký.", e);
+            throw ServiceException.chuyenThanhLoiDichVu("Không thể tải danh sách lớp đã đăng ký.", e);
         }
     }
 
@@ -186,7 +186,7 @@ public class DangKyHocService {
         } catch (SQLException e) {
             throw new ServiceException("Không thể tải tổng tín chỉ của học kỳ.", e);
         } catch (RuntimeException e) {
-            throw ServiceException.wrap("Không thể tải tổng tín chỉ của học kỳ.", e);
+            throw ServiceException.chuyenThanhLoiDichVu("Không thể tải tổng tín chỉ của học kỳ.", e);
         }
     }
 

@@ -6,8 +6,8 @@ import Model.Users;
 public class AuthService {
     private final UsersDAO usersDAO = new UsersDAO();
 
-    // Hàm này check DB. Nếu đúng trả về Object người dùng, sai trả về null
-    public Users checkLogin(String email, String password) {
+    // Kiểm tra tài khoản trong cơ sở dữ liệu; trả về người dùng nếu hợp lệ, ngược lại trả về null.
+    public Users xacThucDangNhap(String email, String password) {
         try {
             Users user = usersDAO.layTheoEmailDangHoatDong(email);
             return user != null && user.getPasswordHash().equals(password) ? user : null;
