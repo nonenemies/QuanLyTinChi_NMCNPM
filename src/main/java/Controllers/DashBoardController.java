@@ -2,7 +2,7 @@ package Controllers;
 
 import Model.Admin;
 import Model.GiangVien;
-import Model.LopHocDangKy;
+import Model.KetQuaHocTap;
 import Model.LopHocPhan;
 import Model.MonHoc;
 import Model.SinhVien;
@@ -26,280 +26,280 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class DashBoardController {
-    private static final Logger LOGGER = Logger.getLogger(DashBoardController.class.getName());
-    private static final DecimalFormat SCORE_FORMAT = new DecimalFormat("0.##");
+    private static final Logger NHAT_KY = Logger.getLogger(DashBoardController.class.getName());
+    private static final DecimalFormat DINH_DANG_DIEM = new DecimalFormat("0.##");
 
-    private final DiemService diemService = new DiemService();
-    private final AdminService adminService = new AdminService();
+    private final DiemService dichVuDiem = new DiemService();
+    private final AdminService dichVuQuanTri = new AdminService();
 
-    @FXML private Label lblWelcome;
-    @FXML private Label lblRoleSummary;
-    @FXML private Label lblRoleBadge;
-    @FXML private Label lblAccountStatus;
-    @FXML private Label lblStatus;
-    @FXML private Label lblProfileTitle;
-    @FXML private Label lblActivityTitle;
-    @FXML private Label lblActivitySubtitle;
-    @FXML private HBox summaryCards;
-    @FXML private VBox profileDetails;
-    @FXML private VBox activityList;
-    @FXML private Button btnTimetable;
+    @FXML private Label lblLoiChao;
+    @FXML private Label lblTomTatVaiTro;
+    @FXML private Label lblNhanVaiTro;
+    @FXML private Label lblTrangThaiTaiKhoan;
+    @FXML private Label lblTrangThai;
+    @FXML private Label lblTieuDeHoSo;
+    @FXML private Label lblTieuDeHoatDong;
+    @FXML private Label lblMoTaHoatDong;
+    @FXML private HBox cacTheThongKe;
+    @FXML private VBox chiTietHoSo;
+    @FXML private VBox danhSachHoatDong;
+    @FXML private Button nutThoiKhoaBieu;
 
-    private Users loggedInUser;
-    private AppShellController appShell;
+    private Users nguoiDungDangNhap;
+    private ThanhDieuHuongController thanhDieuHuong;
 
     @FXML
     private void initialize() {
-        lblStatus.setVisible(false);
-        lblStatus.setManaged(false);
+        lblTrangThai.setVisible(false);
+        lblTrangThai.setManaged(false);
     }
 
-    public void setLoggedInUser(Users user) {
-        loggedInUser = user;
-        if (user == null) {
-            showError("Không xác định được tài khoản đang đăng nhập.");
+    public void ganNguoiDungDangNhap(Users nguoiDung) {
+        nguoiDungDangNhap = nguoiDung;
+        if (nguoiDungDangNhap == null) {
+            hienThiLoi("Không xác định được tài khoản đang đăng nhập.");
             return;
         }
-        lblWelcome.setText("Xin chào, " + valueOrDash(user.getHoTen()));
-        lblRoleBadge.setText(roleLabel(user));
-        lblAccountStatus.setText("HOAT_DONG".equals(user.getTrangThai())
+        lblLoiChao.setText("Xin chào, " + giaTriHoacGach(nguoiDungDangNhap.getHoTen()));
+        lblNhanVaiTro.setText(nhanVaiTro(nguoiDungDangNhap));
+        lblTrangThaiTaiKhoan.setText("HOAT_DONG".equals(nguoiDungDangNhap.getTrangThai())
                 ? "Tài khoản đang hoạt động" : "Tài khoản đã ngừng hoạt động");
-        loadOverview();
+        taiTongQuan();
     }
 
-    public void setAppShell(AppShellController appShell) {
-        this.appShell = appShell;
-    }
-
-    @FXML
-    private void onRefresh() {
-        loadOverview();
+    public void ganThanhDieuHuong(ThanhDieuHuongController thanhDieuHuong) {
+        this.thanhDieuHuong = thanhDieuHuong;
     }
 
     @FXML
-    private void onOpenTimetable() {
-        if (appShell != null && loggedInUser instanceof SinhVien) {
-            appShell.showTimetable();
+    private void taiLaiTongQuan() {
+        taiTongQuan();
+    }
+
+    @FXML
+    private void moThoiKhoaBieu() {
+        if (thanhDieuHuong != null && nguoiDungDangNhap instanceof SinhVien) {
+            thanhDieuHuong.moThoiKhoaBieu();
         }
     }
 
-    private void loadOverview() {
-        summaryCards.getChildren().clear();
-        profileDetails.getChildren().clear();
-        activityList.getChildren().clear();
-        btnTimetable.setVisible(loggedInUser instanceof SinhVien);
-        btnTimetable.setManaged(loggedInUser instanceof SinhVien);
-        lblStatus.setVisible(false);
-        lblStatus.setManaged(false);
+    private void taiTongQuan() {
+        cacTheThongKe.getChildren().clear();
+        chiTietHoSo.getChildren().clear();
+        danhSachHoatDong.getChildren().clear();
+        nutThoiKhoaBieu.setVisible(nguoiDungDangNhap instanceof SinhVien);
+        nutThoiKhoaBieu.setManaged(nguoiDungDangNhap instanceof SinhVien);
+        lblTrangThai.setVisible(false);
+        lblTrangThai.setManaged(false);
 
         try {
-            if (loggedInUser instanceof SinhVien student) {
-                loadStudentOverview(student);
-            } else if (loggedInUser instanceof GiangVien lecturer) {
-                loadLecturerOverview(lecturer);
-            } else if (loggedInUser instanceof Admin admin) {
-                loadAdminOverview(admin);
+            if (nguoiDungDangNhap instanceof SinhVien sinhVien) {
+                taiTongQuanSinhVien(sinhVien);
+            } else if (nguoiDungDangNhap instanceof GiangVien giangVien) {
+                taiTongQuanGiangVien(giangVien);
+            } else if (nguoiDungDangNhap instanceof Admin quanTriVien) {
+                taiTongQuanQuanTriVien(quanTriVien);
             } else {
-                showError("Vai trò tài khoản không được hỗ trợ.");
+                hienThiLoi("Vai trò tài khoản không được hỗ trợ.");
             }
-        } catch (ServiceException e) {
-            LOGGER.log(Level.SEVERE, "Unable to load overview for role "
-                    + loggedInUser.getRole(), e);
-            showError("Không thể tải dữ liệu tổng quan. Vui lòng thử tải lại.");
+        } catch (ServiceException loiPhatSinh) {
+            NHAT_KY.log(Level.SEVERE, "Unable to load overview for role "
+                    + nguoiDungDangNhap.getRole(), loiPhatSinh);
+            hienThiLoi("Không thể tải dữ liệu tổng quan. Vui lòng thử tải lại.");
         }
     }
 
-    private void loadStudentOverview(SinhVien student) {
-        lblRoleSummary.setText("Thông tin học tập và tiến độ các học phần của bạn.");
-        lblProfileTitle.setText("Thông tin sinh viên");
-        lblActivityTitle.setText("Học phần đang theo học");
-        lblActivitySubtitle.setText("Các đăng ký học phần hiện còn hiệu lực.");
+    private void taiTongQuanSinhVien(SinhVien sinhVien) {
+        lblTomTatVaiTro.setText("Thông tin học tập và tiến độ các học phần của bạn.");
+        lblTieuDeHoSo.setText("Thông tin sinh viên");
+        lblTieuDeHoatDong.setText("Học phần đang theo học");
+        lblMoTaHoatDong.setText("Các đăng ký học phần hiện còn hiệu lực.");
 
-        List<LopHocDangKy> registrations = diemService.layKetQuaHocTap(student);
-        long activeCourses = registrations.stream()
-                .filter(item -> "DANG_HOC".equals(item.getTrangThaiDangKy())).count();
-        long earnedCredits = 0;
-        Set<String> passedCourses = new LinkedHashSet<>();
-        for (LopHocDangKy registration : registrations) {
-            int credits = registration.getSoTinChi() == null ? 0 : registration.getSoTinChi();
-            if ("DA_HOAN_THANH".equals(registration.getTrangThaiDangKy())
-                    && registration.getDiemTongKet() != null && registration.getDiemTongKet() >= 4
-                    && passedCourses.add(registration.getMaMon())) {
-                earnedCredits += credits;
+        List<KetQuaHocTap> danhSachDangKy = dichVuDiem.layKetQuaHocTap(sinhVien);
+        long soHocPhanDangHoc = danhSachDangKy.stream()
+                .filter(muc -> "DANG_HOC".equals(muc.getTrangThaiDangKy())).count();
+        long tinChiTichLuy = 0;
+        Set<String> cacMonDaDat = new LinkedHashSet<>();
+        for (KetQuaHocTap dangKy : danhSachDangKy) {
+            int tinChi = dangKy.getSoTinChi() == null ? 0 : dangKy.getSoTinChi();
+            if ("DA_HOAN_THANH".equals(dangKy.getTrangThaiDangKy())
+                    && dangKy.getDiemTongKet() != null && dangKy.getDiemTongKet() >= 4
+                    && cacMonDaDat.add(dangKy.getMaMon())) {
+                tinChiTichLuy += tinChi;
             }
         }
-        double gpa = diemService.tinhGpaTichLuy(registrations, null);
-        String average = Double.isNaN(gpa) ? "—" : SCORE_FORMAT.format(gpa) + " / 10";
-        addMetric("HỌC PHẦN ĐANG HỌC", Long.toString(activeCourses), "HP", "overview-icon-blue");
-        addMetric("TÍN CHỈ ĐÃ TÍCH LŨY", Long.toString(earnedCredits), "TC", "overview-icon-violet");
-        addMetric("ĐIỂM TRUNG BÌNH", average, "TB", "overview-icon-green");
+        double diemTrungBinhTichLuy = dichVuDiem.tinhGpaTichLuy(danhSachDangKy, null);
+        String diemTrungBinh = Double.isNaN(diemTrungBinhTichLuy) ? "—" : DINH_DANG_DIEM.format(diemTrungBinhTichLuy) + " / 10";
+        themChiSo("HỌC PHẦN ĐANG HỌC", Long.toString(soHocPhanDangHoc), "HP", "overview-icon-blue");
+        themChiSo("TÍN CHỈ ĐÃ TÍCH LŨY", Long.toString(tinChiTichLuy), "TC", "overview-icon-violet");
+        themChiSo("ĐIỂM TRUNG BÌNH", diemTrungBinh, "TB", "overview-icon-green");
 
-        addProfileDetail("Email", valueOrDash(student.getEmail()));
-        addProfileDetail("Mã sinh viên", valueOrDash(student.getMaSinhVien()));
-        addProfileDetail("Lớp", valueOrDash(student.getLop()));
-        addProfileDetail("Ngành", valueOrDash(student.getNganh() == null
-                ? null : student.getNganh().getTenNganh()));
-        addProfileDetail("Khóa học", student.getKhoaHoc() == null ? "—" : student.getKhoaHoc().toString());
-        addProfileDetail("Hệ đào tạo", valueOrDash(student.getHeDaoTao()));
+        themChiTietHoSo("Email", giaTriHoacGach(sinhVien.getEmail()));
+        themChiTietHoSo("Mã sinh viên", giaTriHoacGach(sinhVien.getMaSinhVien()));
+        themChiTietHoSo("Lớp", giaTriHoacGach(sinhVien.getLop()));
+        themChiTietHoSo("Ngành", giaTriHoacGach(sinhVien.getNganh() == null
+                ? null : sinhVien.getNganh().getTenNganh()));
+        themChiTietHoSo("Khóa học", sinhVien.getKhoaHoc() == null ? "—" : sinhVien.getKhoaHoc().toString());
+        themChiTietHoSo("Hệ đào tạo", giaTriHoacGach(sinhVien.getHeDaoTao()));
 
-        List<LopHocDangKy> activeRegistrations = registrations.stream()
-                .filter(item -> "DANG_HOC".equals(item.getTrangThaiDangKy()))
+        List<KetQuaHocTap> danhSachDangKyDangHoc = danhSachDangKy.stream()
+                .filter(muc -> "DANG_HOC".equals(muc.getTrangThaiDangKy()))
                 .toList();
-        if (activeRegistrations.isEmpty()) {
-            addEmptyActivity("Hiện bạn chưa có học phần đang theo học.");
+        if (danhSachDangKyDangHoc.isEmpty()) {
+            themHoatDongTrong("Hiện bạn chưa có học phần đang theo học.");
         } else {
-            activeRegistrations.forEach(item -> addActivity(
-                    item.getTenMon(),
-                    item.getMaMon() + " · Lớp " + item.getMaLop() + " · Học kỳ " + item.getHocKy()
-                            + " · " + item.getLichHoc(),
-                    item.getDiemTongKet() == null
-                            ? "Đang học" : "Điểm " + SCORE_FORMAT.format(item.getDiemTongKet())));
+            danhSachDangKyDangHoc.forEach(muc -> themHoatDong(
+                    muc.getTenMon(),
+                    muc.getMaMon() + " · Lớp " + muc.getMaLop() + " · Học kỳ " + muc.getHocKy()
+                            + " · " + muc.getLichHoc(),
+                    muc.getDiemTongKet() == null
+                            ? "Đang học" : "Điểm " + DINH_DANG_DIEM.format(muc.getDiemTongKet())));
         }
     }
 
-    private void loadLecturerOverview(GiangVien lecturer) {
-        lblRoleSummary.setText("Thông tin giảng dạy và các lớp học phần được phân công.");
-        lblProfileTitle.setText("Thông tin giảng viên");
-        lblActivityTitle.setText("Lớp học phần phụ trách");
-        lblActivitySubtitle.setText("Các lớp đang hoạt động và sĩ số hiện tại.");
+    private void taiTongQuanGiangVien(GiangVien giangVien) {
+        lblTomTatVaiTro.setText("Thông tin giảng dạy và các lớp học phần được phân công.");
+        lblTieuDeHoSo.setText("Thông tin giảng viên");
+        lblTieuDeHoatDong.setText("Lớp học phần phụ trách");
+        lblMoTaHoatDong.setText("Các lớp đang hoạt động và sĩ số hiện tại.");
 
-        List<LopHocPhan> classes = diemService.layLopPhuTrach(lecturer).stream()
-                .filter(item -> "HOAT_DONG".equals(item.getTrangThai()))
+        List<LopHocPhan> danhSachLopHocPhan = dichVuDiem.layLopPhuTrach(giangVien).stream()
+                .filter(muc -> "HOAT_DONG".equals(muc.getTrangThai()))
                 .toList();
-        int enrolledStudents = classes.stream().map(LopHocPhan::getSiSoHienTai)
-                .filter(value -> value != null).mapToInt(Integer::intValue).sum();
-        long semesters = classes.stream().map(LopHocPhan::getHocKy)
-                .filter(value -> value != null).distinct().count();
-        addMetric("LỚP ĐANG PHỤ TRÁCH", Integer.toString(classes.size()), "LỚP", "overview-icon-blue");
-        addMetric("SINH VIÊN ĐANG HỌC", Integer.toString(enrolledStudents), "SV", "overview-icon-violet");
-        addMetric("HỌC KỲ ĐƯỢC PHÂN CÔNG", Long.toString(semesters), "HK", "overview-icon-green");
+        int soSinhVienDangHoc = danhSachLopHocPhan.stream().map(LopHocPhan::getSiSoHienTai)
+                .filter(giaTri -> giaTri != null).mapToInt(Integer::intValue).sum();
+        long soHocKyPhuTrach = danhSachLopHocPhan.stream().map(LopHocPhan::getHocKy)
+                .filter(giaTri -> giaTri != null).distinct().count();
+        themChiSo("LỚP ĐANG PHỤ TRÁCH", Integer.toString(danhSachLopHocPhan.size()), "LỚP", "overview-icon-blue");
+        themChiSo("SINH VIÊN ĐANG HỌC", Integer.toString(soSinhVienDangHoc), "SV", "overview-icon-violet");
+        themChiSo("HỌC KỲ ĐƯỢC PHÂN CÔNG", Long.toString(soHocKyPhuTrach), "HK", "overview-icon-green");
 
-        addProfileDetail("Email", valueOrDash(lecturer.getEmail()));
-        addProfileDetail("Mã giảng viên", valueOrDash(lecturer.getMaGiangVien()));
-        addProfileDetail("Chuyên ngành", valueOrDash(lecturer.getChuyenNganh()));
-        addProfileDetail("Học vị", valueOrDash(lecturer.getHocVi()));
+        themChiTietHoSo("Email", giaTriHoacGach(giangVien.getEmail()));
+        themChiTietHoSo("Mã giảng viên", giaTriHoacGach(giangVien.getMaGiangVien()));
+        themChiTietHoSo("Chuyên ngành", giaTriHoacGach(giangVien.getChuyenNganh()));
+        themChiTietHoSo("Học vị", giaTriHoacGach(giangVien.getHocVi()));
 
-        if (classes.isEmpty()) {
-            addEmptyActivity("Hiện chưa có lớp học phần đang hoạt động được phân công.");
+        if (danhSachLopHocPhan.isEmpty()) {
+            themHoatDongTrong("Hiện chưa có lớp học phần đang hoạt động được phân công.");
         } else {
-            classes.forEach(item -> addActivity(
-                    "Lớp " + item.getMaLop() + " · " + item.getMaMon(),
-                    "Học kỳ " + item.getHocKy() + " · Sĩ số "
-                            + valueOrDash(item.getSiSoHienTai() == null
-                            ? null : item.getSiSoHienTai().toString()) + "/"
-                            + valueOrDash(item.getSiSoToiDa() == null
-                            ? null : item.getSiSoToiDa().toString()),
+            danhSachLopHocPhan.forEach(muc -> themHoatDong(
+                    "Lớp " + muc.getMaLop() + " · " + muc.getMaMon(),
+                    "Học kỳ " + muc.getHocKy() + " · Sĩ số "
+                            + giaTriHoacGach(muc.getSiSoHienTai() == null
+                            ? null : muc.getSiSoHienTai().toString()) + "/"
+                            + giaTriHoacGach(muc.getSiSoToiDa() == null
+                            ? null : muc.getSiSoToiDa().toString()),
                     "Đang hoạt động"));
         }
     }
 
-    private void loadAdminOverview(Admin admin) {
-        lblRoleSummary.setText("Tình hình tài khoản và môn học trong hệ thống.");
-        lblProfileTitle.setText("Thông tin quản trị viên");
-        lblActivityTitle.setText("Môn học đang hoạt động");
-        lblActivitySubtitle.setText("Danh sách môn học đang được sử dụng.");
+    private void taiTongQuanQuanTriVien(Admin quanTriVien) {
+        lblTomTatVaiTro.setText("Tình hình tài khoản và môn học trong hệ thống.");
+        lblTieuDeHoSo.setText("Thông tin quản trị viên");
+        lblTieuDeHoatDong.setText("Môn học đang hoạt động");
+        lblMoTaHoatDong.setText("Danh sách môn học đang được sử dụng.");
 
-        List<Users> accounts = adminService.layDanhSachTaiKhoan(admin);
-        long activeStudents = accounts.stream()
+        List<Users> danhSachTaiKhoan = dichVuQuanTri.layDanhSachTaiKhoan(quanTriVien);
+        long soSinhVienHoatDong = danhSachTaiKhoan.stream()
                 .filter(SinhVien.class::isInstance)
-                .filter(user -> "HOAT_DONG".equals(user.getTrangThai())).count();
-        long activeLecturers = accounts.stream()
+                .filter(nguoiDung -> "HOAT_DONG".equals(nguoiDung.getTrangThai())).count();
+        long soGiangVienHoatDong = danhSachTaiKhoan.stream()
                 .filter(GiangVien.class::isInstance)
-                .filter(user -> "HOAT_DONG".equals(user.getTrangThai())).count();
-        List<MonHoc> activeCourses = adminService.layDanhSachMonHoc(admin).stream()
-                .filter(course -> "HOAT_DONG".equals(course.getTrangThai()))
+                .filter(nguoiDung -> "HOAT_DONG".equals(nguoiDung.getTrangThai())).count();
+        List<MonHoc> danhSachMonHocHoatDong = dichVuQuanTri.layDanhSachMonHoc(quanTriVien).stream()
+                .filter(monHoc -> "HOAT_DONG".equals(monHoc.getTrangThai()))
                 .toList();
 
-        addMetric("SINH VIÊN HOẠT ĐỘNG", Long.toString(activeStudents), "SV", "overview-icon-blue");
-        addMetric("GIẢNG VIÊN HOẠT ĐỘNG", Long.toString(activeLecturers), "GV", "overview-icon-violet");
-        addMetric("MÔN HỌC HOẠT ĐỘNG", Integer.toString(activeCourses.size()), "MH", "overview-icon-green");
+        themChiSo("SINH VIÊN HOẠT ĐỘNG", Long.toString(soSinhVienHoatDong), "SV", "overview-icon-blue");
+        themChiSo("GIẢNG VIÊN HOẠT ĐỘNG", Long.toString(soGiangVienHoatDong), "GV", "overview-icon-violet");
+        themChiSo("MÔN HỌC HOẠT ĐỘNG", Integer.toString(danhSachMonHocHoatDong.size()), "MH", "overview-icon-green");
 
-        addProfileDetail("Email", valueOrDash(admin.getEmail()));
-        addProfileDetail("Tài khoản", valueOrDash(admin.getMaSo()));
-        addProfileDetail("Họ tên", valueOrDash(admin.getHoTen()));
-        addProfileDetail("Trạng thái", "Đang hoạt động");
+        themChiTietHoSo("Email", giaTriHoacGach(quanTriVien.getEmail()));
+        themChiTietHoSo("Tài khoản", giaTriHoacGach(quanTriVien.getMaSo()));
+        themChiTietHoSo("Họ tên", giaTriHoacGach(quanTriVien.getHoTen()));
+        themChiTietHoSo("Trạng thái", "Đang hoạt động");
 
-        if (activeCourses.isEmpty()) {
-            addEmptyActivity("Hiện chưa có môn học đang hoạt động.");
+        if (danhSachMonHocHoatDong.isEmpty()) {
+            themHoatDongTrong("Hiện chưa có môn học đang hoạt động.");
         } else {
-            activeCourses.stream().limit(8).forEach(course -> addActivity(
-                    valueOrDash(course.getTenMon()),
-                    valueOrDash(course.getMaMon()) + " · "
-                            + valueOrDash(course.getSoTinChi() == null
-                            ? null : course.getSoTinChi() + " tín chỉ"),
+            danhSachMonHocHoatDong.stream().limit(8).forEach(monHoc -> themHoatDong(
+                    giaTriHoacGach(monHoc.getTenMon()),
+                    giaTriHoacGach(monHoc.getMaMon()) + " · "
+                            + giaTriHoacGach(monHoc.getSoTinChi() == null
+                            ? null : monHoc.getSoTinChi() + " tín chỉ"),
                     "Đang hoạt động"));
         }
     }
 
-    private void addMetric(String title, String value, String icon, String iconStyle) {
-        Label titleLabel = new Label(title);
-        titleLabel.getStyleClass().add("overview-metric-label");
-        Label iconLabel = new Label(icon);
-        iconLabel.getStyleClass().add("overview-metric-icon-label");
-        VBox iconBox = new VBox(iconLabel);
-        iconBox.getStyleClass().addAll("overview-metric-icon", iconStyle);
-        HBox heading = new HBox(titleLabel, new Region(), iconBox);
-        heading.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
-        HBox.setHgrow(heading.getChildren().get(1), Priority.ALWAYS);
+    private void themChiSo(String tieuDe, String giaTri, String bieuTuong, String lopBieuTuong) {
+        Label lblTieuDe = new Label(tieuDe);
+        lblTieuDe.getStyleClass().add("overview-metric-label");
+        Label lblBieuTuong = new Label(bieuTuong);
+        lblBieuTuong.getStyleClass().add("overview-metric-icon-label");
+        VBox hopBieuTuong = new VBox(lblBieuTuong);
+        hopBieuTuong.getStyleClass().addAll("overview-metric-icon", lopBieuTuong);
+        HBox hangTieuDe = new HBox(lblTieuDe, new Region(), hopBieuTuong);
+        hangTieuDe.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        HBox.setHgrow(hangTieuDe.getChildren().get(1), Priority.ALWAYS);
 
-        Label valueLabel = new Label(value);
-        valueLabel.getStyleClass().add("overview-metric-value");
-        VBox card = new VBox(14, heading, valueLabel);
-        card.getStyleClass().add("overview-metric-card");
-        HBox.setHgrow(card, Priority.ALWAYS);
-        summaryCards.getChildren().add(card);
+        Label lblGiaTri = new Label(giaTri);
+        lblGiaTri.getStyleClass().add("overview-metric-value");
+        VBox theThongKe = new VBox(14, hangTieuDe, lblGiaTri);
+        theThongKe.getStyleClass().add("overview-metric-card");
+        HBox.setHgrow(theThongKe, Priority.ALWAYS);
+        cacTheThongKe.getChildren().add(theThongKe);
     }
 
-    private void addProfileDetail(String label, String value) {
-        HBox row = new HBox(12);
-        Label key = new Label(label);
-        key.getStyleClass().add("overview-detail-label");
-        Label detail = new Label(value);
-        detail.getStyleClass().add("overview-detail-value");
-        detail.setWrapText(true);
-        row.getChildren().addAll(key, new Region(), detail);
-        HBox.setHgrow(row.getChildren().get(1), Priority.ALWAYS);
-        profileDetails.getChildren().add(row);
+    private void themChiTietHoSo(String nhan, String giaTri) {
+        HBox hang = new HBox(12);
+        Label khoa = new Label(nhan);
+        khoa.getStyleClass().add("overview-detail-label");
+        Label chiTiet = new Label(giaTri);
+        chiTiet.getStyleClass().add("overview-detail-value");
+        chiTiet.setWrapText(true);
+        hang.getChildren().addAll(khoa, new Region(), chiTiet);
+        HBox.setHgrow(hang.getChildren().get(1), Priority.ALWAYS);
+        chiTietHoSo.getChildren().add(hang);
     }
 
-    private void addActivity(String title, String detail, String badgeText) {
-        Label titleLabel = new Label(valueOrDash(title));
-        titleLabel.getStyleClass().add("overview-activity-title");
-        Label detailLabel = new Label(detail);
-        detailLabel.getStyleClass().add("overview-activity-detail");
-        detailLabel.setWrapText(true);
-        VBox text = new VBox(5, titleLabel, detailLabel);
-        Label badge = new Label(badgeText);
-        badge.getStyleClass().add("overview-activity-badge");
-        badge.setWrapText(true);
-        HBox row = new HBox(14, text, badge);
-        row.getStyleClass().add("overview-activity-row");
-        row.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
-        HBox.setHgrow(text, Priority.ALWAYS);
-        activityList.getChildren().add(row);
+    private void themHoatDong(String tieuDe, String chiTiet, String nhanHuyHieu) {
+        Label lblTieuDe = new Label(giaTriHoacGach(tieuDe));
+        lblTieuDe.getStyleClass().add("overview-activity-title");
+        Label lblChiTiet = new Label(chiTiet);
+        lblChiTiet.getStyleClass().add("overview-activity-detail");
+        lblChiTiet.setWrapText(true);
+        VBox vanBan = new VBox(5, lblTieuDe, lblChiTiet);
+        Label huyHieu = new Label(nhanHuyHieu);
+        huyHieu.getStyleClass().add("overview-activity-badge");
+        huyHieu.setWrapText(true);
+        HBox hang = new HBox(14, vanBan, huyHieu);
+        hang.getStyleClass().add("overview-activity-row");
+        hang.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        HBox.setHgrow(vanBan, Priority.ALWAYS);
+        danhSachHoatDong.getChildren().add(hang);
     }
 
-    private void addEmptyActivity(String message) {
-        Label empty = new Label(message);
-        empty.getStyleClass().add("section-subtitle");
-        empty.setWrapText(true);
-        activityList.getChildren().add(empty);
+    private void themHoatDongTrong(String thongBao) {
+        Label noiDungTrong = new Label(thongBao);
+        noiDungTrong.getStyleClass().add("section-subtitle");
+        noiDungTrong.setWrapText(true);
+        danhSachHoatDong.getChildren().add(noiDungTrong);
     }
 
-    private String roleLabel(Users user) {
-        if (user instanceof SinhVien) return "SINH VIÊN";
-        if (user instanceof GiangVien) return "GIẢNG VIÊN";
-        if (user instanceof Admin) return "QUẢN TRỊ VIÊN";
-        return valueOrDash(user.getRole());
+    private String nhanVaiTro(Users nguoiDung) {
+        if (nguoiDung instanceof SinhVien) return "SINH VIÊN";
+        if (nguoiDung instanceof GiangVien) return "GIẢNG VIÊN";
+        if (nguoiDung instanceof Admin) return "QUẢN TRỊ VIÊN";
+        return giaTriHoacGach(nguoiDung.getRole());
     }
 
-    private String valueOrDash(String value) {
-        return value == null || value.isBlank() ? "—" : value;
+    private String giaTriHoacGach(String giaTri) {
+        return giaTri == null || giaTri.isBlank() ? "—" : giaTri;
     }
 
-    private void showError(String message) {
-        lblStatus.setText(message);
-        lblStatus.setVisible(true);
-        lblStatus.setManaged(true);
+    private void hienThiLoi(String thongBao) {
+        lblTrangThai.setText(thongBao);
+        lblTrangThai.setVisible(true);
+        lblTrangThai.setManaged(true);
     }
 }

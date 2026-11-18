@@ -1,4 +1,4 @@
-# Quản lý tín chỉ
+﻿# Quản lý tín chỉ
 
 Ứng dụng JavaFX quản lý đăng ký tín chỉ và kết quả học tập. Phạm vi hiện tại gồm đúng các chức năng theo vai trò:
 
@@ -33,7 +33,7 @@ src/main/resources/
 Database/SQL/QuanLyTinChi.sql
 ```
 
-`MainApp` khởi tạo JavaFX; `Launcher` là điểm vào được cấu hình cho Maven. `AppShellController` chỉ hiển thị menu theo vai trò và mở các màn hình thuộc phạm vi trên. Các lớp học, lịch học, đợt đăng ký, chương trình đào tạo và cấu hình học kỳ được nạp sẵn từ script cơ sở dữ liệu; ứng dụng không có màn hình quản trị các dữ liệu cấu hình này.
+`MainApp` khởi tạo JavaFX; `Launcher` là điểm vào được cấu hình cho Maven. `ThanhDieuHuongController` chỉ hiển thị menu theo vai trò và mở các màn hình thuộc phạm vi trên. Các lớp học, lịch học, đợt đăng ký, chương trình đào tạo và cấu hình học kỳ được nạp sẵn từ script cơ sở dữ liệu; ứng dụng không có màn hình quản trị các dữ liệu cấu hình này.
 
 ## Cơ sở dữ liệu và chạy ứng dụng
 

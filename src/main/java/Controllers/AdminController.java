@@ -32,422 +32,422 @@ import java.util.Locale;
 import java.util.Optional;
 
 public class AdminController {
-    private static final String STUDENT_ROLE = "SINHVIEN";
-    private static final String LECTURER_ROLE = "GIAOVIEN";
+    private static final String VAI_TRO_SINH_VIEN = "SINHVIEN";
+    private static final String VAI_TRO_GIANG_VIEN = "GIAOVIEN";
 
-    private final AdminService adminService = new AdminService();
-    private final ObservableList<Users> accounts = FXCollections.observableArrayList();
-    private final FilteredList<Users> filteredAccounts = new FilteredList<>(accounts, item -> true);
-    private final ObservableList<MonHoc> courses = FXCollections.observableArrayList();
-    private final FilteredList<MonHoc> filteredCourses = new FilteredList<>(courses, item -> true);
+    private final AdminService dichVuQuanTri = new AdminService();
+    private final ObservableList<Users> danhSachTaiKhoan = FXCollections.observableArrayList();
+    private final FilteredList<Users> taiKhoanDaLoc = new FilteredList<>(danhSachTaiKhoan, muc -> true);
+    private final ObservableList<MonHoc> danhSachMonHoc = FXCollections.observableArrayList();
+    private final FilteredList<MonHoc> monHocDaLoc = new FilteredList<>(danhSachMonHoc, muc -> true);
 
-    @FXML private Label lblStatus;
-    @FXML private ScrollPane accountManagementPane;
-    @FXML private ScrollPane courseManagementPane;
-    @FXML private TableView<Users> tblAccounts;
-    @FXML private TableColumn<Users, Integer> colUserId;
-    @FXML private TableColumn<Users, String> colUserCode;
-    @FXML private TableColumn<Users, String> colUserName;
-    @FXML private TableColumn<Users, String> colUserEmail;
-    @FXML private TableColumn<Users, String> colUserRole;
-    @FXML private TableColumn<Users, String> colUserMajor;
-    @FXML private TableColumn<Users, String> colUserStatus;
-    @FXML private TextField txtAccountSearch;
-    @FXML private ComboBox<String> cmbAccountRole;
-    @FXML private TextField txtUserCode;
-    @FXML private TextField txtUserName;
-    @FXML private TextField txtUserEmail;
-    @FXML private TextField txtUserPassword;
-    @FXML private TextField txtUserMajor;
-    @FXML private TextField txtStudentClass;
-    @FXML private TextField txtStudentCohort;
-    @FXML private TextField txtStudentDegree;
-    @FXML private GridPane studentFields;
-    @FXML private DatePicker dpStudentBirthDate;
-    @FXML private ComboBox<String> cmbStudentGender;
-    @FXML private TextField txtLecturerSpecialty;
-    @FXML private TextField txtLecturerDegree;
-    @FXML private GridPane lecturerFields;
-    @FXML private ComboBox<String> cmbUserStatus;
+    @FXML private Label lblTrangThai;
+    @FXML private ScrollPane khungQuanLyTaiKhoan;
+    @FXML private ScrollPane khungQuanLyMonHoc;
+    @FXML private TableView<Users> bangTaiKhoan;
+    @FXML private TableColumn<Users, Integer> cotMaNguoiDung;
+    @FXML private TableColumn<Users, String> cotMaTaiKhoan;
+    @FXML private TableColumn<Users, String> cotTenNguoiDung;
+    @FXML private TableColumn<Users, String> cotEmailNguoiDung;
+    @FXML private TableColumn<Users, String> cotVaiTroNguoiDung;
+    @FXML private TableColumn<Users, String> cotNganhNguoiDung;
+    @FXML private TableColumn<Users, String> cotTrangThaiNguoiDung;
+    @FXML private TextField txtTimTaiKhoan;
+    @FXML private ComboBox<String> cmbVaiTroTaiKhoan;
+    @FXML private TextField txtMaTaiKhoan;
+    @FXML private TextField txtTenNguoiDung;
+    @FXML private TextField txtEmailNguoiDung;
+    @FXML private TextField txtMatKhauNguoiDung;
+    @FXML private TextField txtNganhNguoiDung;
+    @FXML private TextField txtLopSinhVien;
+    @FXML private TextField txtKhoaHocSinhVien;
+    @FXML private TextField txtHeDaoTaoSinhVien;
+    @FXML private GridPane cacTruongSinhVien;
+    @FXML private DatePicker dpNgaySinhSinhVien;
+    @FXML private ComboBox<String> cmbGioiTinhSinhVien;
+    @FXML private TextField txtChuyenNganhGiangVien;
+    @FXML private TextField txtHocViGiangVien;
+    @FXML private GridPane cacTruongGiangVien;
+    @FXML private ComboBox<String> cmbTrangThaiNguoiDung;
 
-    @FXML private TableView<MonHoc> tblCourses;
-    @FXML private TableColumn<MonHoc, String> colCourseCode;
-    @FXML private TableColumn<MonHoc, String> colCourseName;
-    @FXML private TableColumn<MonHoc, Integer> colCourseCredits;
-    @FXML private TableColumn<MonHoc, String> colCourseType;
-    @FXML private TableColumn<MonHoc, String> colCourseStatus;
-    @FXML private TextField txtCourseSearch;
-    @FXML private TextField txtCourseCode;
-    @FXML private TextField txtCourseName;
-    @FXML private TextField txtCourseCredits;
-    @FXML private TextField txtCourseType;
-    @FXML private TextArea txtCourseDescription;
+    @FXML private TableView<MonHoc> bangMonHoc;
+    @FXML private TableColumn<MonHoc, String> cotMaMonHoc;
+    @FXML private TableColumn<MonHoc, String> cotTenMonHoc;
+    @FXML private TableColumn<MonHoc, Integer> cotSoTinChi;
+    @FXML private TableColumn<MonHoc, String> cotLoaiMonHoc;
+    @FXML private TableColumn<MonHoc, String> cotTrangThaiMonHoc;
+    @FXML private TextField txtTimMonHoc;
+    @FXML private TextField txtMaMonHoc;
+    @FXML private TextField txtTenMonHoc;
+    @FXML private TextField txtSoTinChiMonHoc;
+    @FXML private TextField txtLoaiMonHoc;
+    @FXML private TextArea txtMoTaMonHoc;
 
-    private Admin admin;
-    private Users selectedAccount;
-    private MonHoc selectedCourse;
+    private Admin quanTriVien;
+    private Users taiKhoanDangChon;
+    private MonHoc monHocDangChon;
 
     @FXML
     private void initialize() {
-        configureAccountTable();
-        configureCourseTable();
-        cmbAccountRole.setItems(FXCollections.observableArrayList(STUDENT_ROLE, LECTURER_ROLE));
-        cmbAccountRole.getSelectionModel().selectFirst();
-        cmbUserStatus.setItems(FXCollections.observableArrayList("HOAT_DONG", "NGUNG_HOAT_DONG"));
-        cmbUserStatus.getSelectionModel().select("HOAT_DONG");
-        cmbStudentGender.setItems(FXCollections.observableArrayList("Không chỉ định", "Nam", "Nữ"));
-        cmbStudentGender.getSelectionModel().selectFirst();
-        tblAccounts.setItems(filteredAccounts);
-        tblCourses.setItems(filteredCourses);
-        txtAccountSearch.textProperty().addListener((o, oldValue, newValue) -> filterAccounts());
-        txtCourseSearch.textProperty().addListener((o, oldValue, newValue) -> filterCourses());
-        cmbAccountRole.valueProperty().addListener((o, oldValue, role) -> {
-            updateRoleFields(role);
-            filterAccounts();
+        cauHinhBangTaiKhoan();
+        cauHinhBangMonHoc();
+        cmbVaiTroTaiKhoan.setItems(FXCollections.observableArrayList(VAI_TRO_SINH_VIEN, VAI_TRO_GIANG_VIEN));
+        cmbVaiTroTaiKhoan.getSelectionModel().selectFirst();
+        cmbTrangThaiNguoiDung.setItems(FXCollections.observableArrayList("HOAT_DONG", "NGUNG_HOAT_DONG"));
+        cmbTrangThaiNguoiDung.getSelectionModel().select("HOAT_DONG");
+        cmbGioiTinhSinhVien.setItems(FXCollections.observableArrayList("Không chỉ định", "Nam", "Nữ"));
+        cmbGioiTinhSinhVien.getSelectionModel().selectFirst();
+        bangTaiKhoan.setItems(taiKhoanDaLoc);
+        bangMonHoc.setItems(monHocDaLoc);
+        txtTimTaiKhoan.textProperty().addListener((thuocTinh, giaTriCu, giaTriMoi) -> locTaiKhoan());
+        txtTimMonHoc.textProperty().addListener((thuocTinh, giaTriCu, giaTriMoi) -> locMonHoc());
+        cmbVaiTroTaiKhoan.valueProperty().addListener((thuocTinh, giaTriCu, vaiTro) -> {
+            capNhatTruongTheoVaiTro(vaiTro);
+            locTaiKhoan();
         });
-        tblAccounts.getSelectionModel().selectedItemProperty().addListener(
-                (o, oldValue, selected) -> populateAccountForm(selected));
-        tblCourses.getSelectionModel().selectedItemProperty().addListener(
-                (o, oldValue, selected) -> populateCourseForm(selected));
-        updateRoleFields(cmbAccountRole.getValue());
+        bangTaiKhoan.getSelectionModel().selectedItemProperty().addListener(
+                (thuocTinh, giaTriCu, duocChon) -> dienBieuMauTaiKhoan(duocChon));
+        bangMonHoc.getSelectionModel().selectedItemProperty().addListener(
+                (thuocTinh, giaTriCu, duocChon) -> dienBieuMauMonHoc(duocChon));
+        capNhatTruongTheoVaiTro(cmbVaiTroTaiKhoan.getValue());
     }
 
-    public void setAdmin(Users user, String section) {
-        if (!(user instanceof Admin authenticatedAdmin)
-                || !"HOAT_DONG".equals(authenticatedAdmin.getTrangThai())) {
-            setStatus("Không xác định được tài khoản admin đang hoạt động.", true);
+    public void ganQuanTriVien(Users nguoiDung, String mucQuanLy) {
+        if (!(nguoiDung instanceof Admin quanTriVienXacThuc)
+                || !"HOAT_DONG".equals(quanTriVienXacThuc.getTrangThai())) {
+            datTrangThai("Không xác định được tài khoản admin đang hoạt động.", true);
             return;
         }
-        admin = authenticatedAdmin;
-        boolean coursesSection = "admin-courses".equals(section);
-        accountManagementPane.setVisible(!coursesSection);
-        accountManagementPane.setManaged(!coursesSection);
-        courseManagementPane.setVisible(coursesSection);
-        courseManagementPane.setManaged(coursesSection);
-        if (!coursesSection) {
-            cmbAccountRole.setValue("admin-lecturers".equals(section) ? LECTURER_ROLE : STUDENT_ROLE);
+        quanTriVien = quanTriVienXacThuc;
+        boolean dangQuanLyMonHoc = "admin-courses".equals(mucQuanLy);
+        khungQuanLyTaiKhoan.setVisible(!dangQuanLyMonHoc);
+        khungQuanLyTaiKhoan.setManaged(!dangQuanLyMonHoc);
+        khungQuanLyMonHoc.setVisible(dangQuanLyMonHoc);
+        khungQuanLyMonHoc.setManaged(dangQuanLyMonHoc);
+        if (!dangQuanLyMonHoc) {
+            cmbVaiTroTaiKhoan.setValue("admin-lecturers".equals(mucQuanLy) ? VAI_TRO_GIANG_VIEN : VAI_TRO_SINH_VIEN);
         }
-        loadAllData();
+        taiToanBoDuLieu();
     }
 
     @FXML
-    private void onRefresh() {
-        if (accountManagementPane.isVisible()) onClearAccountForm();
-        else onClearCourseForm();
-        loadAllData();
+    private void taiLaiDuLieu() {
+        if (khungQuanLyTaiKhoan.isVisible()) xoaTrangBieuMauTaiKhoan();
+        else xoaTrangBieuMauMonHoc();
+        taiToanBoDuLieu();
     }
 
     @FXML
-    private void onClearAccountForm() {
-        tblAccounts.getSelectionModel().clearSelection();
-        selectedAccount = null;
-        txtUserCode.clear();
-        txtUserCode.setDisable(false);
-        txtUserName.clear();
-        txtUserEmail.clear();
-        txtUserPassword.clear();
-        txtUserPassword.setPromptText("Mật khẩu (bắt buộc khi tạo)");
-        txtUserMajor.clear();
-        txtStudentClass.clear();
-        txtStudentCohort.clear();
-        txtStudentDegree.clear();
-        dpStudentBirthDate.setValue(null);
-        cmbStudentGender.getSelectionModel().selectFirst();
-        txtLecturerSpecialty.clear();
-        txtLecturerDegree.clear();
-        cmbAccountRole.setDisable(false);
-        cmbUserStatus.getSelectionModel().select("HOAT_DONG");
+    private void xoaTrangBieuMauTaiKhoan() {
+        bangTaiKhoan.getSelectionModel().clearSelection();
+        taiKhoanDangChon = null;
+        txtMaTaiKhoan.clear();
+        txtMaTaiKhoan.setDisable(false);
+        txtTenNguoiDung.clear();
+        txtEmailNguoiDung.clear();
+        txtMatKhauNguoiDung.clear();
+        txtMatKhauNguoiDung.setPromptText("Mật khẩu (bắt buộc khi tạo)");
+        txtNganhNguoiDung.clear();
+        txtLopSinhVien.clear();
+        txtKhoaHocSinhVien.clear();
+        txtHeDaoTaoSinhVien.clear();
+        dpNgaySinhSinhVien.setValue(null);
+        cmbGioiTinhSinhVien.getSelectionModel().selectFirst();
+        txtChuyenNganhGiangVien.clear();
+        txtHocViGiangVien.clear();
+        cmbVaiTroTaiKhoan.setDisable(false);
+        cmbTrangThaiNguoiDung.getSelectionModel().select("HOAT_DONG");
     }
 
     @FXML
-    private void onSaveAccount() {
-        if (admin == null) return;
+    private void luuTaiKhoan() {
+        if (quanTriVien == null) return;
         try {
-            Users account = buildAccountFromForm();
-            boolean saved;
-            if (selectedAccount == null) {
-                saved = adminService.taoTaiKhoan(admin, account);
+            Users taiKhoan = taoTaiKhoanTuBieuMau();
+            boolean daLuu;
+            if (taiKhoanDangChon == null) {
+                daLuu = dichVuQuanTri.taoTaiKhoan(quanTriVien, taiKhoan);
             } else {
-                account.setUserID(selectedAccount.getUserID());
-                if (account.getPasswordHash().isBlank()) {
-                    account.setPasswordHash(selectedAccount.getPasswordHash());
+                taiKhoan.setUserID(taiKhoanDangChon.getUserID());
+                if (taiKhoan.getPasswordHash().isBlank()) {
+                    taiKhoan.setPasswordHash(taiKhoanDangChon.getPasswordHash());
                 }
-                saved = adminService.capNhatTaiKhoan(admin, account);
+                daLuu = dichVuQuanTri.capNhatTaiKhoan(quanTriVien, taiKhoan);
             }
-            if (!saved) {
-                setStatus("Không thể lưu tài khoản. Dữ liệu có thể đã thay đổi.", true);
+            if (!daLuu) {
+                datTrangThai("Không thể lưu tài khoản. Dữ liệu có thể đã thay đổi.", true);
                 return;
             }
-            onClearAccountForm();
-            loadAccounts();
-            setStatus("Đã lưu hồ sơ và tài khoản.", false);
-        } catch (IllegalArgumentException | ServiceException e) {
-            setStatus(e.getMessage(), true);
+            xoaTrangBieuMauTaiKhoan();
+            taiDanhSachTaiKhoan();
+            datTrangThai("Đã lưu hồ sơ và tài khoản.", false);
+        } catch (IllegalArgumentException | ServiceException loiPhatSinh) {
+            datTrangThai(loiPhatSinh.getMessage(), true);
         }
     }
 
     @FXML
-    private void onDeactivateAccount() {
-        if (admin == null || selectedAccount == null) {
-            setStatus("Chọn một sinh viên hoặc giảng viên cần ngừng tài khoản.", true);
+    private void ngungTaiKhoan() {
+        if (quanTriVien == null || taiKhoanDangChon == null) {
+            datTrangThai("Chọn một sinh viên hoặc giảng viên cần ngừng tài khoản.", true);
             return;
         }
-        if (!confirm("Ngừng tài khoản " + selectedAccount.getMaSo() + "?",
+        if (!xacNhan("Ngừng tài khoản " + taiKhoanDangChon.getMaSo() + "?",
                 "Tài khoản sẽ không thể đăng nhập. Hồ sơ và dữ liệu học vụ được giữ lại.")) return;
         try {
-            if (!adminService.ngungTaiKhoan(admin, selectedAccount.getUserID())) {
-                setStatus("Tài khoản không còn hoạt động hoặc đã thay đổi.", true);
+            if (!dichVuQuanTri.ngungTaiKhoan(quanTriVien, taiKhoanDangChon.getUserID())) {
+                datTrangThai("Tài khoản không còn hoạt động hoặc đã thay đổi.", true);
                 return;
             }
-            onClearAccountForm();
-            loadAccounts();
-            setStatus("Đã ngừng hoạt động tài khoản.", false);
-        } catch (ServiceException e) {
-            setStatus(e.getMessage(), true);
+            xoaTrangBieuMauTaiKhoan();
+            taiDanhSachTaiKhoan();
+            datTrangThai("Đã ngừng hoạt động tài khoản.", false);
+        } catch (ServiceException loiPhatSinh) {
+            datTrangThai(loiPhatSinh.getMessage(), true);
         }
     }
 
     @FXML
-    private void onClearCourseForm() {
-        tblCourses.getSelectionModel().clearSelection();
-        selectedCourse = null;
-        txtCourseCode.clear();
-        txtCourseCode.setDisable(false);
-        txtCourseName.clear();
-        txtCourseCredits.clear();
-        txtCourseType.clear();
-        txtCourseDescription.clear();
+    private void xoaTrangBieuMauMonHoc() {
+        bangMonHoc.getSelectionModel().clearSelection();
+        monHocDangChon = null;
+        txtMaMonHoc.clear();
+        txtMaMonHoc.setDisable(false);
+        txtTenMonHoc.clear();
+        txtSoTinChiMonHoc.clear();
+        txtLoaiMonHoc.clear();
+        txtMoTaMonHoc.clear();
     }
 
     @FXML
-    private void onSaveCourse() {
+    private void luuMonHoc() {
         try {
-            String code = required(txtCourseCode.getText(), "Mã môn học");
-            String name = required(txtCourseName.getText(), "Tên môn học");
-            int credits = parsePositiveInt(txtCourseCredits.getText(), "Số tín chỉ");
-            String type = required(txtCourseType.getText(), "Loại môn");
-            if (code.length() > 20 || name.length() > 200 || type.length() > 20) {
+            String maSo = batBuoc(txtMaMonHoc.getText(), "Mã môn học");
+            String hoTen = batBuoc(txtTenMonHoc.getText(), "Tên môn học");
+            int soTinChi = docSoNguyenDuong(txtSoTinChiMonHoc.getText(), "Số tín chỉ");
+            String loai = batBuoc(txtLoaiMonHoc.getText(), "Loại môn");
+            if (maSo.length() > 20 || hoTen.length() > 200 || loai.length() > 20) {
                 throw new IllegalArgumentException("Mã môn, tên môn hoặc loại môn vượt quá giới hạn.");
             }
-            MonHoc course = new MonHoc(code, name, credits, type, optional(txtCourseDescription.getText()),
-                    selectedCourse == null ? "HOAT_DONG" : selectedCourse.getTrangThai());
-            boolean saved = selectedCourse == null
-                    ? adminService.taoMonHoc(admin, course) : adminService.capNhatMonHoc(admin, course);
-            if (!saved) {
-                setStatus("Không thể lưu môn học.", true);
+            MonHoc monHoc = new MonHoc(maSo, hoTen, soTinChi, loai, tuyChon(txtMoTaMonHoc.getText()),
+                    monHocDangChon == null ? "HOAT_DONG" : monHocDangChon.getTrangThai());
+            boolean daLuu = monHocDangChon == null
+                    ? dichVuQuanTri.taoMonHoc(quanTriVien, monHoc) : dichVuQuanTri.capNhatMonHoc(quanTriVien, monHoc);
+            if (!daLuu) {
+                datTrangThai("Không thể lưu môn học.", true);
                 return;
             }
-            onClearCourseForm();
-            loadCourses();
-            setStatus("Đã lưu môn học.", false);
-        } catch (IllegalArgumentException e) {
-            setStatus(e.getMessage(), true);
-        } catch (ServiceException e) {
-            setStatus(e.getMessage(), true);
+            xoaTrangBieuMauMonHoc();
+            taiDanhSachMonHoc();
+            datTrangThai("Đã lưu môn học.", false);
+        } catch (IllegalArgumentException loiPhatSinh) {
+            datTrangThai(loiPhatSinh.getMessage(), true);
+        } catch (ServiceException loiPhatSinh) {
+            datTrangThai(loiPhatSinh.getMessage(), true);
         }
     }
 
     @FXML
-    private void onDeactivateCourse() {
-        if (selectedCourse == null) {
-            setStatus("Chọn môn học cần ngừng hoạt động.", true);
+    private void ngungMonHoc() {
+        if (monHocDangChon == null) {
+            datTrangThai("Chọn môn học cần ngừng hoạt động.", true);
             return;
         }
-        if (!confirm("Ngừng môn " + selectedCourse.getMaMon() + "?", "Môn học sẽ được giữ lại để bảo toàn dữ liệu lịch sử.")) return;
+        if (!xacNhan("Ngừng môn " + monHocDangChon.getMaMon() + "?", "Môn học sẽ được giữ lại để bảo toàn dữ liệu lịch sử.")) return;
         try {
-            if (!adminService.ngungMonHoc(admin, selectedCourse.getMaMon())) {
-                setStatus("Môn học không còn hoạt động hoặc đã thay đổi.", true);
+            if (!dichVuQuanTri.ngungMonHoc(quanTriVien, monHocDangChon.getMaMon())) {
+                datTrangThai("Môn học không còn hoạt động hoặc đã thay đổi.", true);
                 return;
             }
-            onClearCourseForm();
-            loadCourses();
-            setStatus("Đã ngừng hoạt động môn học.", false);
-        } catch (ServiceException e) {
-            setStatus(e.getMessage(), true);
+            xoaTrangBieuMauMonHoc();
+            taiDanhSachMonHoc();
+            datTrangThai("Đã ngừng hoạt động môn học.", false);
+        } catch (ServiceException loiPhatSinh) {
+            datTrangThai(loiPhatSinh.getMessage(), true);
         }
     }
 
-    private void configureAccountTable() {
-        colUserId.setCellValueFactory(new PropertyValueFactory<>("userID"));
-        colUserCode.setCellValueFactory(new PropertyValueFactory<>("maSo"));
-        colUserName.setCellValueFactory(new PropertyValueFactory<>("hoTen"));
-        colUserEmail.setCellValueFactory(new PropertyValueFactory<>("email"));
-        colUserRole.setCellValueFactory(new PropertyValueFactory<>("role"));
-        colUserMajor.setCellValueFactory(cell -> new ReadOnlyStringWrapper(
-                cell.getValue() instanceof SinhVien student && student.getNganh() != null
-                        ? student.getNganh().getMaNganh() : ""));
-        colUserStatus.setCellValueFactory(new PropertyValueFactory<>("trangThai"));
+    private void cauHinhBangTaiKhoan() {
+        cotMaNguoiDung.setCellValueFactory(new PropertyValueFactory<>("userID"));
+        cotMaTaiKhoan.setCellValueFactory(new PropertyValueFactory<>("maSo"));
+        cotTenNguoiDung.setCellValueFactory(new PropertyValueFactory<>("hoTen"));
+        cotEmailNguoiDung.setCellValueFactory(new PropertyValueFactory<>("email"));
+        cotVaiTroNguoiDung.setCellValueFactory(new PropertyValueFactory<>("role"));
+        cotNganhNguoiDung.setCellValueFactory(oDuLieu -> new ReadOnlyStringWrapper(
+                oDuLieu.getValue() instanceof SinhVien sinhVien && sinhVien.getNganh() != null
+                        ? sinhVien.getNganh().getMaNganh() : ""));
+        cotTrangThaiNguoiDung.setCellValueFactory(new PropertyValueFactory<>("trangThai"));
     }
 
-    private void configureCourseTable() {
-        colCourseCode.setCellValueFactory(new PropertyValueFactory<>("maMon"));
-        colCourseName.setCellValueFactory(new PropertyValueFactory<>("tenMon"));
-        colCourseCredits.setCellValueFactory(new PropertyValueFactory<>("soTinChi"));
-        colCourseType.setCellValueFactory(new PropertyValueFactory<>("loaiMon"));
-        colCourseStatus.setCellValueFactory(new PropertyValueFactory<>("trangThai"));
+    private void cauHinhBangMonHoc() {
+        cotMaMonHoc.setCellValueFactory(new PropertyValueFactory<>("maMon"));
+        cotTenMonHoc.setCellValueFactory(new PropertyValueFactory<>("tenMon"));
+        cotSoTinChi.setCellValueFactory(new PropertyValueFactory<>("soTinChi"));
+        cotLoaiMonHoc.setCellValueFactory(new PropertyValueFactory<>("loaiMon"));
+        cotTrangThaiMonHoc.setCellValueFactory(new PropertyValueFactory<>("trangThai"));
     }
 
-    private void loadAllData() {
-        if (admin == null) return;
-        if (accountManagementPane.isVisible()) loadAccounts();
-        else loadCourses();
+    private void taiToanBoDuLieu() {
+        if (quanTriVien == null) return;
+        if (khungQuanLyTaiKhoan.isVisible()) taiDanhSachTaiKhoan();
+        else taiDanhSachMonHoc();
     }
 
-    private void loadAccounts() {
+    private void taiDanhSachTaiKhoan() {
         try {
-            accounts.setAll(adminService.layDanhSachTaiKhoan(admin));
-            filterAccounts();
-        } catch (ServiceException e) {
-            setStatus("Không thể tải tài khoản. Vui lòng kiểm tra kết nối cơ sở dữ liệu.", true);
+            danhSachTaiKhoan.setAll(dichVuQuanTri.layDanhSachTaiKhoan(quanTriVien));
+            locTaiKhoan();
+        } catch (ServiceException loiPhatSinh) {
+            datTrangThai("Không thể tải tài khoản. Vui lòng kiểm tra kết nối cơ sở dữ liệu.", true);
         }
     }
 
-    private void loadCourses() {
+    private void taiDanhSachMonHoc() {
         try {
-            courses.setAll(adminService.layDanhSachMonHoc(admin));
-            filterCourses();
-        } catch (ServiceException e) {
-            setStatus(e.getMessage(), true);
+            danhSachMonHoc.setAll(dichVuQuanTri.layDanhSachMonHoc(quanTriVien));
+            locMonHoc();
+        } catch (ServiceException loiPhatSinh) {
+            datTrangThai(loiPhatSinh.getMessage(), true);
         }
     }
 
-    private void filterAccounts() {
-        String query = normalized(txtAccountSearch.getText());
-        String role = cmbAccountRole.getValue();
-        filteredAccounts.setPredicate(account -> (role == null || role.equalsIgnoreCase(account.getRole()))
-                && (account.getMaSo() + " " + account.getHoTen() + " "
-                + account.getEmail() + " " + account.getRole() + " " + accountNganh(account))
-                .toLowerCase(Locale.ROOT).contains(query));
+    private void locTaiKhoan() {
+        String tuKhoa = chuanHoa(txtTimTaiKhoan.getText());
+        String vaiTro = cmbVaiTroTaiKhoan.getValue();
+        taiKhoanDaLoc.setPredicate(taiKhoan -> (vaiTro == null || vaiTro.equalsIgnoreCase(taiKhoan.getRole()))
+                && (taiKhoan.getMaSo() + " " + taiKhoan.getHoTen() + " "
+                + taiKhoan.getEmail() + " " + taiKhoan.getRole() + " " + nganhTaiKhoan(taiKhoan))
+                .toLowerCase(Locale.ROOT).contains(tuKhoa));
     }
 
-    private String accountNganh(Users account) {
-        return account instanceof SinhVien student && student.getNganh() != null
-                ? optional(student.getNganh().getMaNganh()) : "";
+    private String nganhTaiKhoan(Users taiKhoan) {
+        return taiKhoan instanceof SinhVien sinhVien && sinhVien.getNganh() != null
+                ? tuyChon(sinhVien.getNganh().getMaNganh()) : "";
     }
 
-    private void filterCourses() {
-        String query = normalized(txtCourseSearch.getText());
-        filteredCourses.setPredicate(course -> (course.getMaMon() + " " + course.getTenMon() + " "
-                + course.getLoaiMon()).toLowerCase(Locale.ROOT).contains(query));
+    private void locMonHoc() {
+        String tuKhoa = chuanHoa(txtTimMonHoc.getText());
+        monHocDaLoc.setPredicate(monHoc -> (monHoc.getMaMon() + " " + monHoc.getTenMon() + " "
+                + monHoc.getLoaiMon()).toLowerCase(Locale.ROOT).contains(tuKhoa));
     }
 
-    private void populateAccountForm(Users selected) {
-        selectedAccount = selected;
-        if (selected == null) return;
-        cmbAccountRole.setValue(selected instanceof SinhVien ? STUDENT_ROLE : LECTURER_ROLE);
-        cmbAccountRole.setDisable(true);
-        txtUserCode.setText(selected.getMaSo());
-        txtUserCode.setDisable(true);
-        txtUserName.setText(selected.getHoTen());
-        txtUserEmail.setText(selected.getEmail());
-        txtUserPassword.clear();
-        txtUserPassword.setPromptText("Để trống để giữ mật khẩu");
-        txtUserMajor.setText(selected instanceof SinhVien student && student.getNganh() != null
-                ? optional(student.getNganh().getMaNganh()) : "");
-        cmbUserStatus.setValue(selected.getTrangThai());
-        if (selected instanceof SinhVien student) {
-            txtStudentClass.setText(student.getLop());
-            txtStudentCohort.setText(student.getKhoaHoc() == null ? "" : student.getKhoaHoc().toString());
-            txtStudentDegree.setText(student.getHeDaoTao());
-            dpStudentBirthDate.setValue(student.getNgaySinh() == null ? null
-                    : new Date(student.getNgaySinh().getTime()).toLocalDate());
-            cmbStudentGender.setValue(student.getGioiTinh() == null ? "Không chỉ định"
-                    : student.getGioiTinh() ? "Nam" : "Nữ");
-        } else if (selected instanceof GiangVien lecturer) {
-            txtLecturerSpecialty.setText(lecturer.getChuyenNganh());
-            txtLecturerDegree.setText(lecturer.getHocVi());
+    private void dienBieuMauTaiKhoan(Users duocChon) {
+        taiKhoanDangChon = duocChon;
+        if (duocChon == null) return;
+        cmbVaiTroTaiKhoan.setValue(duocChon instanceof SinhVien ? VAI_TRO_SINH_VIEN : VAI_TRO_GIANG_VIEN);
+        cmbVaiTroTaiKhoan.setDisable(true);
+        txtMaTaiKhoan.setText(duocChon.getMaSo());
+        txtMaTaiKhoan.setDisable(true);
+        txtTenNguoiDung.setText(duocChon.getHoTen());
+        txtEmailNguoiDung.setText(duocChon.getEmail());
+        txtMatKhauNguoiDung.clear();
+        txtMatKhauNguoiDung.setPromptText("Để trống để giữ mật khẩu");
+        txtNganhNguoiDung.setText(duocChon instanceof SinhVien sinhVien && sinhVien.getNganh() != null
+                ? tuyChon(sinhVien.getNganh().getMaNganh()) : "");
+        cmbTrangThaiNguoiDung.setValue(duocChon.getTrangThai());
+        if (duocChon instanceof SinhVien sinhVien) {
+            txtLopSinhVien.setText(sinhVien.getLop());
+            txtKhoaHocSinhVien.setText(sinhVien.getKhoaHoc() == null ? "" : sinhVien.getKhoaHoc().toString());
+            txtHeDaoTaoSinhVien.setText(sinhVien.getHeDaoTao());
+            dpNgaySinhSinhVien.setValue(sinhVien.getNgaySinh() == null ? null
+                    : new Date(sinhVien.getNgaySinh().getTime()).toLocalDate());
+            cmbGioiTinhSinhVien.setValue(sinhVien.getGioiTinh() == null ? "Không chỉ định"
+                    : sinhVien.getGioiTinh() ? "Nam" : "Nữ");
+        } else if (duocChon instanceof GiangVien giangVien) {
+            txtChuyenNganhGiangVien.setText(giangVien.getChuyenNganh());
+            txtHocViGiangVien.setText(giangVien.getHocVi());
         }
-        updateRoleFields(cmbAccountRole.getValue());
+        capNhatTruongTheoVaiTro(cmbVaiTroTaiKhoan.getValue());
     }
 
-    private Users buildAccountFromForm() {
-        String role = cmbAccountRole.getValue();
-        String code = required(txtUserCode.getText(), "Mã tài khoản");
-        String name = required(txtUserName.getText(), "Họ tên");
-        String email = required(txtUserEmail.getText(), "Email");
-        String password = txtUserPassword.getText() == null ? "" : txtUserPassword.getText().trim();
-        if (selectedAccount == null && password.isBlank()) {
+    private Users taoTaiKhoanTuBieuMau() {
+        String vaiTro = cmbVaiTroTaiKhoan.getValue();
+        String maSo = batBuoc(txtMaTaiKhoan.getText(), "Mã tài khoản");
+        String hoTen = batBuoc(txtTenNguoiDung.getText(), "Họ tên");
+        String diaChiEmail = batBuoc(txtEmailNguoiDung.getText(), "Email");
+        String matKhau = txtMatKhauNguoiDung.getText() == null ? "" : txtMatKhauNguoiDung.getText().trim();
+        if (taiKhoanDangChon == null && matKhau.isBlank()) {
             throw new IllegalArgumentException("Cần nhập mật khẩu cho tài khoản mới.");
         }
-        if (selectedAccount != null && password.isBlank()) password = selectedAccount.getPasswordHash();
-        String major = optional(txtUserMajor.getText());
-        String status = cmbUserStatus.getValue();
-        if (role == null || status == null) throw new IllegalArgumentException("Chọn vai trò và trạng thái tài khoản.");
-        if (STUDENT_ROLE.equals(role)) {
-            Integer cohort = txtStudentCohort.getText().isBlank() ? null
-                    : parsePositiveInt(txtStudentCohort.getText(), "Khóa học");
-            String genderText = cmbStudentGender.getValue();
-            Boolean gender = "Nam".equals(genderText) ? Boolean.TRUE
-                    : "Nữ".equals(genderText) ? Boolean.FALSE : null;
-            LocalDate birth = dpStudentBirthDate.getValue();
-            return new SinhVien(selectedAccount == null ? null : selectedAccount.getUserID(),
-                    name, email, password, STUDENT_ROLE, code,
-                    major == null ? null : new Nganh(major, null), null, status,
-                    code, birth == null ? null : Date.valueOf(birth), gender,
-                    optional(txtStudentClass.getText()), cohort, optional(txtStudentDegree.getText()));
+        if (taiKhoanDangChon != null && matKhau.isBlank()) matKhau = taiKhoanDangChon.getPasswordHash();
+        String nganh = tuyChon(txtNganhNguoiDung.getText());
+        String trangThai = cmbTrangThaiNguoiDung.getValue();
+        if (vaiTro == null || trangThai == null) throw new IllegalArgumentException("Chọn vai trò và trạng thái tài khoản.");
+        if (VAI_TRO_SINH_VIEN.equals(vaiTro)) {
+            Integer khoaHoc = txtKhoaHocSinhVien.getText().isBlank() ? null
+                    : docSoNguyenDuong(txtKhoaHocSinhVien.getText(), "Khóa học");
+            String chuoiGioiTinh = cmbGioiTinhSinhVien.getValue();
+            Boolean gioiTinh = "Nam".equals(chuoiGioiTinh) ? Boolean.TRUE
+                    : "Nữ".equals(chuoiGioiTinh) ? Boolean.FALSE : null;
+            LocalDate ngaySinh = dpNgaySinhSinhVien.getValue();
+            return new SinhVien(taiKhoanDangChon == null ? null : taiKhoanDangChon.getUserID(),
+                    hoTen, diaChiEmail, matKhau, VAI_TRO_SINH_VIEN, maSo,
+                    nganh == null ? null : new Nganh(nganh, null), null, trangThai,
+                    maSo, ngaySinh == null ? null : Date.valueOf(ngaySinh), gioiTinh,
+                    tuyChon(txtLopSinhVien.getText()), khoaHoc, tuyChon(txtHeDaoTaoSinhVien.getText()));
         }
-        if (LECTURER_ROLE.equals(role)) {
-            return new GiangVien(selectedAccount == null ? null : selectedAccount.getUserID(),
-                    name, email, password, LECTURER_ROLE, code, null, status,
-                    code, optional(txtLecturerSpecialty.getText()), optional(txtLecturerDegree.getText()));
+        if (VAI_TRO_GIANG_VIEN.equals(vaiTro)) {
+            return new GiangVien(taiKhoanDangChon == null ? null : taiKhoanDangChon.getUserID(),
+                    hoTen, diaChiEmail, matKhau, VAI_TRO_GIANG_VIEN, maSo, null, trangThai,
+                    maSo, tuyChon(txtChuyenNganhGiangVien.getText()), tuyChon(txtHocViGiangVien.getText()));
         }
         throw new IllegalArgumentException("Vai trò tài khoản không hợp lệ.");
     }
 
-    private void populateCourseForm(MonHoc selected) {
-        selectedCourse = selected;
-        if (selected == null) return;
-        txtCourseCode.setText(selected.getMaMon());
-        txtCourseCode.setDisable(true);
-        txtCourseName.setText(selected.getTenMon());
-        txtCourseCredits.setText(selected.getSoTinChi().toString());
-        txtCourseType.setText(selected.getLoaiMon());
-        txtCourseDescription.setText(selected.getMoTa());
+    private void dienBieuMauMonHoc(MonHoc duocChon) {
+        monHocDangChon = duocChon;
+        if (duocChon == null) return;
+        txtMaMonHoc.setText(duocChon.getMaMon());
+        txtMaMonHoc.setDisable(true);
+        txtTenMonHoc.setText(duocChon.getTenMon());
+        txtSoTinChiMonHoc.setText(duocChon.getSoTinChi().toString());
+        txtLoaiMonHoc.setText(duocChon.getLoaiMon());
+        txtMoTaMonHoc.setText(duocChon.getMoTa());
     }
 
-    private void updateRoleFields(String role) {
-        boolean student = STUDENT_ROLE.equals(role);
-        boolean lecturer = LECTURER_ROLE.equals(role);
-        studentFields.setManaged(student);
-        studentFields.setVisible(student);
-        lecturerFields.setManaged(lecturer);
-        lecturerFields.setVisible(lecturer);
+    private void capNhatTruongTheoVaiTro(String vaiTro) {
+        boolean sinhVien = VAI_TRO_SINH_VIEN.equals(vaiTro);
+        boolean giangVien = VAI_TRO_GIANG_VIEN.equals(vaiTro);
+        cacTruongSinhVien.setManaged(sinhVien);
+        cacTruongSinhVien.setVisible(sinhVien);
+        cacTruongGiangVien.setManaged(giangVien);
+        cacTruongGiangVien.setVisible(giangVien);
     }
 
-    private boolean confirm(String title, String detail) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Xác nhận thao tác");
-        alert.setHeaderText(title);
-        alert.setContentText(detail);
-        Optional<ButtonType> response = alert.showAndWait();
-        return response.isPresent() && response.get() == ButtonType.OK;
+    private boolean xacNhan(String tieuDe, String chiTiet) {
+        Alert hopThoai = new Alert(Alert.AlertType.CONFIRMATION);
+        hopThoai.setTitle("Xác nhận thao tác");
+        hopThoai.setHeaderText(tieuDe);
+        hopThoai.setContentText(chiTiet);
+        Optional<ButtonType> luaChon = hopThoai.showAndWait();
+        return luaChon.isPresent() && luaChon.get() == ButtonType.OK;
     }
 
-    private String required(String value, String field) {
-        if (value == null || value.isBlank()) throw new IllegalArgumentException(field + " không được để trống.");
-        return value.trim();
+    private String batBuoc(String giaTri, String truongDuLieu) {
+        if (giaTri == null || giaTri.isBlank()) throw new IllegalArgumentException(truongDuLieu + " không được để trống.");
+        return giaTri.trim();
     }
 
-    private String optional(String value) {
-        return value == null || value.isBlank() ? null : value.trim();
+    private String tuyChon(String giaTri) {
+        return giaTri == null || giaTri.isBlank() ? null : giaTri.trim();
     }
 
-    private int parsePositiveInt(String value, String field) {
+    private int docSoNguyenDuong(String giaTri, String truongDuLieu) {
         try {
-            int result = Integer.parseInt(value.trim());
-            if (result > 0) return result;
-        } catch (NumberFormatException ignored) {
+            int ketQua = Integer.parseInt(giaTri.trim());
+            if (ketQua > 0) return ketQua;
+        } catch (NumberFormatException duocBoQua) {
         }
-        throw new IllegalArgumentException(field + " phải là số nguyên dương.");
+        throw new IllegalArgumentException(truongDuLieu + " phải là số nguyên dương.");
     }
 
-    private String normalized(String text) {
-        return text == null ? "" : text.trim().toLowerCase(Locale.ROOT);
+    private String chuanHoa(String vanBan) {
+        return vanBan == null ? "" : vanBan.trim().toLowerCase(Locale.ROOT);
     }
 
-    private void setStatus(String message, boolean error) {
-        lblStatus.setText(message);
-        lblStatus.getStyleClass().removeAll("teacher-status-error", "teacher-status-info");
-        lblStatus.getStyleClass().add(error ? "teacher-status-error" : "teacher-status-info");
+    private void datTrangThai(String thongBao, boolean loi) {
+        lblTrangThai.setText(thongBao);
+        lblTrangThai.getStyleClass().removeAll("teacher-status-error", "teacher-status-info");
+        lblTrangThai.getStyleClass().add(loi ? "teacher-status-error" : "teacher-status-info");
     }
 }

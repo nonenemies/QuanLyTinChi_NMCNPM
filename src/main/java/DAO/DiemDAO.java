@@ -1,4 +1,4 @@
-﻿package DAO;
+package DAO;
 
 import Model.BangDiemSinhVien;
 import Model.KetQuaHocTap;
@@ -21,7 +21,12 @@ public class DiemDAO extends BaseDAO {
                 + "COALESCE((SELECT GROUP_CONCAT(CONCAT(tp.TenThanhPhan, ': ', d.DiemDatDuoc) "
                 + "ORDER BY tp.ThuTu, tp.MaThanhPhan SEPARATOR ' | ') "
                 + "FROM DiemThanhPhan d JOIN ThanhPhanDanhGia tp ON tp.MaThanhPhan = d.MaThanhPhan "
-                + "WHERE d.MaDangKy = dk.MaDangKy), '') AS DiemThanhPhan "
+                + "WHERE d.MaDangKy = dk.MaDangKy), '') AS DiemThanhPhan, "
+                + "COALESCE((SELECT GROUP_CONCAT(CONCAT('Thứ ', lich.Thu, ' ', "
+                + "TIME_FORMAT(lich.GioBatDau, '%H:%i'), '-', TIME_FORMAT(lich.GioKetThuc, '%H:%i'), "
+                + "' · ', COALESCE(NULLIF(TRIM(lich.PhongHoc), ''), 'Chưa cập nhật phòng')) "
+                + "ORDER BY lich.Thu, lich.GioBatDau SEPARATOR ' | ') "
+                + "FROM LichHoc lich WHERE lich.MaLop = lh.MaLop), 'Chưa xếp lịch') AS LichHoc "
                 + "FROM DangKyHoc dk "
                 + "JOIN LopHocPhan lh ON lh.MaLop = dk.MaLop "
                 + "JOIN MonHoc mh ON mh.MaMon = lh.MaMon "
@@ -38,6 +43,7 @@ public class DiemDAO extends BaseDAO {
                             rs.getString("MaMon"),
                             rs.getString("TenMon"),
                             rs.getString("HocKy"),
+                            rs.getString("LichHoc"),
                             rs.getObject("SoTinChi", Integer.class),
                             finalGrade == null ? null : finalGrade.floatValue(),
                             rs.getString("TrangThai"),
