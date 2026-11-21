@@ -352,7 +352,7 @@ public class AdminController {
             dpNgaySinhSinhVien.setValue(sinhVien.getNgaySinh() == null ? null
                     : new Date(sinhVien.getNgaySinh().getTime()).toLocalDate());
             cmbGioiTinhSinhVien.setValue(sinhVien.getGioiTinh() == null ? "Không chỉ định"
-                    : sinhVien.getGioiTinh() ? "Nam" : "Nữ");
+                    : sinhVien.getGioiTinh());
         } else if (duocChon instanceof GiangVien giangVien) {
             txtChuyenNganhGiangVien.setText(giangVien.getChuyenNganh());
             txtHocViGiangVien.setText(giangVien.getHocVi());
@@ -377,8 +377,7 @@ public class AdminController {
             Integer khoaHoc = txtKhoaHocSinhVien.getText().isBlank() ? null
                     : docSoNguyenDuong(txtKhoaHocSinhVien.getText(), "Khóa học");
             String chuoiGioiTinh = cmbGioiTinhSinhVien.getValue();
-            Boolean gioiTinh = "Nam".equals(chuoiGioiTinh) ? Boolean.TRUE
-                    : "Nữ".equals(chuoiGioiTinh) ? Boolean.FALSE : null;
+            String gioiTinh = "Không chỉ định".equals(chuoiGioiTinh) ? null : chuoiGioiTinh;
             LocalDate ngaySinh = dpNgaySinhSinhVien.getValue();
             return new SinhVien(taiKhoanDangChon == null ? null : taiKhoanDangChon.getUserID(),
                     hoTen, diaChiEmail, matKhau, VAI_TRO_SINH_VIEN, maSo,

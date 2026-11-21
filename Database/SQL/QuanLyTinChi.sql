@@ -170,9 +170,9 @@ INSERT INTO GiangVien (UserID, MaGiangVien, ChuyenNganh, HocVi)
 VALUES (2, 'GV01', 'Công nghệ phần mềm', 'Thạc sĩ');
 INSERT INTO Nganh (MaNganh, TenNganh) VALUES ('CNTT', 'Công nghệ thông tin');
 INSERT INTO SinhVien (UserID, MaSinhVien, MaNganh, NgaySinh, GioiTinh, Lop, KhoaHoc, HeDaoTao) VALUES
-(3, 'SV001', 'CNTT', '2003-05-12', 1, 'CN01', 2021, 'Chính quy'),
-(4, 'SV002', 'CNTT', '2003-09-20', 0, 'CN01', 2021, 'Chính quy'),
-(5, 'SV003', 'CNTT', '2003-11-03', 1, 'CN02', 2021, 'Chính quy');
+(3, 'SV001', 'CNTT', '2003-05-12', 'Nam', 'CN01', 2021, 'Chính quy'),
+(4, 'SV002', 'CNTT', '2003-09-20', 'Nam', 'CN01', 2021, 'Chính quy'),
+(5, 'SV003', 'CNTT', '2003-11-03', 'Nam', 'CN02', 2021, 'Chính quy');
 
 INSERT INTO MonHoc (MaMon, TenMon, SoTinChi, LoaiMon, MoTa) VALUES
 ('IT01', 'Lập trình hướng đối tượng', 3, 'BATBUOC', 'Môn học nền tảng về lập trình hướng đối tượng.'),
