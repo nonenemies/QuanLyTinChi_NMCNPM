@@ -56,6 +56,14 @@ $env:DB_PASSWORD = "your_mysql_password"
 mvn javafx:run
 ```
 
+## Kiểm thử JUnit
+
+Test tích hợp trong `src/test/java/Test` dùng MySQL thật theo cấu hình `DB_URL`, `DB_USER` và `DB_PASSWORD`. Mỗi test tạo dữ liệu có tiền tố ngẫu nhiên `JT` rồi dọn các dòng đó sau khi chạy. Chạy test trên database phát triển/test, không dùng database production:
+
+```powershell
+mvn test
+```
+
 ## Nghiệp vụ chính
 
 Đăng ký và hủy lớp được kiểm tra trong Service theo đợt đăng ký, chương trình đào tạo, môn tiên quyết, lịch trùng, sĩ số và giới hạn tín chỉ. Thay đổi đăng ký và sĩ số được thực hiện trong transaction; lớp đã có điểm không thể hủy. Thời khóa biểu và điểm được đọc theo tài khoản sinh viên đang đăng nhập.
