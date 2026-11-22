@@ -58,7 +58,7 @@ mvn javafx:run
 
 ## Kiểm thử JUnit
 
-Test tích hợp trong `src/test/java/Test` dùng MySQL thật theo cấu hình `DB_URL`, `DB_USER` và `DB_PASSWORD`. Mỗi test tạo dữ liệu có tiền tố ngẫu nhiên `JT` rồi dọn các dòng đó sau khi chạy. Chạy test trên database phát triển/test, không dùng database production:
+Chín lớp kiểm thử trong `src/test/java/Test` được đặt theo tên lớp tương ứng trong `src/main/java`: `AuthService`, `UsersDAO`, `DangKyHocDAO`, `LopHocPhanDAO`, `SinhVienDAO`, `DiemDAO`, `DangKyHocService`, `DiemService` và `AdminService`. Tổng cộng có 31 trường hợp kiểm thử JUnit. Mỗi trường hợp kết nối MySQL theo cấu hình `DB_URL`, `DB_USER` và `DB_PASSWORD`, tự tạo dữ liệu với tiền tố ngẫu nhiên `JT` rồi xóa các dòng đó sau khi chạy. Chỉ chạy trên cơ sở dữ liệu phát triển/kiểm thử, không dùng cơ sở dữ liệu đang vận hành:
 
 ```powershell
 mvn test
