@@ -1,6 +1,3 @@
--- Fresh development/test database setup.
--- WARNING: running this script drops the existing QuanLyTinChi database and all its data.
--- Sample accounts use the development-only password "123"; do not use this script in production.
 SET SQL_SAFE_UPDATES = 0;
 DROP DATABASE IF EXISTS QuanLyTinChi;
 CREATE DATABASE QuanLyTinChi CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -157,7 +154,6 @@ CREATE TABLE DiemThanhPhan (
     CONSTRAINT chk_diem_giatri CHECK (DiemDatDuoc BETWEEN 0 AND 10)
 ) ENGINE=InnoDB;
 
--- Development sample accounts. Password for every account below: 123.
 INSERT INTO Users (UserID, HoTen, Email, Password, VaiTro, MaSo) VALUES
 (1, 'Quản Trị Viên', 'admin@truong.edu.vn', '123', 'ADMIN', 'AD01'),
 (2, 'Thầy Trần Code', 'code.tran@truong.edu.vn', '123', 'GIAOVIEN', 'GV01'),
@@ -179,17 +175,21 @@ INSERT INTO MonHoc (MaMon, TenMon, SoTinChi, LoaiMon, MoTa) VALUES
 ('IT02', 'Cơ sở dữ liệu', 3, 'BATBUOC', 'Mô hình dữ liệu quan hệ và truy vấn SQL.'),
 ('IT03', 'Cấu trúc dữ liệu và giải thuật', 3, 'BATBUOC', 'Cấu trúc dữ liệu và thuật toán cơ bản.'),
 ('IT04', 'Phân tích thiết kế hệ thống', 3, 'BATBUOC', 'Phân tích yêu cầu và thiết kế hệ thống thông tin.'),
-('IT05', 'Mạng máy tính', 3, 'BATBUOC', 'Kiến thức nền tảng về mạng máy tính.');
+('IT05', 'Mạng máy tính', 3, 'BATBUOC', 'Kiến thức nền tảng về mạng máy tính.'),
+('IT06', 'Lập trình C++', 3, 'BATBUOC', 'Lập trình căn bản với ngôn ngữ C++; là môn tiên quyết của Lập trình hướng đối tượng.'),
+('IT07', 'Lập trình Python', 3, 'BATBUOC', 'Môn học mẫu để kiểm tra đăng ký lớp có lịch học trùng.');
 
--- Curriculum is preloaded for the sample major.
+INSERT INTO MonTienQuyet (MaMon, MaMonTienQuyet) VALUES ('IT01', 'IT06');
+
 INSERT INTO ChuongTrinhDaoTao (MaNganh, MaMon) VALUES
 ('CNTT', 'IT01'),
 ('CNTT', 'IT02'),
 ('CNTT', 'IT03'),
 ('CNTT', 'IT04'),
-('CNTT', 'IT05');
+('CNTT', 'IT05'),
+('CNTT', 'IT06'),
+('CNTT', 'IT07');
 
--- The sample registration period is open for 30 days from database setup.
 INSERT INTO DotDangKyNganh (MaNganh, MoDangKy, DongDangKy)
 VALUES ('CNTT', CURRENT_TIMESTAMP, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 30 DAY));
 
@@ -201,19 +201,25 @@ INSERT INTO LopHocPhan (MaLop, MaMon, MaGiangVien, HocKy, SiSoToiDa) VALUES
 ('DB_L01', 'IT02', 'GV01', '2026-2', 40),
 ('DSA_L01', 'IT03', 'GV01', '2026-2', 40),
 ('SA_L01', 'IT04', 'GV01', '2026-2', 40),
-('NET_L01', 'IT05', 'GV01', '2026-2', 40);
+('NET_L01', 'IT05', 'GV01', '2026-2', 40),
+('CPP_L01', 'IT06', 'GV01', '2026-2', 40),
+('PY_L01', 'IT07', 'GV01', '2026-2', 40);
 
 INSERT INTO LichHoc (MaLop, Thu, GioBatDau, GioKetThuc, PhongHoc) VALUES
 ('OOP_L01', 'Thứ 2', '08:00:00', '10:00:00', 'Phòng 101 - Nhà A'),
 ('DB_L01', 'Thứ 3', '08:00:00', '10:00:00', 'Phòng 202 - Nhà A'),
 ('DSA_L01', 'Thứ 4', '08:00:00', '10:00:00', 'Phòng 303 - Nhà A'),
 ('SA_L01', 'Thứ 5', '08:00:00', '10:00:00', 'Phòng 104 - Nhà B'),
-('NET_L01', 'Thứ 6', '08:00:00', '10:00:00', 'Phòng 205 - Nhà B');
+('NET_L01', 'Thứ 6', '08:00:00', '10:00:00', 'Phòng 205 - Nhà B'),
+('CPP_L01', 'Thứ 3', '10:00:00', '12:00:00', 'Phòng 106 - Nhà A'),
+('PY_L01', 'Thứ 2', '08:00:00', '10:00:00', 'Phòng 107 - Nhà A');
 
 INSERT INTO ThanhPhanDanhGia (MaMon, TenThanhPhan, TrongSo, ThuTu) VALUES
 ('IT01', 'Giữa kỳ', 0.30, 1), ('IT01', 'Cuối kỳ', 0.70, 2),
 ('IT02', 'Giữa kỳ', 0.30, 1), ('IT02', 'Cuối kỳ', 0.70, 2),
 ('IT03', 'Giữa kỳ', 0.30, 1), ('IT03', 'Cuối kỳ', 0.70, 2),
 ('IT04', 'Giữa kỳ', 0.30, 1), ('IT04', 'Cuối kỳ', 0.70, 2),
-('IT05', 'Giữa kỳ', 0.30, 1), ('IT05', 'Cuối kỳ', 0.70, 2);
+('IT05', 'Giữa kỳ', 0.30, 1), ('IT05', 'Cuối kỳ', 0.70, 2),
+('IT06', 'Giữa kỳ', 0.30, 1), ('IT06', 'Cuối kỳ', 0.70, 2),
+('IT07', 'Giữa kỳ', 0.30, 1), ('IT07', 'Cuối kỳ', 0.70, 2);
 SET SQL_SAFE_UPDATES = 1;
