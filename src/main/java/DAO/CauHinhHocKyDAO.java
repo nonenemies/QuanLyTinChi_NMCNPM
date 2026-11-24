@@ -25,4 +25,29 @@ public class CauHinhHocKyDAO extends BaseDAO {
             }
         }
     }
+
+    /**
+     * Học kỳ hiện hành: ưu tiên kỳ còn trong hạn (chưa hết HanNhapDiem),
+     * nếu không có thì lấy kỳ mới nhất theo ngày kết thúc.
+     */
+    public String layHocKyHienTai() throws SQLException {
+        String dangMo = "SELECT HocKy FROM CauHinhHocKy "
+                + "WHERE CURRENT_TIMESTAMP <= HanNhapDiem "
+                + "ORDER BY KetThucHocKy DESC LIMIT 1";
+        try (Connection conn = getConnection()) {
+            String hocKy = truyVanMotHocKy(conn, dangMo);
+            if (hocKy != null) {
+                return hocKy;
+            }
+            return truyVanMotHocKy(conn,
+                    "SELECT HocKy FROM CauHinhHocKy ORDER BY KetThucHocKy DESC LIMIT 1");
+        }
+    }
+
+    private String truyVanMotHocKy(Connection conn, String sql) throws SQLException {
+        try (PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            return rs.next() ? rs.getString("HocKy") : null;
+        }
+    }
 }

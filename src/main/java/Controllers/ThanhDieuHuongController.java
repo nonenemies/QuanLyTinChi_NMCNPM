@@ -31,6 +31,8 @@ public class ThanhDieuHuongController {
     private static final String MAN_HINH_QUAN_LY_SINH_VIEN = "admin-students";
     private static final String MAN_HINH_QUAN_LY_GIANG_VIEN = "admin-lecturers";
     private static final String MAN_HINH_QUAN_LY_MON_HOC = "admin-courses";
+    private static final String MAN_HINH_TRO_LY_AI = "sinh-vien-tro-ly-ai";
+    private static final String MAN_HINH_DOI_LOP = "sinh-vien-doi-lop";
 
     @FXML private Label lblTenNguoiDung;
     @FXML private Label lblVaiTroNguoiDung;
@@ -111,6 +113,8 @@ public class ThanhDieuHuongController {
             themNutDieuHuong("Thời khóa biểu", MAN_HINH_THOI_KHOA_BIEU);
             themNutDieuHuong("Đăng ký tín chỉ", MAN_HINH_DANG_KY_TIN_CHI);
             themNutDieuHuong("Điểm tổng kết", MAN_HINH_KET_QUA_HOC_TAP);
+            themNutDieuHuong("Trợ lý AI", MAN_HINH_TRO_LY_AI);
+            themNutDieuHuong("Đổi lớp", MAN_HINH_DOI_LOP);
         } else if (nguoiDung instanceof GiangVien) {
             themNutDieuHuong("Tổng quan", MAN_HINH_TONG_QUAN);
             themNutDieuHuong("Lớp phụ trách và bảng điểm", MAN_HINH_BANG_DIEM);
@@ -139,6 +143,8 @@ public class ThanhDieuHuongController {
             case MAN_HINH_DANG_KY_TIN_CHI -> "/views/DangKyTinChiView.fxml";
             case MAN_HINH_BANG_DIEM -> "/views/GiangVienView.fxml";
             case MAN_HINH_QUAN_LY_SINH_VIEN, MAN_HINH_QUAN_LY_GIANG_VIEN, MAN_HINH_QUAN_LY_MON_HOC -> "/views/AdminView.fxml";
+            case MAN_HINH_TRO_LY_AI -> "/views/TroLyAIView.fxml";
+            case MAN_HINH_DOI_LOP -> "/views/DoiLopView.fxml";
             default -> throw new IllegalArgumentException("Unknown application screen.");
         };
         try {
@@ -158,6 +164,10 @@ public class ThanhDieuHuongController {
                 giangVien.ganGiangVien(nguoiDung);
             } else if (boDieuKhien instanceof AdminController quanTriVien) {
                 quanTriVien.ganQuanTriVien(nguoiDung, manHinh);
+            } else if (boDieuKhien instanceof TroLyAIController troLyAI) {
+                troLyAI.ganSinhVien(nguoiDung);
+            } else if (boDieuKhien instanceof DoiLopController doiLop) {
+                doiLop.ganSinhVien(nguoiDung);
             }
             VBox.setVgrow(trang, Priority.ALWAYS);
             if (trang instanceof Region vungCoTheKeoDai) {
@@ -202,6 +212,8 @@ public class ThanhDieuHuongController {
             case MAN_HINH_QUAN_LY_SINH_VIEN -> "Quản lý sinh viên";
             case MAN_HINH_QUAN_LY_GIANG_VIEN -> "Quản lý giảng viên";
             case MAN_HINH_QUAN_LY_MON_HOC -> "Quản lý môn học";
+            case MAN_HINH_TRO_LY_AI -> "Trợ lý AI";
+            case MAN_HINH_DOI_LOP -> "Đổi lớp";
             default -> "";
         };
     }
@@ -216,6 +228,8 @@ public class ThanhDieuHuongController {
             case MAN_HINH_QUAN_LY_SINH_VIEN -> "Quản lý sinh viên & tài khoản";
             case MAN_HINH_QUAN_LY_GIANG_VIEN -> "Quản lý giảng viên & tài khoản";
             case MAN_HINH_QUAN_LY_MON_HOC -> "Quản lý môn học";
+            case MAN_HINH_TRO_LY_AI -> "Trợ lý AI tư vấn học tập";
+            case MAN_HINH_DOI_LOP -> "Sàn giao dịch đổi lớp";
             default -> "";
         };
     }

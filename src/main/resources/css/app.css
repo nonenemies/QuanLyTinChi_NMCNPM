@@ -840,3 +840,100 @@
     -fx-background-color: #fff0f1;
     -fx-text-fill: #b54050;
 }
+
+.tro-ly-ai-trang,
+.tro-ly-ai-noi-dung,
+.doi-lop-noi-dung {
+    -fx-background-color: #f5f7fb;
+}
+
+.tro-ly-ai-khung-cuon {
+    -fx-background-color: #ffffff;
+    -fx-background: #ffffff;
+    -fx-border-color: #e9edf4;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+}
+
+.tro-ly-ai-khung-cuon > .viewport,
+.tro-ly-ai-hop-tin-nhan {
+    -fx-background-color: #ffffff;
+}
+
+.tro-ly-ai-hang-tin-nhan {
+    -fx-max-width: Infinity;
+}
+
+.tro-ly-ai-bong-bong-nguoi-dung,
+.tro-ly-ai-bong-bong-ai {
+    -fx-padding: 10 14;
+    -fx-background-radius: 12;
+    -fx-font-size: 12px;
+}
+
+.tro-ly-ai-bong-bong-nguoi-dung {
+    -fx-background-color: #4569dc;
+    -fx-text-fill: #ffffff;
+}
+
+.tro-ly-ai-bong-bong-ai {
+    -fx-background-color: #f0f3f9;
+    -fx-text-fill: #2c3952;
+}
+
+.tro-ly-ai-khung-nhap {
+    -fx-padding: 10;
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 12;
+    -fx-border-color: #e9edf4;
+    -fx-border-radius: 12;
+}
+
+.tro-ly-ai-o-nhap,
+.doi-lop-combo {
+    -fx-pref-height: 40px;
+}
+
+.tro-ly-ai-nut-gui,
+.doi-lop-nut {
+    -fx-padding: 10 16;
+}
+
+.tro-ly-ai-trang-thai-info,
+.tro-ly-ai-trang-thai-loi,
+.doi-lop-thong-bao-thanh-cong,
+.doi-lop-thong-bao-loi {
+    -fx-padding: 8 12;
+    -fx-background-radius: 8;
+    -fx-font-size: 10px;
+}
+
+.tro-ly-ai-trang-thai-info {
+    -fx-text-fill: #4965a8;
+}
+
+.tro-ly-ai-trang-thai-loi,
+.doi-lop-thong-bao-loi {
+    -fx-background-color: #fff0f1;
+    -fx-text-fill: #b54050;
+}
+
+.doi-lop-thong-bao-thanh-cong {
+    -fx-background-color: #eaf7ef;
+    -fx-text-fill: #278256;
+}
+
+.doi-lop-tab {
+    -fx-background-color: transparent;
+}
+
+.doi-lop-ly-do {
+    -fx-padding: 10 12;
+}
+
+.doi-lop-mui-ten {
+    -fx-padding: 15 0 0 0;
+    -fx-text-fill: #6075b4;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}

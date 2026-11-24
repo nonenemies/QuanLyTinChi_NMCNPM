@@ -142,6 +142,29 @@ CREATE TABLE DangKyHoc (
     CONSTRAINT fk_dangky_sinhvien FOREIGN KEY (MaSinhVien) REFERENCES SinhVien(MaSinhVien)
 ) ENGINE=InnoDB;
 
+CREATE TABLE YeuCauDoiLop (
+    MaYeuCau INT AUTO_INCREMENT PRIMARY KEY,
+    MaSinhVien VARCHAR(20) NOT NULL,
+    LopCu VARCHAR(20) NOT NULL,
+    LopMoi VARCHAR(20) NOT NULL,
+    LyDo VARCHAR(200) NULL,
+    TrangThai VARCHAR(20) NOT NULL DEFAULT 'CHO_XAC_NHAN',
+    NgayTao DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    NgayXuLy DATETIME NULL,
+    NguoiXuLy INT NULL,
+    INDEX idx_yeucaudoilop_sinhvien_trangthai (MaSinhVien, TrangThai),
+    INDEX idx_yeucaudoilop_trangthai_ngaytao (TrangThai, NgayTao),
+    CONSTRAINT fk_yeucaudoilop_sinhvien FOREIGN KEY (MaSinhVien)
+        REFERENCES SinhVien(MaSinhVien),
+    CONSTRAINT fk_yeucaudoilop_lopcu FOREIGN KEY (LopCu)
+        REFERENCES LopHocPhan(MaLop),
+    CONSTRAINT fk_yeucaudoilop_lopmoi FOREIGN KEY (LopMoi)
+        REFERENCES LopHocPhan(MaLop),
+    CONSTRAINT fk_yeucaudoilop_nguoixuly FOREIGN KEY (NguoiXuLy)
+        REFERENCES Users(UserID),
+    CONSTRAINT chk_yeucaudoilop_lopkhac CHECK (LopCu <> LopMoi)
+) ENGINE=InnoDB;
+
 CREATE TABLE DiemThanhPhan (
     MaDiemThanhPhan INT AUTO_INCREMENT PRIMARY KEY,
     MaDangKy INT NOT NULL,

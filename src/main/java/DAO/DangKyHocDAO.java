@@ -10,6 +10,156 @@ import Model.LopHocThoiKhoaBieu;
 
 public class DangKyHocDAO extends BaseDAO {
 
+    public boolean sinhVienConHoatDong(Connection conn, String maSinhVien) throws SQLException {
+        String sql = "SELECT sv.MaSinhVien FROM SinhVien sv "
+                + "JOIN Users u ON u.UserID = sv.UserID "
+                + "WHERE sv.MaSinhVien = ? AND u.VaiTro = 'SINHVIEN' "
+                + "AND u.TrangThai = 'HOAT_DONG' FOR UPDATE";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maSinhVien);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
+    public boolean dangHocChuaCoDiem(Connection conn, String maSinhVien, String maLop)
+            throws SQLException {
+        String sql = "SELECT dk.MaDangKy FROM DangKyHoc dk "
+                + "WHERE dk.MaSinhVien = ? AND dk.MaLop = ? AND dk.TrangThai = 'DANG_HOC' "
+                + "AND NOT EXISTS (SELECT 1 FROM DiemThanhPhan d WHERE d.MaDangKy = dk.MaDangKy) "
+                + "FOR UPDATE";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maSinhVien);
+            ps.setString(2, maLop);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
+    public boolean coLichHoc(Connection conn, String maLop) throws SQLException {
+        String sql = "SELECT 1 FROM LichHoc WHERE MaLop = ? LIMIT 1";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maLop);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
+    public boolean coLopBiTrungLich(
+            Connection conn, String maSinhVien, String maLopMoi, String maLopBoQua)
+            throws SQLException {
+        String sql = "SELECT 1 FROM DangKyHoc dk "
+                + "JOIN LopHocPhan lh ON lh.MaLop = dk.MaLop "
+                + "JOIN LichHoc lich ON lich.MaLop = lh.MaLop "
+                + "JOIN LopHocPhan lopMoi ON lopMoi.MaLop = ? "
+                + "JOIN LichHoc lichMoi ON lichMoi.MaLop = lopMoi.MaLop "
+                + "WHERE dk.MaSinhVien = ? AND dk.TrangThai = 'DANG_HOC' "
+                + "AND dk.MaLop <> ? AND lh.HocKy = lopMoi.HocKy "
+                + "AND lich.Thu = lichMoi.Thu "
+                + "AND lich.GioBatDau < lichMoi.GioKetThuc "
+                + "AND lich.GioKetThuc > lichMoi.GioBatDau LIMIT 1";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maLopMoi);
+            ps.setString(2, maSinhVien);
+            ps.setString(3, maLopBoQua);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
+    public boolean kiemTraDaDangKy(Connection conn, String maSinhVien, String maLop)
+            throws SQLException {
+        String sql = "SELECT 1 FROM DangKyHoc WHERE MaSinhVien = ? AND MaLop = ? LIMIT 1";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maSinhVien);
+            ps.setString(2, maLop);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
+    public boolean daDatMon(Connection conn, String maSinhVien, String maMon) throws SQLException {
+        return kiemTraDaQuaMon(conn, maSinhVien, maMon);
+    }
+
+    public boolean kiemTraDaQuaMon(Connection conn, String maSinhVien, String maMon)
+            throws SQLException {
+        String sql = "SELECT 1 FROM DangKyHoc dk "
+                + "JOIN LopHocPhan lh ON lh.MaLop = dk.MaLop "
+                + "WHERE dk.MaSinhVien = ? AND lh.MaMon = ? "
+                + "AND dk.DiemTongKet >= 4.0 AND dk.TrangThai = 'DA_HOAN_THANH' LIMIT 1";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maSinhVien);
+            ps.setString(2, maMon);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
+    public boolean daDangKyMonKhacTrongHocKy(
+            Connection conn, String maSinhVien, String maMon, String hocKy, String lopDuocBoQua)
+            throws SQLException {
+        String sql = "SELECT 1 FROM DangKyHoc dk "
+                + "JOIN LopHocPhan lh ON lh.MaLop = dk.MaLop "
+                + "WHERE dk.MaSinhVien = ? AND lh.MaMon = ? AND lh.HocKy = ? "
+                + "AND dk.MaLop <> ? AND dk.TrangThai = 'DANG_HOC' LIMIT 1";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maSinhVien);
+            ps.setString(2, maMon);
+            ps.setString(3, hocKy);
+            ps.setString(4, lopDuocBoQua);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
+    public int tongTinChiDangHoc(Connection conn, String maSinhVien, String hocKy)
+            throws SQLException {
+        String sql = "SELECT COALESCE(SUM(mh.SoTinChi), 0) AS TongTinChi "
+                + "FROM DangKyHoc dk JOIN LopHocPhan lh ON lh.MaLop = dk.MaLop "
+                + "JOIN MonHoc mh ON mh.MaMon = lh.MaMon "
+                + "WHERE dk.MaSinhVien = ? AND lh.HocKy = ? AND dk.TrangThai = 'DANG_HOC'";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maSinhVien);
+            ps.setString(2, hocKy);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt("TongTinChi") : 0;
+            }
+        }
+    }
+
+    public int laySoTinChiLop(Connection conn, String maLop) throws SQLException {
+        String sql = "SELECT mh.SoTinChi FROM LopHocPhan lh "
+                + "JOIN MonHoc mh ON mh.MaMon = lh.MaMon WHERE lh.MaLop = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maLop);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt("SoTinChi") : 0;
+            }
+        }
+    }
+
+    public boolean capNhatLopChoSinhVien(
+            Connection conn, String maSinhVien, String lopCu, String lopMoi) throws SQLException {
+        String sql = "UPDATE DangKyHoc SET MaLop = ? "
+                + "WHERE MaSinhVien = ? AND MaLop = ? AND TrangThai = 'DANG_HOC' "
+                + "AND NOT EXISTS (SELECT 1 FROM DiemThanhPhan d "
+                + "WHERE d.MaDangKy = DangKyHoc.MaDangKy)";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, lopMoi);
+            ps.setString(2, maSinhVien);
+            ps.setString(3, lopCu);
+            return ps.executeUpdate() == 1;
+        }
+    }
+
     /** Khóa dòng sinh viên để các đăng ký đồng thời của cùng một sinh viên được tuần tự hóa. */
     public boolean sinhVienConHoatDong(String maSinhVien) throws SQLException {
         String sql = "SELECT sv.MaSinhVien FROM SinhVien sv "
@@ -186,6 +336,11 @@ public class DangKyHocDAO extends BaseDAO {
     }
 
     public List<LopHocThoiKhoaBieu> layLichHocTheoTuan(String maSinhVien) throws SQLException {
+        String hocKyHienTai = new CauHinhHocKyDAO().layHocKyHienTai();
+        if (hocKyHienTai == null || hocKyHienTai.isBlank()) {
+            return List.of();
+        }
+
         List<LopHocThoiKhoaBieu> lichHoc = new ArrayList<>();
         String sql = "SELECT lh.MaLop, mh.MaMon, mh.TenMon, lh.HocKy, lich.Thu, "
                 + "TIME_FORMAT(lich.GioBatDau, '%H:%i') AS GioBatDau, "
@@ -194,11 +349,12 @@ public class DangKyHocDAO extends BaseDAO {
                 + "JOIN LopHocPhan lh ON lh.MaLop = dk.MaLop "
                 + "JOIN MonHoc mh ON mh.MaMon = lh.MaMon "
                 + "JOIN LichHoc lich ON lich.MaLop = lh.MaLop "
-                + "WHERE dk.MaSinhVien = ? AND dk.TrangThai <> 'HUY' "
+                + "WHERE dk.MaSinhVien = ? AND dk.TrangThai <> 'HUY' AND lh.HocKy = ? "
                 + "ORDER BY lich.Thu, lich.GioBatDau, lich.GioKetThuc, mh.TenMon";
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, maSinhVien);
+            ps.setString(2, hocKyHienTai);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     lichHoc.add(new LopHocThoiKhoaBieu(
