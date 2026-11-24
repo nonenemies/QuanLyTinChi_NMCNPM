@@ -32,6 +32,11 @@ public class LopHocPhanDAO extends BaseDAO {
 
     private List<LopHocDangKy> layDanhSachLopDangKy(String maSinhVien, boolean chiLopDaDangKy)
             throws SQLException {
+        String hocKyHienTai = new CauHinhHocKyDAO().layHocKyHienTai();
+        if (hocKyHienTai == null || hocKyHienTai.isBlank()) {
+            return List.of();
+        }
+
         String sql = "SELECT lh.MaLop, mh.MaMon, mh.TenMon, "
                 + "COALESCE(u.HoTen, lh.MaGiangVien, 'Chưa phân công') AS GiangVien, "
                 + "lh.HocKy, COALESCE(lich.LichHoc, 'Chưa xếp lịch') AS LichHoc, "
@@ -52,23 +57,25 @@ public class LopHocPhanDAO extends BaseDAO {
                 + ") lich ON lich.MaLop = lh.MaLop "
                 + "LEFT JOIN DangKyHoc dk ON dk.MaLop = lh.MaLop AND dk.MaSinhVien = ? "
                 + "AND dk.TrangThai <> 'HUY' "
+                + "WHERE lh.HocKy = ? "
                 + (chiLopDaDangKy
-                ? "WHERE dk.MaDangKy IS NOT NULL "
-                : "WHERE (lh.TrangThai = 'HOAT_DONG' AND mh.TrangThai = 'HOAT_DONG' "
+                ? "AND dk.MaDangKy IS NOT NULL "
+                : "AND ((lh.TrangThai = 'HOAT_DONG' AND mh.TrangThai = 'HOAT_DONG' "
                 + "AND EXISTS (SELECT 1 FROM SinhVien sv "
                 + "JOIN Users u ON u.UserID = sv.UserID "
                 + "JOIN DotDangKyNganh dot ON dot.MaNganh = sv.MaNganh "
                 + "JOIN ChuongTrinhDaoTao ct ON ct.MaNganh = sv.MaNganh AND ct.MaMon = lh.MaMon "
                 + "WHERE sv.MaSinhVien = ? AND CURRENT_TIMESTAMP BETWEEN dot.MoDangKy AND dot.DongDangKy "
-                + ")) OR dk.MaDangKy IS NOT NULL ")
-                + "ORDER BY lh.HocKy DESC, mh.MaMon, lh.MaLop";
+                + ")) OR dk.MaDangKy IS NOT NULL) ")
+                + "ORDER BY mh.MaMon, lh.MaLop";
 
         List<LopHocDangKy> danhSach = new ArrayList<>();
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, maSinhVien);
+            ps.setString(2, hocKyHienTai);
             if (!chiLopDaDangKy) {
-                ps.setString(2, maSinhVien);
+                ps.setString(3, maSinhVien);
             }
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -97,6 +104,22 @@ public class LopHocPhanDAO extends BaseDAO {
             List<LopHocPhan> ketQua = truyVanDanhSach(conn, sql, maLop);
             return ketQua.isEmpty() ? null : ketQua.get(0);
         }
+    }
+
+    public LopHocPhan layLopTheoMa(Connection conn, String maLop) throws SQLException {
+        return layLopTheoMa(conn, maLop, false);
+    }
+
+    public LopHocPhan layLopTheoMaForUpdate(Connection conn, String maLop) throws SQLException {
+        return layLopTheoMa(conn, maLop, true);
+    }
+
+    private LopHocPhan layLopTheoMa(Connection conn, String maLop, boolean khoa)
+            throws SQLException {
+        String sql = "SELECT MaLop, MaMon, MaGiangVien, HocKy, SiSoToiDa, SiSoHienTai, TrangThai "
+                + "FROM LopHocPhan WHERE MaLop = ?" + (khoa ? " FOR UPDATE" : "");
+        List<LopHocPhan> ketQua = truyVanDanhSach(conn, sql, maLop);
+        return ketQua.isEmpty() ? null : ketQua.get(0);
     }
 
     /** Tăng sĩ số lớp. */
