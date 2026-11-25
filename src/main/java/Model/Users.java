@@ -3,14 +3,14 @@ package Model;
 import java.util.*;
 
 public abstract class Users {
-    protected Integer userID;
-    protected String hoTen;
-    protected String email;
-    protected String password;
-    protected String vaiTro;
-    protected String maSo;
-    protected Date ngayTao;
-    protected String trangThai;
+    private Integer userID;
+    private String hoTen;
+    private String email;
+    private String password;
+    private String vaiTro;
+    private String maSo;
+    private Date ngayTao;
+    private String trangThai;
 
     public Users(Integer userID, String hoTen, String email, String password,
                  String vaiTro, String maSo, Date ngayTao, String trangThai) {
@@ -23,6 +23,10 @@ public abstract class Users {
         this.ngayTao = ngayTao;
         this.trangThai = trangThai;
     }
+
+    public abstract String getTenVaiTroHienThi();
+
+    public abstract String getMaDinhDanh();
 
     public Integer getUserID() {
         return userID;

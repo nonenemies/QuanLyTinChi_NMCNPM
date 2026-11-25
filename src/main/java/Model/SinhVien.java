@@ -30,54 +30,52 @@ public class SinhVien extends Users {
         return maSinhVien;
     }
 
+    @Override
+    public String getTenVaiTroHienThi() {
+        return "SINH VIÊN";
+    }
+
+    @Override
+    public String getMaDinhDanh() {
+        return maSinhVien;
+    }
+
     public void setMaSinhVien(String maSinhVien) {
         this.maSinhVien = maSinhVien;
     }
-
     public Nganh getNganh() {
         return nganh;
     }
-
     public void setNganh(Nganh nganh) {
         this.nganh = nganh;
     }
-
     public Date getNgaySinh() {
         return ngaySinh;
     }
-
     public void setNgaySinh(Date ngaySinh) {
         this.ngaySinh = ngaySinh;
     }
-
     public String getGioiTinh() {
         return gioiTinh;
     }
-
     public void setGioiTinh(String gioiTinh) {
         this.gioiTinh = gioiTinh;
     }
-
     public String getLop() {
         return lop;
     }
-
     public void setLop(String lop) {
         this.lop = lop;
     }
-
     public Integer getKhoaHoc() {
         return khoaHoc;
     }
-
     public void setKhoaHoc(Integer khoaHoc) {
         this.khoaHoc = khoaHoc;
     }
-
     public String getHeDaoTao() {
         return heDaoTao;
     }
-
     public void setHeDaoTao(String heDaoTao) {
         this.heDaoTao = heDaoTao;
     }
