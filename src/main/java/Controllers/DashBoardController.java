@@ -135,7 +135,7 @@ public class DashBoardController {
         themChiSo("ĐIỂM TRUNG BÌNH", diemTrungBinh, "TB", "overview-icon-green");
 
         themChiTietHoSo("Email", giaTriHoacGach(sinhVien.getEmail()));
-        themChiTietHoSo("Mã sinh viên", giaTriHoacGach(sinhVien.getMaSinhVien()));
+        themChiTietHoSo("Mã sinh viên", giaTriHoacGach(sinhVien.getMaDinhDanh()));
         themChiTietHoSo("Lớp", giaTriHoacGach(sinhVien.getLop()));
         themChiTietHoSo("Ngành", giaTriHoacGach(sinhVien.getNganh() == null
                 ? null : sinhVien.getNganh().getTenNganh()));
@@ -175,7 +175,7 @@ public class DashBoardController {
         themChiSo("HỌC KỲ ĐƯỢC PHÂN CÔNG", Long.toString(soHocKyPhuTrach), "HK", "overview-icon-green");
 
         themChiTietHoSo("Email", giaTriHoacGach(giangVien.getEmail()));
-        themChiTietHoSo("Mã giảng viên", giaTriHoacGach(giangVien.getMaGiangVien()));
+        themChiTietHoSo("Mã giảng viên", giaTriHoacGach(giangVien.getMaDinhDanh()));
         themChiTietHoSo("Chuyên ngành", giaTriHoacGach(giangVien.getChuyenNganh()));
         themChiTietHoSo("Học vị", giaTriHoacGach(giangVien.getHocVi()));
 
@@ -215,7 +215,7 @@ public class DashBoardController {
         themChiSo("MÔN HỌC HOẠT ĐỘNG", Integer.toString(danhSachMonHocHoatDong.size()), "MH", "overview-icon-green");
 
         themChiTietHoSo("Email", giaTriHoacGach(quanTriVien.getEmail()));
-        themChiTietHoSo("Tài khoản", giaTriHoacGach(quanTriVien.getMaSo()));
+        themChiTietHoSo("Tài khoản", giaTriHoacGach(quanTriVien.getMaDinhDanh()));
         themChiTietHoSo("Họ tên", giaTriHoacGach(quanTriVien.getHoTen()));
         themChiTietHoSo("Trạng thái", "Đang hoạt động");
 
@@ -287,10 +287,7 @@ public class DashBoardController {
     }
 
     private String nhanVaiTro(Users nguoiDung) {
-        if (nguoiDung instanceof SinhVien) return "SINH VIÊN";
-        if (nguoiDung instanceof GiangVien) return "GIẢNG VIÊN";
-        if (nguoiDung instanceof Admin) return "QUẢN TRỊ VIÊN";
-        return giaTriHoacGach(nguoiDung.getVaiTro());
+        return nguoiDung.getTenVaiTroHienThi();
     }
 
     private String giaTriHoacGach(String giaTri) {

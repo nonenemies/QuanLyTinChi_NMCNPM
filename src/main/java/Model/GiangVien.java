@@ -21,6 +21,16 @@ public class GiangVien extends Users {
         return maGiangVien;
     }
 
+    @Override
+    public String getTenVaiTroHienThi() {
+        return "GIẢNG VIÊN";
+    }
+
+    @Override
+    public String getMaDinhDanh() {
+        return maGiangVien;
+    }
+
     public void setMaGiangVien(String maGiangVien) {
         this.maGiangVien = maGiangVien;
     }

@@ -235,10 +235,7 @@ public class ThanhDieuHuongController {
     }
 
     private String nhanVaiTro(Users nguoiDungXacThuc) {
-        if (nguoiDungXacThuc instanceof GiangVien) return "GIẢNG VIÊN";
-        if ("SINHVIEN".equalsIgnoreCase(nguoiDungXacThuc.getVaiTro())) return "SINH VIÊN";
-        if ("ADMIN".equalsIgnoreCase(nguoiDungXacThuc.getVaiTro())) return "QUẢN TRỊ VIÊN";
-        return nguoiDungXacThuc.getVaiTro();
+        return nguoiDungXacThuc.getTenVaiTroHienThi();
     }
 
     private void hienThiLoi(String thongBao) {

@@ -12,6 +12,16 @@ public class Admin extends Users {
                 this.chucVu = chucVu;
         }
 
+        @Override
+        public String getTenVaiTroHienThi() {
+                return "QUẢN TRỊ VIÊN";
+        }
+
+        @Override
+        public String getMaDinhDanh() {
+                return getMaSo();
+        }
+
         public String getChucVu() {
                 return chucVu;
         }
