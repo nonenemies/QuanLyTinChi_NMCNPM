@@ -1,6 +1,8 @@
 package Model;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class SinhVien extends Users {
     private String maSinhVien;
@@ -10,6 +12,7 @@ public class SinhVien extends Users {
     private String lop;
     private Integer khoaHoc;
     private String heDaoTao;
+    private List<DangKyHoc> dangKyHocs = new ArrayList<>();
 
     public SinhVien(Integer userID, String hoTen, String email,
                     String password, String vaiTro, String maSo,
@@ -76,6 +79,15 @@ public class SinhVien extends Users {
     public String getHeDaoTao() {
         return heDaoTao;
     }
+
+    public List<DangKyHoc> getDangKyHocs() {
+        return dangKyHocs;
+    }
+
+    public void setDangKyHocs(List<DangKyHoc> dangKyHocs) {
+        this.dangKyHocs = dangKyHocs == null ? new ArrayList<>() : new ArrayList<>(dangKyHocs);
+    }
+
     public void setHeDaoTao(String heDaoTao) {
         this.heDaoTao = heDaoTao;
     }

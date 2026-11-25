@@ -8,7 +8,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /** Các truy vấn dữ liệu và thao tác sĩ số cho bảng LopHocPhan. */
 public class LopHocPhanDAO extends BaseDAO {
@@ -106,6 +108,43 @@ public class LopHocPhanDAO extends BaseDAO {
         }
     }
 
+    public LopHocPhan layChiTietTheoMa(String maLop) throws SQLException {
+        String sql = "SELECT MaLop, MaMon, MaGiangVien, HocKy, SiSoToiDa, SiSoHienTai, TrangThai "
+                + "FROM LopHocPhan WHERE MaLop = ?";
+        try (Connection conn = getConnection()) {
+            LopHocPhan lopHocPhan;
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setString(1, maLop);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (!rs.next()) return null;
+                    lopHocPhan = docLopHocPhan(rs);
+                }
+            }
+            lopHocPhan.setLichHoc(new LichHocDAO().layTheoMaLop(conn, maLop));
+            return lopHocPhan;
+        }
+    }
+
+    public List<LopHocPhan> layTheoMaMon(Connection conn, String maMon) throws SQLException {
+        String sql = "SELECT MaLop, MaMon, MaGiangVien, HocKy, SiSoToiDa, SiSoHienTai, TrangThai "
+                + "FROM LopHocPhan WHERE MaMon = ? ORDER BY HocKy DESC, MaLop";
+        List<LopHocPhan> lopHocPhan = new ArrayList<>();
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maMon);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    lopHocPhan.add(docLopHocPhan(rs));
+                }
+            }
+        }
+        Map<String, List<Model.LichHoc>> lichTheoLop =
+                new LichHocDAO().layTheoMaMon(conn, maMon);
+        for (LopHocPhan lop : lopHocPhan) {
+            lop.setLichHoc(lichTheoLop.getOrDefault(lop.getMaLop(), List.of()));
+        }
+        return lopHocPhan;
+    }
+
     public LopHocPhan layLopTheoMa(Connection conn, String maLop) throws SQLException {
         return layLopTheoMa(conn, maLop, false);
     }
@@ -157,18 +196,17 @@ public class LopHocPhanDAO extends BaseDAO {
             }
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    danhSach.add(new LopHocPhan(
-                            rs.getString("MaLop"),
-                            rs.getString("MaMon"),
-                            rs.getString("MaGiangVien"),
-                            rs.getString("HocKy"),
-                            rs.getObject("SiSoToiDa", Integer.class),
-                            rs.getObject("SiSoHienTai", Integer.class),
-                            rs.getString("TrangThai")
-                    ));
+                    danhSach.add(docLopHocPhan(rs));
                 }
             }
         }
         return danhSach;
+    }
+
+    private LopHocPhan docLopHocPhan(ResultSet rs) throws SQLException {
+        return new LopHocPhan(rs.getString("MaLop"), rs.getString("MaMon"),
+                rs.getString("MaGiangVien"), rs.getString("HocKy"),
+                rs.getObject("SiSoToiDa", Integer.class),
+                rs.getObject("SiSoHienTai", Integer.class), rs.getString("TrangThai"));
     }
 }

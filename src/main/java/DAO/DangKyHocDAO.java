@@ -6,9 +6,54 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import Model.DangKyHoc;
+import Model.DiemThanhPhan;
 import Model.LopHocThoiKhoaBieu;
+import Model.ThanhPhanDanhGia;
+import java.math.BigDecimal;
 
 public class DangKyHocDAO extends BaseDAO {
+
+    public List<DangKyHoc> layTheoMaSinhVien(Connection conn, String maSinhVien)
+            throws SQLException {
+        String sql = "SELECT dk.MaDangKy, dk.MaLop, dk.MaSinhVien, dk.NgayDangKy, "
+                + "dk.DiemTongKet, dk.TrangThai, d.MaDiemThanhPhan, d.MaThanhPhan, "
+                + "d.DiemDatDuoc, d.NgayNhap, tp.MaMon, tp.TenThanhPhan, tp.TrongSo, "
+                + "tp.ThuTu, tp.TrangThai AS TrangThaiThanhPhan "
+                + "FROM DangKyHoc dk LEFT JOIN DiemThanhPhan d ON d.MaDangKy = dk.MaDangKy "
+                + "LEFT JOIN ThanhPhanDanhGia tp ON tp.MaThanhPhan = d.MaThanhPhan "
+                + "WHERE dk.MaSinhVien = ? "
+                + "ORDER BY dk.NgayDangKy, dk.MaDangKy, d.MaThanhPhan";
+        Map<Integer, DangKyHoc> dangKyTheoMa = new LinkedHashMap<>();
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maSinhVien);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    int maDangKy = rs.getInt("MaDangKy");
+                    DangKyHoc dangKy = dangKyTheoMa.get(maDangKy);
+                    if (dangKy == null) {
+                        dangKy = new DangKyHoc(maDangKy, rs.getString("MaLop"),
+                                rs.getString("MaSinhVien"), rs.getTimestamp("NgayDangKy"),
+                                rs.getBigDecimal("DiemTongKet"), rs.getString("TrangThai"));
+                        dangKyTheoMa.put(maDangKy, dangKy);
+                    }
+                    int maDiemThanhPhan = rs.getInt("MaDiemThanhPhan");
+                    if (!rs.wasNull()) {
+                        BigDecimal diem = rs.getBigDecimal("DiemDatDuoc");
+                        DiemThanhPhan diemThanhPhan = new DiemThanhPhan(
+                                maDiemThanhPhan, maDangKy, rs.getInt("MaThanhPhan"), diem);
+                        diemThanhPhan.setNgayNhap(rs.getTimestamp("NgayNhap"));
+                        diemThanhPhan.setThanhPhanDanhGia(new ThanhPhanDanhGia(
+                                rs.getInt("MaThanhPhan"), rs.getString("MaMon"),
+                                rs.getString("TenThanhPhan"),
+                                rs.getBigDecimal("TrongSo"), rs.getObject("ThuTu", Integer.class),
+                                rs.getBoolean("TrangThaiThanhPhan")));
+                        dangKy.getDiemThanhPhan().add(diemThanhPhan);
+                    }
+                }
+            }
+        }
+        return new ArrayList<>(dangKyTheoMa.values());
+    }
 
     public boolean sinhVienConHoatDong(Connection conn, String maSinhVien) throws SQLException {
         String sql = "SELECT sv.MaSinhVien FROM SinhVien sv "

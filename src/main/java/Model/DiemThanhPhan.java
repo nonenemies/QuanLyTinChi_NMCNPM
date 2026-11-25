@@ -9,6 +9,7 @@ public class DiemThanhPhan {
     private int maThanhPhan;
     private BigDecimal diemDatDuoc;
     private Date ngayNhap;
+    private ThanhPhanDanhGia thanhPhanDanhGia;
 
     public DiemThanhPhan() {
     }
@@ -58,5 +59,13 @@ public class DiemThanhPhan {
 
     public void setNgayNhap(Date ngayNhap) {
         this.ngayNhap = ngayNhap;
+    }
+
+    public ThanhPhanDanhGia getThanhPhanDanhGia() {
+        return thanhPhanDanhGia;
+    }
+
+    public void setThanhPhanDanhGia(ThanhPhanDanhGia thanhPhanDanhGia) {
+        this.thanhPhanDanhGia = thanhPhanDanhGia;
     }
 }

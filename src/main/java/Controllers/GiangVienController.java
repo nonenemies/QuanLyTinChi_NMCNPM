@@ -5,7 +5,6 @@ import Model.GiangVien;
 import Model.LopHocPhan;
 import Model.ThanhPhanDanhGia;
 import Model.Users;
-import DAO.ThanhPhanDanhGiaDAO;
 import Services.DiemService;
 import Services.ServiceException;
 import javafx.collections.FXCollections;
@@ -26,7 +25,6 @@ import java.util.Optional;
 
 public class GiangVienController {
     private final DiemService dichVuDiem = new DiemService();
-    private final ThanhPhanDanhGiaDAO daoThanhPhanDanhGia = new ThanhPhanDanhGiaDAO();
     private final DecimalFormat dinhDangDiem = new DecimalFormat("0.##");
 
     @FXML private Label lblTrangThai;
@@ -168,7 +166,8 @@ public class GiangVienController {
         if (lopHoc == null || giangVien == null) return;
 
         try {
-            List<ThanhPhanDanhGia> cacThanhPhan = daoThanhPhanDanhGia.layTheoMon(lopHoc.getMaMon())
+            List<ThanhPhanDanhGia> cacThanhPhan = dichVuDiem
+                    .layThanhPhanDanhGia(giangVien, lopHoc.getMaLop())
                     .stream().filter(ThanhPhanDanhGia::getTrangThai)
                     .sorted(java.util.Comparator.comparing(ThanhPhanDanhGia::getThuTu,
                             java.util.Comparator.nullsLast(Integer::compareTo)))
@@ -197,7 +196,7 @@ public class GiangVienController {
             } else {
                 hienThiTrangThai("Đang xem bảng điểm " + lopHoc.getMaLop() + ".", false);
             }
-        } catch (ServiceException | java.sql.SQLException loiPhatSinh) {
+        } catch (ServiceException loiPhatSinh) {
             hienThiTrangThai("Không thể tải bảng điểm lớp học phần. Vui lòng thử lại.", true);
         }
     }

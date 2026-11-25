@@ -1,5 +1,8 @@
 package Model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Model ánh xạ tới bảng MonHoc trong database.
  */
@@ -10,6 +13,9 @@ public class MonHoc {
     private String loaiMon;
     private String moTa;
     private String trangThai;
+    private List<LopHocPhan> hocPhan = new ArrayList<>();
+    private List<ThanhPhanDanhGia> thanhPhanDanhGias = new ArrayList<>();
+    private List<MonTienQuyet> monTienQuyets = new ArrayList<>();
 
     public MonHoc() {
     }
@@ -70,5 +76,30 @@ public class MonHoc {
 
     public void setTrangThai(String trangThai) {
         this.trangThai = trangThai;
+    }
+
+    public List<LopHocPhan> getHocPhan() {
+        return hocPhan;
+    }
+
+    public void setHocPhan(List<LopHocPhan> hocPhan) {
+        this.hocPhan = hocPhan == null ? new ArrayList<>() : new ArrayList<>(hocPhan);
+    }
+
+    public List<ThanhPhanDanhGia> getThanhPhanDanhGias() {
+        return thanhPhanDanhGias;
+    }
+
+    public void setThanhPhanDanhGias(List<ThanhPhanDanhGia> thanhPhanDanhGias) {
+        this.thanhPhanDanhGias = thanhPhanDanhGias == null
+                ? new ArrayList<>() : new ArrayList<>(thanhPhanDanhGias);
+    }
+
+    public List<MonTienQuyet> getMonTienQuyets() {
+        return monTienQuyets;
+    }
+
+    public void setMonTienQuyets(List<MonTienQuyet> monTienQuyets) {
+        this.monTienQuyets = monTienQuyets == null ? new ArrayList<>() : new ArrayList<>(monTienQuyets);
     }
 }
