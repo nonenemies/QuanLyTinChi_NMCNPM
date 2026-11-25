@@ -5,13 +5,14 @@ import java.sql.SQLException;
 import DAO.DangKyHocDAO;
 import DAO.DotDangKyNganhDAO;
 import DAO.LopHocPhanDAO;
-import DAO.MonTienQuyetDAO;
+import DAO.MonHocDAO;
 import Model.ChuongTrinhDaoTao;
 import Model.DotDangKyNganh;
-import Model.MonTienQuyet;
 import Model.DangKyHoc;
 import Model.LopHocDangKy;
 import Model.LopHocThoiKhoaBieu;
+import Model.MonHoc;
+import Model.MonTienQuyet;
 import DAO.ChuongTrinhDaoTaoDAO;
 
 public class DangKyHocService {
@@ -20,6 +21,7 @@ public class DangKyHocService {
 
     private final DangKyHocDAO dangKyDAO = new DangKyHocDAO();
     private final LopHocPhanDAO lopHocPhanDAO = new LopHocPhanDAO();
+    private final MonHocDAO monHocDAO = new MonHocDAO();
     private final ChuongTrinhDaoTaoDAO chuongTrinhDaoTaoDAO = new ChuongTrinhDaoTaoDAO();
     private final DotDangKyNganhDAO dotDangKyNganhDAO = new DotDangKyNganhDAO();
 
@@ -62,6 +64,16 @@ public class DangKyHocService {
         if (lopHoc == null || !"HOAT_DONG".equals(lopHoc.getTrangThai())) {
             return "LOP_KHONG_HOAT_DONG";
         }
+        MonHoc monHoc = monHocDAO.layChiTietTheoMa(lopHoc.getMaMon());
+        if (monHoc == null) {
+            return "KHONG_HOP_LE";
+        }
+        var lopHocChiTiet = monHoc.getHocPhan().stream()
+                .filter(hocPhan -> maLop.equals(hocPhan.getMaLop()))
+                .findFirst().orElse(null);
+        if (lopHocChiTiet == null) {
+            return "KHONG_HOP_LE";
+        }
         DotDangKyNganh dotDangKy = dotDangKyNganhDAO.layDotDangKyHienTai(maSinhVien);
         if (dotDangKy == null) {
             return "DOT_DANG_KY_DA_DONG";
@@ -78,14 +90,13 @@ public class DangKyHocService {
         if (dangKyDAO.daDatMon(maSinhVien, lopHoc.getMaMon())) {
             return "DA_QUA_MON";
         }
-        if (!dangKyDAO.coLichHoc(maLop)) {
+        if (lopHocChiTiet.getLichHoc().isEmpty()) {
             return "LOP_CHUA_XEP_LICH";
         }
         if (dangKyDAO.coLopBiTrungLich(maSinhVien, maLop)) {
             return "TRUNG_LICH";
         }
-        for (MonTienQuyet prerequisite
-                : MonTienQuyetDAO.layDanhSachMonTienQuyet(lopHoc.getMaMon())) {
+        for (MonTienQuyet prerequisite : monHoc.getMonTienQuyets()) {
             if (!"HOAT_DONG".equals(prerequisite.getMonTienQuyet().getTrangThai())
                     || !dangKyDAO.kiemTraDaQuaMon(maSinhVien,
                             prerequisite.getMaMonTienQuyet())) {

@@ -1,7 +1,10 @@
 package DAO;
 
 import Model.BangDiemSinhVien;
+import Model.DangKyHoc;
+import Model.DiemThanhPhan;
 import Model.KetQuaHocTap;
+import Model.SinhVien;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -13,6 +16,46 @@ import java.util.Map;
 
 // Truy cập cơ sở dữ liệu để lưu điểm thành phần của sinh viên.
 public class DiemDAO extends BaseDAO {
+
+    public List<KetQuaHocTap> layKetQuaHocTap(SinhVien sinhVien) throws SQLException {
+        Map<String, DangKyHoc> dangKyTheoLop = new LinkedHashMap<>();
+        for (DangKyHoc dangKy : sinhVien.getDangKyHocs()) {
+            if (!"HUY".equals(dangKy.getTrangThai())) {
+                dangKyTheoLop.put(dangKy.getMaLop(), dangKy);
+            }
+        }
+
+        List<KetQuaHocTap> ketQuaCoThongTin = layKetQuaHocTap(sinhVien.getMaSinhVien());
+        List<KetQuaHocTap> ketQua = new ArrayList<>();
+        for (KetQuaHocTap thongTin : ketQuaCoThongTin) {
+            DangKyHoc dangKy = dangKyTheoLop.get(thongTin.getMaLop());
+            if (dangKy == null) continue;
+
+            List<String> diemThanhPhan = dangKy.getDiemThanhPhan().stream()
+                    .filter(diem -> diem.getThanhPhanDanhGia() != null
+                            && diem.getThanhPhanDanhGia().getTenThanhPhan() != null
+                            && diem.getDiemDatDuoc() != null)
+                    .sorted(java.util.Comparator.comparing(
+                            (DiemThanhPhan diem) -> diem.getThanhPhanDanhGia().getThuTu(),
+                            java.util.Comparator.nullsLast(Integer::compareTo))
+                            .thenComparingInt(DiemThanhPhan::getMaThanhPhan))
+                    .map(diem -> diem.getThanhPhanDanhGia().getTenThanhPhan()
+                            + ": " + diem.getDiemDatDuoc().toPlainString())
+                    .toList();
+            java.math.BigDecimal diemTongKet = dangKy.getDiemTongKet();
+            ketQua.add(new KetQuaHocTap(
+                    thongTin.getMaLop(),
+                    thongTin.getMaMon(),
+                    thongTin.getTenMon(),
+                    thongTin.getHocKy(),
+                    thongTin.getLichHoc(),
+                    thongTin.getSoTinChi(),
+                    diemTongKet == null ? null : diemTongKet.floatValue(),
+                    dangKy.getTrangThai(),
+                    String.join(" | ", diemThanhPhan)));
+        }
+        return ketQua;
+    }
 
     /** Lấy các học phần sinh viên đã đăng ký, không gồm các đăng ký đã hủy. */
     public List<KetQuaHocTap> layKetQuaHocTap(String maSinhVien) throws SQLException {

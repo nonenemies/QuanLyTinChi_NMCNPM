@@ -1,5 +1,8 @@
 package Model;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.math.BigDecimal;
 
 public class DangKyHoc {
@@ -10,6 +13,7 @@ public class DangKyHoc {
     private Date ngayDangKy;
     private BigDecimal diemTongKet;
     private String trangThai;
+    private List<DiemThanhPhan> diemThanhPhan = new ArrayList<>();
 
     public DangKyHoc() {
     }
@@ -74,5 +78,14 @@ public class DangKyHoc {
 
     public void setTrangThai(String trangThai) {
         this.trangThai = trangThai;
+    }
+
+    public List<DiemThanhPhan> getDiemThanhPhan() {
+        return diemThanhPhan;
+    }
+
+    public void setDiemThanhPhan(List<DiemThanhPhan> diemThanhPhan) {
+        this.diemThanhPhan = diemThanhPhan == null
+                ? new ArrayList<>() : new ArrayList<>(diemThanhPhan);
     }
 }

@@ -67,6 +67,25 @@ public class MonHocDAO extends BaseDAO {
                 + "FROM MonHoc ORDER BY MaMon");
     }
 
+    public MonHoc layChiTietTheoMa(String maMon) throws SQLException {
+        String sql = "SELECT MaMon, TenMon, SoTinChi, LoaiMon, MoTa, TrangThai "
+                + "FROM MonHoc WHERE MaMon = ?";
+        try (Connection conn = getConnection()) {
+            MonHoc monHoc;
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setString(1, maMon);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (!rs.next()) return null;
+                    monHoc = docMonHoc(rs);
+                }
+            }
+            monHoc.setHocPhan(new LopHocPhanDAO().layTheoMaMon(conn, maMon));
+            monHoc.setThanhPhanDanhGias(new ThanhPhanDanhGiaDAO().layTheoMon(conn, maMon));
+            monHoc.setMonTienQuyets(MonTienQuyetDAO.layDanhSachMonTienQuyet(conn, maMon));
+            return monHoc;
+        }
+    }
+
     private List<MonHoc> truyVanDanhSach(String sql) throws SQLException {
         List<MonHoc> danhSach = new ArrayList<>();
         try (Connection conn = getConnection();

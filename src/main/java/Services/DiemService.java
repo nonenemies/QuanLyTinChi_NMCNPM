@@ -2,6 +2,8 @@ package Services;
 
 import DAO.DiemDAO;
 import DAO.LopHocPhanDAO;
+import DAO.MonHocDAO;
+import DAO.SinhVienDAO;
 import Model.BangDiemSinhVien;
 import Model.KetQuaHocTap;
 import Model.GiangVien;
@@ -21,6 +23,8 @@ public class DiemService {
     private static final Pattern MAU_HOC_KY = Pattern.compile("^(\\d{4})-(\\d+)$");
     private final DiemDAO diemDAO = new DiemDAO();
     private final LopHocPhanDAO lopHocPhanDAO = new LopHocPhanDAO();
+    private final SinhVienDAO sinhVienDAO = new SinhVienDAO();
+    private final MonHocDAO monHocDAO = new MonHocDAO();
 
     public List<KetQuaHocTap> layKetQuaHocTap(SinhVien sinhVien) {
         if (sinhVien == null || !"SINHVIEN".equalsIgnoreCase(sinhVien.getVaiTro())
@@ -30,7 +34,12 @@ public class DiemService {
         }
 
         try {
-            return diemDAO.layKetQuaHocTap( sinhVien.getMaSinhVien());
+            SinhVien sinhVienChiTiet = sinhVienDAO.layChiTietTheoMaSinhVien(
+                    sinhVien.getMaSinhVien());
+            if (sinhVienChiTiet == null) {
+                throw new ServiceException("Không tìm thấy hồ sơ sinh viên.");
+            }
+            return diemDAO.layKetQuaHocTap(sinhVienChiTiet);
         } catch (SQLException e) {
             throw new ServiceException("Không thể tải bảng điểm tổng kết.", e);
         } catch (RuntimeException e) {
@@ -94,6 +103,28 @@ public class DiemService {
             throw new ServiceException("Không thể tải bảng điểm lớp học phần.", e);
         } catch (RuntimeException e) {
             throw ServiceException.chuyenThanhLoiDichVu("Không thể tải bảng điểm lớp học phần.", e);
+        }
+    }
+
+    public List<ThanhPhanDanhGia> layThanhPhanDanhGia(GiangVien giangVien, String maLop) {
+        kiemTraGiangVien(giangVien);
+        try {
+            kiemTraPhuTrach(giangVien, maLop);
+            LopHocPhan lopHocPhan = lopHocPhanDAO.layLopTheoMa(maLop);
+            if (lopHocPhan == null) {
+                throw new ServiceException("Không tìm thấy lớp học phần được chọn.");
+            }
+            Model.MonHoc monHoc = monHocDAO.layChiTietTheoMa(lopHocPhan.getMaMon());
+            if (monHoc == null || monHoc.getHocPhan().stream()
+                    .noneMatch(hocPhan -> maLop.equals(hocPhan.getMaLop()))) {
+                throw new ServiceException("Không tìm thấy môn học của lớp được chọn.");
+            }
+            return monHoc.getThanhPhanDanhGias();
+        } catch (SQLException e) {
+            throw new ServiceException("Không thể tải thành phần đánh giá của môn học.", e);
+        } catch (RuntimeException e) {
+            throw ServiceException.chuyenThanhLoiDichVu(
+                    "Không thể tải thành phần đánh giá của môn học.", e);
         }
     }
 

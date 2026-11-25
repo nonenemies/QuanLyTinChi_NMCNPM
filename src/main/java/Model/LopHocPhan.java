@@ -1,5 +1,8 @@
 package Model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Model ánh xạ tới bảng LopHocPhan trong database.
  */
@@ -11,6 +14,7 @@ public class LopHocPhan {
     private Integer siSoToiDa;
     private Integer siSoHienTai;
     private String trangThai;
+    private List<LichHoc> lichHoc = new ArrayList<>();
 
     public LopHocPhan() {
     }
@@ -80,5 +84,13 @@ public class LopHocPhan {
 
     public void setTrangThai(String trangThai) {
         this.trangThai = trangThai;
+    }
+
+    public List<LichHoc> getLichHoc() {
+        return lichHoc;
+    }
+
+    public void setLichHoc(List<LichHoc> lichHoc) {
+        this.lichHoc = lichHoc == null ? new ArrayList<>() : new ArrayList<>(lichHoc);
     }
 }

@@ -2,8 +2,6 @@ package DAO;
 
 import Model.SinhVien;
 import Model.Nganh;
-import Util.DBConnection;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -27,6 +25,38 @@ public class SinhVienDAO extends BaseDAO {
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next() ? docSinhVien(rs) : null;
             }
+        }
+    }
+
+    public SinhVien layChiTietTheoMaSinhVien(String maSinhVien) throws SQLException {
+        try (Connection conn = getConnection()) {
+            SinhVien sinhVien;
+            try (PreparedStatement ps = conn.prepareStatement(SELECT + "WHERE sv.MaSinhVien = ?")) {
+                ps.setString(1, maSinhVien);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (!rs.next()) return null;
+                    sinhVien = docSinhVien(rs);
+                }
+            }
+            sinhVien.setDangKyHocs(
+                    new DangKyHocDAO().layTheoMaSinhVien(conn, sinhVien.getMaSinhVien()));
+            return sinhVien;
+        }
+    }
+
+    public SinhVien layChiTietTheoUserID(int userID) throws SQLException {
+        try (Connection conn = getConnection()) {
+            SinhVien sinhVien;
+            try (PreparedStatement ps = conn.prepareStatement(SELECT + "WHERE sv.UserID = ?")) {
+                ps.setInt(1, userID);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (!rs.next()) return null;
+                    sinhVien = docSinhVien(rs);
+                }
+            }
+            sinhVien.setDangKyHocs(
+                    new DangKyHocDAO().layTheoMaSinhVien(conn, sinhVien.getMaSinhVien()));
+            return sinhVien;
         }
     }
 
